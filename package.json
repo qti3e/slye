@@ -2,5 +2,11 @@
   "dependencies": {
     "fontkit": "^1.8.0",
     "three": "^0.103.0"
+  },
+  "scripts": {
+    "build-wasm": "emcc module/*.c -O3 -s WASM=1 -s SIDE_MODULE=1 -s EXPORTED_FUNCTIONS='[\"_init\"]' -o slye.wasm; mv slye.wasm slye.sm"
+  },
+  "devDependencies": {
+    "typescript": "^3.4.4"
   }
 }

@@ -5,8 +5,9 @@
     "removeComments": true,
     "preserveConstEnums": true,
     "sourceMap": true,
+    "downlevelIteration": true,
     "lib": ["ES2015", "DOM"]
   },
-  "include": ["src/**/*"],
+  "include": ["core/**/*", "demo/**/*", "*.d.ts"],
   "exclude": ["node_modules", "**/*.spec.ts"]
 }

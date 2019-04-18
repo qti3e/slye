@@ -8,4 +8,16 @@
  *       Copyright 2019 Parsa Ghadimi. All Rights Reserved.
  */
 
-export class SlyeComponent {}
+/**
+ * Vector 3 type.
+ */
+export interface Vec3 {
+  x: number;
+  y: number;
+  z: number;
+}
+
+/**
+ * Golden ratio.
+ */
+export const GR = 1.61803398875;
