@@ -10,12 +10,13 @@ server.setServer({
     return res.arrayBuffer();
   },
   fetchModuleAsset(moduleName: string, assetKey: string): Promise<ArrayBuffer> {
-    return undefined;
+    return null;
   }
 });
 
 async function main() {
-  loadModule("slye");
+  const m1 = await loadModule("slye");
+  m1.component("text");
 }
 
 window.onload = main;

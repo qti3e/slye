@@ -60,7 +60,7 @@ declare namespace WebAssembly {
   class Table {
     readonly length: number;
     constructor(tableDescriptor: TableDescriptor);
-    get(index: number): Function;
+    get(index: number): (...args: any[]) => any;
     grow(numElements: number): number;
     set(index: number, value: Function): void;
   }
