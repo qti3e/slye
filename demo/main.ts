@@ -26,10 +26,11 @@ async function main() {
   const p = new Presentation(window.innerWidth, window.innerHeight);
 
   const s1 = new Step();
-  p.add(s1);
 
   const c1 = await component("slye", "text");
   s1.add(c1);
+
+  p.add(s1);
 
   document.body.appendChild(p.domElement);
 
@@ -49,6 +50,7 @@ async function main() {
   }
 
   window.addEventListener("resize", onWindowResize, false);
+  window.addEventListener("click", p.onClick, false);
 
   render();
 }

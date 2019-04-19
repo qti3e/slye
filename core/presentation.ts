@@ -8,9 +8,15 @@
  *       Copyright 2019 Parsa Ghadimi. All Rights Reserved.
  */
 
-import { WebGLRenderer, Scene, PerspectiveCamera } from "three";
+import {
+  Vector2,
+  Raycaster,
+  WebGLRenderer,
+  Scene,
+  PerspectiveCamera
+} from "three";
+import { Component, SlyeComponent } from "./component";
 import { Step } from "./step";
-import { Vec3 } from "./math";
 
 /**
  * Main part of the API, provides set of functions to work with
@@ -54,6 +60,21 @@ export class Presentation {
   private frame: number = 0;
 
   /**
+   * Raycaster - to handle events such as click.
+   */
+  private readonly raycaster: Raycaster = new Raycaster();
+
+  /**
+   * Mouse position - part of the raycaster implementation.
+   */
+  private readonly mouse: Vector2 = new Vector2();
+
+  /**
+   * Cache of components that are clickable.
+   */
+  private raycasterComponentsCache: Component[] = [];
+
+  /**
    * @param width Width of view port.
    * @param height Height of view port.
    * @param fov Camera's Field Of View.
@@ -75,6 +96,8 @@ export class Presentation {
     this.domElement = this.renderer.domElement;
 
     this.camera.position.z = 5;
+
+    this.onClick = this.onClick.bind(this);
   }
 
   /**
@@ -129,7 +152,44 @@ export class Presentation {
       this.n = -this.n;
     }
 
-    this.camera.rotation.x += this.n;
+    //this.camera.rotation.x += this.n;
+  }
+
+  onClick(event: MouseEvent): void {
+    // calculate mouse position in normalized device coordinates
+    // (-1 to +1) for both components
+
+    this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+    this.raycaster.setFromCamera(this.mouse, this.camera);
+
+    // calculate objects intersecting the picking ray
+    const intersects = this.raycaster.intersectObjects(
+      this.raycasterComponentsCache.map(x => x.group),
+      true
+    );
+
+    let tmp: Component;
+    let component: Component;
+    let minDistance: number = Infinity; 
+
+    for (let i = 0; i < intersects.length; ++i) {
+      if (intersects[i].distance > minDistance) continue;
+      let current = intersects[i].object;
+      for (; current; current = current.parent) {
+        tmp = current.userData.component;
+        if (tmp instanceof SlyeComponent) {
+          component = tmp;
+          minDistance = intersects[i].distance;
+          break;
+        }
+      }
+    }
+
+    if (component) {
+      component.click();
+    }
   }
 
   /**
@@ -141,5 +201,27 @@ export class Presentation {
     s.use(this);
     this.steps.push(s);
     this.scene.add(s.group);
+    this.updateRaycastCache(s);
+  }
+
+  /**
+   * Recheck the given step.
+   */
+  updateRaycastCache(s: Step): void {
+    const newArray: Component[] = [];
+
+    for (const component of this.raycasterComponentsCache) {
+      if (component.owner !== s) {
+        newArray.push(component);
+      }
+    }
+
+    for (const c of s.components) {
+      if (c.isClickable) {
+        newArray.push(c);
+      }
+    }
+
+    this.raycasterComponentsCache = newArray;
   }
 }

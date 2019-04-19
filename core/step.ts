@@ -20,12 +20,12 @@ export class Step {
   /**
    * Owner.
    */
-  private presentation: Presentation;
+  readonly owner: Presentation;
 
   /**
    * Components.
    */
-  private components: Component[] = [];
+  components: Component[] = [];
 
   /**
    * Three.js Group for this step.
@@ -40,8 +40,8 @@ export class Step {
    * Set the owner - it can only be called one.
    */
   use(p: Presentation): void | never {
-    if (this.presentation) throw new Error("Can not reuse a step.");
-    this.presentation = p;
+    if (this.owner) throw new Error("Can not reuse a step.");
+    (this as any).owner = p;
   }
 
   /**
@@ -58,7 +58,7 @@ export class Step {
    */
   add(c: Component): void {
     this.components.push(c);
-    c.step(this);
+    c.setStep(this);
     this.group.add(c.group);
   }
 

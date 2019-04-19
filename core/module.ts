@@ -18,10 +18,6 @@ export interface Module {
   component(name: string): Component;
 }
 
-export interface WAsmInterface {
-  use(c: SlyeComponent): void;
-}
-
 export class ModuleImpl implements Module {
   private readonly components: Map<string, ComponentInit> = new Map();
   private readonly assets: Asset<string>;
@@ -61,7 +57,8 @@ export class ModuleImpl implements Module {
       _slog: this.slog.bind(this),
 
       // For components.
-      _on_render: this.on_render.bind(this),
+      _on_render: this.onRender.bind(this),
+      _on_click: this.onClick.bind(this)
     };
 
     this.wait = new Promise(r => (this.waitResolve = r));
@@ -89,9 +86,10 @@ export class ModuleImpl implements Module {
   component(name: string): SlyeComponent {
     const init = this.components.get(name);
     const c = new SlyeComponent();
-    c.use = () => this.use(c);
+    // Set a private value.
+    (c as any).use = () => this.use(c);
 
-    c.use();
+    this.use(c);
     init();
 
     return c;
@@ -120,8 +118,14 @@ export class ModuleImpl implements Module {
     return 0;
   }
 
-  private on_render(cb: number): void {
-    this.currentComponent.renderCb = this.table.get(cb);
+  private onRender(cbPtr: number): void {
+    const cb = this.table.get(cbPtr);
+    this.currentComponent.setRenderHandler(cb);
+  }
+
+  private onClick(cbPtr: number): void {
+    const cb = this.table.get(cbPtr);
+    this.currentComponent.setClickHandler(cb);
   }
 }
 
@@ -139,6 +143,9 @@ export async function loadModule(name: string): Promise<Module> {
   return wasm;
 }
 
+/**
+ * Create a component from a module.
+ */
 export async function component(
   moduleName: string,
   componentName: string

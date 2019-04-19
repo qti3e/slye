@@ -12,11 +12,17 @@ import { BoxGeometry, MeshBasicMaterial, Mesh, Group } from "three";
 import { Step } from "./step";
 
 export type ComponentInit = () => number;
+export type ClickHandler = () => void;
+export type RenderHandler = (frame: number) => void;
 
 export interface Component {
-  render(frame: number): void;
-  step(s: Step): void;
   group: Group;
+  isClickable: boolean;
+  setStep(s: Step): void;
+  owner: Step;
+  // Event handlers
+  click(): void;
+  render(frame: number): void;
 }
 
 /**
@@ -25,22 +31,30 @@ export interface Component {
  * @internal
  */
 export class SlyeComponent implements Component {
-  private owner: Step;
-
-  group: Group;
+  /**
+   * This function is set by module.ts when this class is created.
+   * It must be called before any WAsm function call.
+   */
+  private readonly use: () => void;
 
   /**
-   * WAsm function.
+   * Step which contains this component.
    */
-  renderCb: (frame: number) => void;
+  readonly owner: Step;
 
   /**
-   * Before every wasm call we must first call this function.
+   * Three.js group for this component.
    */
-  use: () => void;
+  readonly group: Group;
+
+  /**
+   * Whatever this component is clickable or not.
+   */
+  isClickable = false;
 
   constructor() {
     this.group = new Group();
+    this.group.userData.component = this;
 
     var geometry = new BoxGeometry(1, 1, 1);
     var material = new MeshBasicMaterial({ color: 0x00ff00 });
@@ -49,16 +63,32 @@ export class SlyeComponent implements Component {
     setTimeout(() => this.group.add(cube), 2500);
   }
 
-  step(s: Step): void {
+  setStep(s: Step): void {
     if (this.owner) {
       this.owner.del(this);
     }
-    this.owner = s;
+    (this as any).owner = s;
   }
 
-  render(frame: number): void {
-    if (!this.renderCb) return;
-    this.use();
-    this.renderCb(frame);
+  setClickHandler(cb: ClickHandler): void {
+    this.isClickable = true;
+    this.click = () => {
+      this.use();
+      cb();
+    };
+    // Ugly but it works.
+    if (this.owner && this.owner.owner) {
+      this.owner.owner.updateRaycastCache(this.owner);
+    }
   }
+
+  setRenderHandler(cb: RenderHandler): void {
+    this.render = (frame: number) => {
+      this.use();
+      cb(frame);
+    };
+  }
+
+  render(frame: number): void {}
+  click(): void {}
 }
