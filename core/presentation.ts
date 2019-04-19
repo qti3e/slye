@@ -21,7 +21,7 @@ export class Presentation {
   /**
    * Active steps in the current presentation.
    */
-  private readonly steps: Step[];
+  private readonly steps: Step[] = [];
 
   /**
    * Three.js scene.
@@ -51,7 +51,7 @@ export class Presentation {
   /**
    * Current frame number.
    */
-  private frame: number;
+  private frame: number = 0;
 
   /**
    * @param width Width of view port.
@@ -74,7 +74,7 @@ export class Presentation {
     this.renderer.setSize(width, height);
     this.domElement = this.renderer.domElement;
 
-    this.frame = 0;
+    this.camera.position.z = 5;
   }
 
   /**
@@ -91,6 +91,9 @@ export class Presentation {
     this.height = height;
   }
 
+  // Debug.
+  n = 0.005;
+
   /**
    * Render the presentation into the given canvas at the given frame.
    *
@@ -100,8 +103,33 @@ export class Presentation {
   render(): void {
     this.frame++;
 
-    // TODO(qti3e) A lot of more stuff should happen here.
+    if (this.steps.length) {
+      if (this.steps.length <= 5) {
+        for (let i = 0; i < this.steps.length; ++i) {
+          this.steps[i].render(this.frame);
+        }
+      } else {
+        if (this.currentStep) {
+          this.steps[this.currentStep].render(this.frame);
+        }
+        // At most render 5 steps in each step.
+        let base = (this.frame * 5) % this.steps.length;
+        for (let i = 0; i < 5; ++i) {
+          let id = (base + i) % this.steps.length;
+          // Don't render it twice.
+          if (id == this.currentStep) continue;
+          this.steps[id].render(this.frame);
+        }
+      }
+    }
+
     this.renderer.render(this.scene, this.camera);
+
+    if (Math.abs(this.camera.rotation.x) > 0.5) {
+      this.n = -this.n;
+    }
+
+    this.camera.rotation.x += this.n;
   }
 
   /**
@@ -112,5 +140,6 @@ export class Presentation {
   add(s: Step): void {
     s.use(this);
     this.steps.push(s);
+    this.scene.add(s.group);
   }
 }

@@ -8,18 +8,68 @@
  *       Copyright 2019 Parsa Ghadimi. All Rights Reserved.
  */
 
+import { Group } from "three";
 import { Presentation } from "./presentation";
-import { Vec3 } from "./math";
+import { Component } from "./component";
 
+/**
+ * An step is a slie, it is part of a presentation and has a few
+ * different components in it.
+ */
 export class Step {
+  /**
+   * Owner.
+   */
   private presentation: Presentation;
-  position: Vec3;
-  rotation: Vec3;
 
+  /**
+   * Components.
+   */
+  private components: Component[] = [];
+
+  /**
+   * Three.js Group for this step.
+   */
+  group: Group;
+
+  constructor() {
+    this.group = new Group();
+  }
+
+  /**
+   * Set the owner - it can only be called one.
+   */
   use(p: Presentation): void | never {
     if (this.presentation) throw new Error("Can not reuse a step.");
     this.presentation = p;
   }
 
-  render(frame: number) {}
+  /**
+   * Render components.
+   */
+  render(frame: number): void {
+    for (let i = 0; i < this.components.length; ++i) {
+      this.components[i].render(frame);
+    }
+  }
+
+  /**
+   * Add/Move component c into this step.
+   */
+  add(c: Component): void {
+    this.components.push(c);
+    c.step(this);
+    this.group.add(c.group);
+  }
+
+  /**
+   * Remove the given component from this step.
+   */
+  del(c: Component): void {
+    const index = this.components.indexOf(c);
+    if (index > -1) {
+      this.components.splice(index, 1);
+      this.group.remove(c.group);
+    }
+  }
 }

@@ -8,7 +8,8 @@
  *       Copyright 2019 Parsa Ghadimi. All Rights Reserved.
  */
 
-import { fetchWAsm } from "./server";
+import { Asset } from "./asset";
+import { fetchWAsm, fetchModuleAsset } from "./server";
 import { Component, ComponentInit, SlyeComponent } from "./component";
 
 const modulesTable: Map<string, Module> = new Map();
@@ -23,6 +24,7 @@ export interface WAsmInterface {
 
 export class ModuleImpl implements Module {
   private readonly components: Map<string, ComponentInit> = new Map();
+  private readonly assets: Asset<string>;
 
   private readonly memory: WebAssembly.Memory;
   private readonly table: WebAssembly.Table;
@@ -35,16 +37,15 @@ export class ModuleImpl implements Module {
 
   private readonly uint8: Uint8Array;
 
-  constructor(buffer: ArrayBuffer) {
+  constructor(buffer: ArrayBuffer, private readonly name: string) {
     this.memory = new WebAssembly.Memory({
-      initial: 512
+      initial: 256
     });
 
     this.table = new WebAssembly.Table({
       // I don't actually know the range that is suitable for this,
       // so just use my lucky number.
-      initial: 27,
-      maximum: 54,
+      initial: 10,
       element: "anyfunc"
     });
 
@@ -57,7 +58,10 @@ export class ModuleImpl implements Module {
       abort() {},
       _register_component: this.registerComponent.bind(this),
       _load_local: this.loadLocal.bind(this),
-      _slog: this.slog.bind(this)
+      _slog: this.slog.bind(this),
+
+      // For components.
+      _on_render: this.on_render.bind(this),
     };
 
     this.wait = new Promise(r => (this.waitResolve = r));
@@ -65,6 +69,8 @@ export class ModuleImpl implements Module {
       (this as any).instance = ret.instance;
       this.waitResolve();
     });
+
+    this.assets = new Asset<string>(key => fetchModuleAsset(name, key));
 
     this.uint8 = new Uint8Array(this.memory.buffer);
   }
@@ -113,6 +119,10 @@ export class ModuleImpl implements Module {
   private loadLocal(): number {
     return 0;
   }
+
+  private on_render(cb: number): void {
+    this.currentComponent.renderCb = this.table.get(cb);
+  }
 }
 
 /**
@@ -122,7 +132,7 @@ export async function loadModule(name: string): Promise<Module> {
   if (modulesTable.has(name)) return modulesTable.get(name);
 
   const buf = await fetchWAsm(name);
-  const wasm = new ModuleImpl(buf);
+  const wasm = new ModuleImpl(buf, name);
   await wasm.init();
 
   modulesTable.set(name, wasm);

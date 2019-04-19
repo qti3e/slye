@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "fontkit": "^1.8.0",
+    "stats.js": "^0.17.0",
     "three": "^0.103.0"
   },
   "scripts": {
