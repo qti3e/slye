@@ -25,6 +25,8 @@ export interface Component {
   render(frame: number): void;
 }
 
+export type PropValue = string | number | undefined;
+
 /**
  * Component implementation.
  *
@@ -36,6 +38,11 @@ export class SlyeComponent implements Component {
    * It must be called before any WAsm function call.
    */
   private readonly use: () => void;
+
+  /**
+   * Props.
+   */
+  private readonly props: Map<string, PropValue> = new Map();
 
   /**
    * Step which contains this component.
@@ -52,15 +59,15 @@ export class SlyeComponent implements Component {
    */
   isClickable = false;
 
-  constructor() {
+  constructor(props: Record<string, PropValue>) {
     this.group = new Group();
     this.group.userData.component = this;
 
-    var geometry = new BoxGeometry(1, 1, 1);
-    var material = new MeshBasicMaterial({ color: 0x00ff00 });
-    var cube = new Mesh(geometry, material);
+    for (const key in props) {
+      this.props.set(key, props[key]);
+    }
 
-    setTimeout(() => this.group.add(cube), 2500);
+    window.g = this;
   }
 
   setStep(s: Step): void {

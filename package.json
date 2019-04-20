@@ -8,6 +8,7 @@
     "build-wasm": "emcc module/*.c -O3 -s WASM=1 -s SIDE_MODULE=1 -s EXPORTED_FUNCTIONS='[\"_init\"]' -o slye.wasm; mv slye.wasm slye.sm"
   },
   "devDependencies": {
+    "@types/node": "^11.13.6",
     "cssnano": "^4.1.10",
     "typescript": "^3.4.4"
   }

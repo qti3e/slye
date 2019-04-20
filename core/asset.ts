@@ -23,6 +23,11 @@ export class Asset<Key = string> {
   private readonly data: Map<number, ArrayBuffer> = new Map();
 
   /**
+   * Pending promises.
+   */
+  private readonly promises: Map<number, Promise<ArrayBuffer>> = new Map();
+
+  /**
    * Map asset keys to their id.
    */
   private readonly key2id: Map<Key, number> = new Map();
@@ -59,9 +64,13 @@ export class Asset<Key = string> {
    */
   async getData(index: number): Promise<ArrayBuffer> {
     if (this.data.has(index)) return this.data.get(index);
+    if (this.promises.has(index)) return await this.promises.get(index);
     const key = this.id2key.get(index);
-    const data = await this.fetch(key);
+    const promise = this.fetch(key);
+    this.promises.set(index, promise);
+    const data = await promise;
     this.data.set(index, data);
+    this.promises.delete(index);
     return data;
   }
 }

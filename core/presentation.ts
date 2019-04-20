@@ -172,7 +172,7 @@ export class Presentation {
 
     let tmp: Component;
     let component: Component;
-    let minDistance: number = Infinity; 
+    let minDistance: number = Infinity;
 
     for (let i = 0; i < intersects.length; ++i) {
       if (intersects[i].distance > minDistance) continue;

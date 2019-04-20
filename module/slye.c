@@ -10,27 +10,23 @@
 
 extern void register_component(char *name, void init());
 extern void slog(char *msg);
+extern int load_local(char *asset);
+extern void register_font(char *name, int asset_ref);
 extern void on_render(void render(int));
 extern void on_click(void click());
-
-void text_render(int frame)
-{
-        /*slog("Render");*/
-}
-
-void text_click()
-{
-        slog("Click!");
-}
 
 void text_init()
 {
         slog("Hey!");
-        on_render(text_render);
-        on_click(text_click);
 }
 
 int init()
 {
+        register_font("homa", load_local("homa.ttf"));
+        register_font("emoji", load_local("emoji.ttf"));
+        register_font("sahel", load_local("sahel.ttf"));
+
         register_component("text", text_init);
+
+        return 0;
 }

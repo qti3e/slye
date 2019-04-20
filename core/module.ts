@@ -8,18 +8,29 @@
  *       Copyright 2019 Parsa Ghadimi. All Rights Reserved.
  */
 
+import * as mem from "./mem";
+import * as THREE from "three";
 import { Asset } from "./asset";
 import { fetchWAsm, fetchModuleAsset } from "./server";
-import { Component, ComponentInit, SlyeComponent } from "./component";
+import { Font, FontImpl } from "./font";
+import {
+  Component,
+  ComponentInit,
+  SlyeComponent,
+  PropValue
+} from "./component";
 
 const modulesTable: Map<string, Module> = new Map();
 
 export interface Module {
-  component(name: string): Component;
+  component(name: string, props: Record<string, PropValue>): Component;
+  getFonts(): string[];
+  font(name: string): Font;
 }
 
 export class ModuleImpl implements Module {
   private readonly components: Map<string, ComponentInit> = new Map();
+  private readonly fonts: Map<string, Font> = new Map();
   private readonly assets: Asset<string>;
 
   private readonly memory: WebAssembly.Memory;
@@ -53,8 +64,9 @@ export class ModuleImpl implements Module {
       // Callables.
       abort() {},
       _register_component: this.registerComponent.bind(this),
-      _load_local: this.loadLocal.bind(this),
       _slog: this.slog.bind(this),
+      _load_local: this.loadLocal.bind(this),
+      _register_font: this.registerFont.bind(this),
 
       // For components.
       _on_render: this.onRender.bind(this),
@@ -83,9 +95,12 @@ export class ModuleImpl implements Module {
     this.currentComponent = c;
   }
 
-  component(name: string): SlyeComponent {
+  component(
+    name: string,
+    props: Record<string, PropValue> = {}
+  ): SlyeComponent {
     const init = this.components.get(name);
-    const c = new SlyeComponent();
+    const c = new SlyeComponent(props);
     // Set a private value.
     (c as any).use = () => this.use(c);
 
@@ -93,6 +108,14 @@ export class ModuleImpl implements Module {
     init();
 
     return c;
+  }
+
+  getFonts(): string[] {
+    return [...this.fonts.keys()];
+  }
+
+  font(name: string): Font {
+    return this.fonts.get(name);
   }
 
   private readChar(ptr: number): string {
@@ -114,8 +137,17 @@ export class ModuleImpl implements Module {
     this.components.set(name, init);
   }
 
-  private loadLocal(): number {
-    return 0;
+  private loadLocal(namePtr: number): number {
+    const name = this.readChar(namePtr);
+    const id = this.assets.load(name);
+    return id;
+  }
+
+  private registerFont(namePtr: number, assetRef: number): void {
+    const name = this.readChar(namePtr);
+    const fetch = () => this.assets.getData(assetRef);
+    const font = new FontImpl(fetch);
+    this.fonts.set(name, font);
   }
 
   private onRender(cbPtr: number): void {
@@ -148,8 +180,9 @@ export async function loadModule(name: string): Promise<Module> {
  */
 export async function component(
   moduleName: string,
-  componentName: string
+  componentName: string,
+  props: Record<string, PropValue> = {}
 ): Promise<Component> {
   const m = await loadModule(moduleName);
-  return m.component(componentName);
+  return m.component(componentName, props);
 }
