@@ -2,10 +2,10 @@
 Slye's 3D abstraction.
 
 ## What we need?
- [ ] Text Rendering
- [ ] Images
- [ ] Videos
- [ ] Charts
+ - [ ] Text Rendering
+ - [ ] Images
+ - [ ] Videos
+ - [ ] Charts
 
 ## Specification
 3.js is a high level JavaScript library that collects 3D abstractions that are
