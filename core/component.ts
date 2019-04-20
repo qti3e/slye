@@ -9,6 +9,8 @@
  */
 
 import { BoxGeometry, MeshBasicMaterial, Mesh, Group } from "three";
+import { Font } from "./font";
+import { Mem } from "./mem";
 import { Step } from "./step";
 
 export type ComponentInit = () => number;
@@ -20,12 +22,15 @@ export interface Component {
   isClickable: boolean;
   setStep(s: Step): void;
   owner: Step;
-  // Event handlers
+  mem: Mem;
+  // Event handlers.
   click(): void;
   render(frame: number): void;
+  // PropsA.
+  getProp(key: string): PropValue;
 }
 
-export type PropValue = string | number | undefined;
+export type PropValue = string | number | undefined | Font;
 
 /**
  * Component implementation.
@@ -43,6 +48,11 @@ export class SlyeComponent implements Component {
    * Props.
    */
   private readonly props: Map<string, PropValue> = new Map();
+
+  /**
+   * Components heap memory - used to store data such as a material.
+   */
+  readonly mem: Mem = new Mem();
 
   /**
    * Step which contains this component.
@@ -67,7 +77,7 @@ export class SlyeComponent implements Component {
       this.props.set(key, props[key]);
     }
 
-    window.g = this;
+    //window.g = this;
   }
 
   setStep(s: Step): void {
@@ -94,6 +104,10 @@ export class SlyeComponent implements Component {
       this.use();
       cb(frame);
     };
+  }
+
+  getProp(key: string): PropValue {
+    return this.props.get(key);
   }
 
   render(frame: number): void {}

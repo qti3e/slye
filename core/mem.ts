@@ -8,37 +8,43 @@
  *       Copyright 2019 Parsa Ghadimi. All Rights Reserved.
  */
 
-const table: Map<number, unknown> = new Map();
-const gcTable: Map<number, number> = new Map();
+/**
+ * This kind of memory is used to store data such as
+ * a material, a mash or...
+ */
+export class Mem {
+  /**
+   * Internal table to store data.
+   * It maps refrences to values.
+   */
+  private readonly table: Map<number, unknown> = new Map();
 
-const freedIds: number[] = [];
-let lastId = 0;
+  /**
+   * Last refrence.
+   */
+  private lastId = 0;
 
-export function addValue(data: unknown): number {
-  const id = freedIds.pop() || lastId++;
-  table.set(id, data);
-  gcTable.set(id, 1);
-  return id;
-}
+  /**
+   * Clear table.
+   */
+  gc(): void {
+    this.table.clear();
+    this.lastId = 0;
+  }
 
-export function getValue(id: number): any {
-  if (id == -1) return undefined;
-  return table.get(id);
-}
+  /**
+   * Store data to the table.
+   */
+  store(value: unknown): number {
+    const id = this.lastId++;
+    this.table.set(id, value);
+    return id;
+  }
 
-export function retain(id: number): void {
-  if (id == -1) return;
-  gcTable.set(id, gcTable.get(id) + 1);
-}
-
-export function release(id: number): void {
-  if (id == -1) return;
-  const value = gcTable.get(id);
-  if (value === 1) {
-    gcTable.delete(id);
-    table.delete(id);
-    freedIds.push(id);
-  } else {
-    gcTable.set(id, value - 1);
+  /**
+   * Load value from memory.
+   */
+  load(id: number): any {
+    return this.table.get(id);
   }
 }

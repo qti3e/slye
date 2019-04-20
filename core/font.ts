@@ -62,13 +62,19 @@ export interface Glyph {
 }
 
 export interface Font {
+  readonly moduleName: string;
+  readonly name: string;
   layout(text: string): Promise<Glyph[]>;
 }
 
 export class FontImpl implements Font {
   private font: fontkit.Font;
 
-  constructor(private readonly fetch: () => Promise<ArrayBuffer>) {}
+  constructor(
+    private readonly fetch: () => Promise<ArrayBuffer>,
+    readonly moduleName: string,
+    readonly name: string
+  ) {}
 
   private async ensure(): Promise<void> {
     if (this.font) return;

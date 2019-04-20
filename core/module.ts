@@ -8,11 +8,11 @@
  *       Copyright 2019 Parsa Ghadimi. All Rights Reserved.
  */
 
-import * as mem from "./mem";
 import * as THREE from "three";
 import { Asset } from "./asset";
 import { fetchWAsm, fetchModuleAsset } from "./server";
-import { Font, FontImpl } from "./font";
+import { generateShapes } from "./draw";
+import { Glyph, Font, FontImpl } from "./font";
 import {
   Component,
   ComponentInit,
@@ -92,6 +92,11 @@ export class ModuleImpl implements Module {
   }
 
   use(c: SlyeComponent): void {
+    // We're switching the current component, so the execution of the
+    // last wasm function is over - just clear its memory.
+    if (this.currentComponent) {
+      this.currentComponent.mem.gc();
+    }
     this.currentComponent = c;
   }
 
@@ -146,7 +151,7 @@ export class ModuleImpl implements Module {
   private registerFont(namePtr: number, assetRef: number): void {
     const name = this.readChar(namePtr);
     const fetch = () => this.assets.getData(assetRef);
-    const font = new FontImpl(fetch);
+    const font = new FontImpl(fetch, this.name, name);
     this.fonts.set(name, font);
   }
 
@@ -158,6 +163,127 @@ export class ModuleImpl implements Module {
   private onClick(cbPtr: number): void {
     const cb = this.table.get(cbPtr);
     this.currentComponent.setClickHandler(cb);
+  }
+
+  // === Three.js API ===
+
+  private threeMeshBasicMaterial(color: number): number {
+    const material = new THREE.MeshBasicMaterial({
+      color
+    });
+    const ref = this.currentComponent.mem.store(material);
+    return ref;
+  }
+
+  private threeMaterialSet(ref: number, keyPtr: number, value: number): void {
+    const material = this.currentComponent.mem.load(ref);
+    const key = this.readChar(keyPtr);
+    material[key] = value;
+  }
+
+  private threePointLight(
+    color: number,
+    intensity: number,
+    distance: number
+  ): number {
+    const light = new THREE.PointLight(color, intensity, distance);
+    const ref = this.currentComponent.mem.store(light);
+    return ref;
+  }
+
+  private threeSetPosition(o: number, x: number, y: number, z: number): void {
+    const obj = this.currentComponent.mem.load(o);
+    obj.position.set(x, y, z);
+  }
+
+  private threeSetRotation(o: number, x: number, y: number, z: number): void {
+    const obj = this.currentComponent.mem.load(o);
+    obj.rotation.set(x, y, z);
+  }
+
+  private getStringPropRef(keyPtr: number): number {
+    const key = this.readChar(keyPtr);
+    const value = String(this.currentComponent.getProp(key));
+    const ref = this.currentComponent.mem.store(value);
+    return ref;
+  }
+
+  private getFontPropRef(keyPtr: number): number {
+    const key = this.readChar(keyPtr);
+    const value = this.currentComponent.getProp(key);
+    if (!(value instanceof FontImpl)) return -1;
+    const ref = this.currentComponent.mem.store(value);
+    return ref;
+  }
+
+  private getPop(keyPtr: number): number {
+    const key = this.readChar(keyPtr);
+    const value = this.currentComponent.getProp(key);
+    return Number(value);
+  }
+
+  private fontLayout(fontRef: number, textRef: number): number {
+    const font = this.currentComponent.mem.load(fontRef);
+    const value = this.currentComponent.mem.load(textRef);
+    if (typeof value != "string") return -1;
+    if (!(font instanceof FontImpl)) return -1;
+    const layoutPromise = font.layout(value);
+    const ref = this.currentComponent.mem.store(layoutPromise);
+    return ref;
+  }
+
+  private generateTextGeometry(
+    layoutRef: number,
+    steps: number,
+    depth: number,
+    bevelEnabled: boolean,
+    bevelThickness: number,
+    bevelSize: number,
+    bevelSegments: number
+  ): number {
+    const layoutPromise: Promise<Glyph[]> = this.currentComponent.mem.load(
+      layoutRef
+    );
+    const value = new Promise((resolve, reject) => {
+      layoutPromise
+        .then(layout => {
+          try {
+            const shape = generateShapes(layout);
+            const geometry = new THREE.ExtrudeGeometry(shape, {
+              steps,
+              depth,
+              bevelEnabled,
+              bevelThickness,
+              bevelSize,
+              bevelSegments
+            });
+            resolve(geometry);
+          } catch (e) {
+            reject(e);
+          }
+        })
+        .catch(reject);
+    });
+    const ref = this.currentComponent.mem.store(value);
+    return ref;
+  }
+
+  private threeMesh(geoRef: number, materialRef: number): number {
+    const value = new Promise(async (resolve, reject) => {
+      const geo = await this.currentComponent.mem.load(geoRef);
+      const material = await this.currentComponent.mem.load(materialRef);
+      const val = new THREE.Mesh(geo, material);
+      resolve(val);
+    });
+    const ref = this.currentComponent.mem.store(value);
+    return ref;
+  }
+
+  private addObj(objRef: number): void {
+    (async () => {
+      const obj = await this.currentComponent.mem.load(objRef);
+      this.currentComponent.group.add(obj);
+    })();
   }
 }
 
@@ -185,4 +311,12 @@ export async function component(
 ): Promise<Component> {
   const m = await loadModule(moduleName);
   return m.component(componentName, props);
+}
+
+export async function font(
+  moduleName: string,
+  fontName: string
+): Promise<Font> {
+  const m = await loadModule(moduleName);
+  return m.font(fontName);
 }
