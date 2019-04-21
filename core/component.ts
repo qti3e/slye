@@ -12,6 +12,7 @@ import { BoxGeometry, MeshBasicMaterial, Mesh, Group } from "three";
 import { Font } from "./font";
 import { Mem } from "./mem";
 import { Step } from "./step";
+import { Vec3 } from "./math";
 
 export type ComponentInit = () => number;
 export type ClickHandler = () => void;
@@ -26,8 +27,13 @@ export interface Component {
   // Event handlers.
   click(): void;
   render(frame: number): void;
-  // PropsA.
+  // Props.
   getProp(key: string): PropValue;
+  // Position & Rotation.
+  setPosition(x: number, y: number, z: number): void;
+  setRotation(x: number, y: number, z: number): void;
+  getPosition(x: number, y: number, z: number): Vec3;
+  getRotation(x: number, y: number, z: number): Vec3;
 }
 
 export type PropValue = string | number | undefined | Font;
@@ -108,6 +114,30 @@ export class SlyeComponent implements Component {
 
   getProp(key: string): PropValue {
     return this.props.get(key);
+  }
+
+  setPosition(x: number, y: number, z: number): void {
+    this.group.position.set(x, y, z);
+  }
+
+  setRotation(x: number, y: number, z: number): void {
+    this.group.rotation.set(x, y, z);
+  }
+
+  getPosition(x: number, y: number, z: number): Vec3 {
+    return {
+      x: this.group.position.x,
+      y: this.group.position.y,
+      z: this.group.position.z
+    };
+  }
+
+  getRotation(x: number, y: number, z: number): Vec3 {
+    return {
+      x: this.group.rotation.x,
+      y: this.group.rotation.y,
+      z: this.group.rotation.z
+    };
   }
 
   render(frame: number): void {}

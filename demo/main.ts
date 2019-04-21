@@ -41,6 +41,9 @@ async function main() {
 
   const p = new Presentation(window.innerWidth, window.innerHeight);
 
+  const template = await component("slye", "template");
+  p.setTemplate(template);
+
   const s1 = new Step();
   p.add(s1);
 
@@ -50,12 +53,21 @@ async function main() {
   });
   s1.add(c1);
 
-  const template = await component("slye", "template");
-  p.setTemplate(template);
+  const s2 = new Step();
+  p.add(s2);
+
+  const c2 = await component("slye", "text", {
+    text: "سلام!",
+    font: m1.font("sahel")
+  });
+  s2.add(c2);
+  s2.setPosition(20, 10, 0);
 
   (p as any).camera.position.z = 50;
 
   document.body.appendChild(p.domElement);
+  (window as any).p = p;
+  (window as any).THREE = THREE;
 
   const stats = new Stats();
   document.body.appendChild(stats.dom);

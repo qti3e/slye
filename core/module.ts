@@ -156,6 +156,10 @@ export class ModuleImpl implements Module {
       // For components.
       _on_render: this.onRender.bind(this),
       _on_click: this.onClick.bind(this),
+      _new_obj: this.newObj.bind(this),
+      _obj_set_string: this.objSetString.bind(this),
+      _obj_set_char: this.objSetChar.bind(this),
+      _obj_set_num: this.objSetNum.bind(this),
       _get_string_prop_ref: this.getStringPropRef.bind(this),
       _get_font_prop_ref: this.getFontPropRef.bind(this),
       _get_prop: this.getProp.bind(this),
@@ -164,6 +168,7 @@ export class ModuleImpl implements Module {
       _add_obj: this.addObj.bind(this),
 
       _three_mesh_basic_material: this.threeMeshBasicMaterial.bind(this),
+      _three_mesh_phong_material: this.threeMeshPhongMaterial.bind(this),
       _three_material_set: this.threeMaterialSet.bind(this),
       _three_point_light: this.threePointLight.bind(this),
       _three_set_position: this.threeSetPosition.bind(this),
@@ -247,7 +252,7 @@ export class ModuleImpl implements Module {
   // === EXPORTED WASM FUNCTIONS ===
 
   private slog(msgPtr: number): void {
-    console.log("wasm-log:", this.readChar(msgPtr));
+    console.log(`${this.name}:`, this.readChar(msgPtr));
   }
 
   /**
@@ -311,6 +316,31 @@ export class ModuleImpl implements Module {
   private onClick(cbPtr: number): void {
     const cb = this.table.get(cbPtr);
     this.currentComponent.setClickHandler(cb);
+  }
+
+  private newObj(): number {
+    const ref = this.currentComponent.mem.store({});
+    return ref;
+  }
+
+  private objSetString(objRef: number, keyPtr: number, strRef: number): void {
+    const obj = this.currentComponent.mem.load(objRef);
+    const key = this.readChar(keyPtr);
+    const str = this.currentComponent.mem.load(strRef);
+    obj[key] = str;
+  }
+
+  private objSetChar(objRef: number, keyPtr: number, strPtr: number): void {
+    const obj = this.currentComponent.mem.load(objRef);
+    const key = this.readChar(keyPtr);
+    const str = this.readChar(strPtr);
+    obj[key] = str;
+  }
+
+  private objSetNum(objRef: number, keyPtr: number, value: number): void {
+    const obj = this.currentComponent.mem.load(objRef);
+    const key = this.readChar(keyPtr);
+    obj[key] = value;
   }
 
   private getStringPropRef(keyPtr: number): number {
@@ -392,10 +422,16 @@ export class ModuleImpl implements Module {
 
   // === Three.JS API ===
 
-  private threeMeshBasicMaterial(color: number): number {
-    const material = new THREE.MeshBasicMaterial({
-      color
-    });
+  private threeMeshBasicMaterial(props: number): number {
+    const obj = this.currentComponent.mem.load(props);
+    const material = new THREE.MeshBasicMaterial(obj);
+    const ref = this.currentComponent.mem.store(material);
+    return ref;
+  }
+
+  private threeMeshPhongMaterial(props: number): number {
+    const obj = this.currentComponent.mem.load(props);
+    const material = new THREE.MeshPhongMaterial(obj);
     const ref = this.currentComponent.mem.store(material);
     return ref;
   }

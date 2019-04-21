@@ -259,8 +259,10 @@ export class Presentation {
     }
     // It will remove the component from its current owner, and also will
     // call updateRaycastCache in case it's needed.
-    component.setStep(undefined);
+    if (component) {
+      component.setStep(undefined);
+      this.scene.add(component.group);
+    }
     this.template = component;
-    this.scene.add(component.group);
   }
 }

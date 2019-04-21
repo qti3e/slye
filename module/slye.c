@@ -17,6 +17,11 @@ typedef int geometry_t;
 typedef int material_t;
 typedef int obj3d_t;
 typedef int asset_ref_t;
+typedef int obj_t;
+
+static const int THREE_FRONT_SIDE = 0;
+static const int THREE_BACK_SIDE = 1;
+static const int THREE_DOUBLE_SIDE = 2;
 
 extern void register_component(char *name, void init());
 extern void slog(char *msg);
@@ -24,6 +29,10 @@ extern asset_ref_t load_local(char *asset);
 extern void register_font(char *name, asset_ref_t asset);
 extern void on_render(void render(int));
 extern void on_click(void click());
+extern obj_t new_obj();
+extern void obj_set_string(obj_t o, char *key, string_ref_t str);
+extern void obj_set_char(obj_t o, char *key, char *str);
+extern void obj_set_num(obj_t o, char *key, int value);
 extern string_ref_t get_string_prop_ref(char *key);
 extern font_ref_t get_font_prop_ref(char *key);
 extern int get_prop(char *key);
@@ -31,9 +40,11 @@ extern font_layout_t font_layout(font_ref_t font, string_ref_t text);
 extern geometry_t generate_text_geometry(font_layout_t layout, int size,
                 float steps, float depth, int bevel_enabled,
                 int bevel_thickness, int bevel_size, int bevel_segments);
+
 extern void add_obj(obj3d_t obj);
 
-extern material_t three_mesh_basic_material(int color);
+extern material_t three_mesh_basic_material(obj_t props);
+extern material_t three_mesh_phong_material(obj_t props);
 extern void three_material_set(material_t m, char *key, float value);
 extern obj3d_t three_point_light(int color, float intensity, float distance);
 extern void three_set_position(obj3d_t obj, float x, float y, float z);
@@ -56,9 +67,13 @@ void text_init()
         font_layout_t layout = font_layout(font, str);
         geometry_t geo = generate_text_geometry(layout, 5, 2, 2, 0, 1, 1, 1);
 
-        material_t material = three_mesh_basic_material(0x156289);
-        /*three_material_set(material, "emissive", 0x072534);*/
-        /*three_material_set(material, "flatShading", 1);*/
+        obj_t mp = new_obj();
+        obj_set_num(mp, "color", 0x156289);
+        obj_set_num(mp, "emissive", 0x072534);
+        obj_set_num(mp, "flatShading", 1);
+        obj_set_num(mp, "side", THREE_DOUBLE_SIDE);
+
+        material_t material = three_mesh_phong_material(mp);
 
         obj3d_t mesh = three_mesh(geo, material);
         add_obj(mesh);

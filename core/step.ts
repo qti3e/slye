@@ -11,6 +11,7 @@
 import { Group } from "three";
 import { Presentation } from "./presentation";
 import { Component } from "./component";
+import { Vec3 } from "./math";
 
 /**
  * An step is a slie, it is part of a presentation and has a few
@@ -77,5 +78,29 @@ export class Step {
         this.owner.updateRaycastCache(this);
       }
     }
+  }
+
+  setPosition(x: number, y: number, z: number): void {
+    this.group.position.set(x, y, z);
+  }
+
+  setRotation(x: number, y: number, z: number): void {
+    this.group.rotation.set(x, y, z);
+  }
+
+  getPosition(x: number, y: number, z: number): Vec3 {
+    return {
+      x: this.group.position.x,
+      y: this.group.position.y,
+      z: this.group.position.z
+    };
+  }
+
+  getRotation(x: number, y: number, z: number): Vec3 {
+    return {
+      x: this.group.rotation.x,
+      y: this.group.rotation.y,
+      z: this.group.rotation.z
+    };
   }
 }
