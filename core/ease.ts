@@ -52,10 +52,11 @@ export class Ease<T> {
   private endFrame: number;
   private finished: boolean;
   private fn: EaseFunction;
+  private readonly original: Partial<T> & Record<string, number> = {};
 
   constructor(
     currentFrame: number,
-    numFrames: number,
+    private readonly numFrames: number,
     private readonly obj: T,
     private readonly target: Partial<T> & Record<string, number>,
     easeFunction: EaseFunctionName = "easeInOutQuad"
@@ -63,6 +64,12 @@ export class Ease<T> {
     this.start = currentFrame;
     this.endFrame = this.start + numFrames;
     this.finished = false;
+    this.fn = EasingFunctions[easeFunction];
+
+    for (const key in target) {
+      this.original[key] = (obj as any)[key];
+      this.target[key] -= this.original[key];
+    }
   }
 
   update(frame: number): void {
@@ -71,7 +78,7 @@ export class Ease<T> {
     let factor =
       frame >= this.endFrame
         ? 1
-        : this.fn((frame - this.start) / this.endFrame);
+        : this.fn((frame - this.start) / this.numFrames);
 
     // Floating point calculations are so inaccurate.
     // We don't want to mess up because of that.
@@ -80,7 +87,7 @@ export class Ease<T> {
     this.finished = factor == 1;
 
     for (const key in this.target) {
-      (this.obj as any)[key] = this.target[key] * factor;
+      (this.obj as any)[key] = this.original[key] + this.target[key] * factor;
     }
   }
 }

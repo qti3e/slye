@@ -10,6 +10,7 @@
 
 import {
   Vector2,
+  Vector3,
   Raycaster,
   WebGLRenderer,
   Scene,
@@ -17,6 +18,7 @@ import {
   Intersection,
   Group
 } from "three";
+import { Ease } from "./ease";
 import { Component, SlyeComponent } from "./component";
 import { Step } from "./step";
 
@@ -82,6 +84,11 @@ export class Presentation {
   private template: Component;
 
   /**
+   * Camera animation.
+   */
+  private cameraEase: Ease<Vector3>;
+
+  /**
    * @param width Width of view port.
    * @param height Height of view port.
    * @param fov Camera's Field Of View.
@@ -133,6 +140,10 @@ export class Presentation {
    */
   render(): void {
     this.frame++;
+
+    if (this.cameraEase) {
+      this.cameraEase.update(this.frame);
+    }
 
     if (this.frame % 5 === 0) {
       if (this.intersects().length) {
@@ -264,5 +275,13 @@ export class Presentation {
       this.scene.add(component.group);
     }
     this.template = component;
+  }
+
+  updateCamera(frames: number, x: number, y: number, z: number): void {
+    this.cameraEase = new Ease(this.frame, frames, this.camera.position, {
+      x,
+      y,
+      z
+    });
   }
 }
