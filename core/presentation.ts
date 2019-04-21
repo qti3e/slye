@@ -9,6 +9,7 @@
  */
 
 import {
+  Box3,
   Vector2,
   Vector3,
   Euler,
@@ -93,6 +94,8 @@ export class Presentation {
     rotation: Ease<Euler>;
   };
 
+  private readonly stepSize: Vector3 = new Vector3();
+
   /**
    * @param width Width of view port.
    * @param height Height of view port.
@@ -132,10 +135,8 @@ export class Presentation {
     this.renderer.setSize(width, height);
     this.width = width;
     this.height = height;
+    this.goTo(this.currentStep);
   }
-
-  // Debug.
-  n = 0.005;
 
   /**
    * Render the presentation into the given canvas at the given frame.
@@ -172,7 +173,7 @@ export class Presentation {
         if (this.currentStep) {
           this.steps[this.currentStep].render(this.frame);
         }
-        // At most render 5 steps in each step.
+        // At most render 5 steps in each frame.
         let base = (this.frame * 5) % this.steps.length;
         for (let i = 0; i < 5; ++i) {
           let id = (base + i) % this.steps.length;
@@ -184,12 +185,6 @@ export class Presentation {
     }
 
     this.renderer.render(this.scene, this.camera);
-
-    if (Math.abs(this.camera.rotation.x) > 0.5) {
-      this.n = -this.n;
-    }
-
-    //this.camera.rotation.x += this.n;
   }
 
   private intersects(): Intersection[] {
@@ -292,7 +287,6 @@ export class Presentation {
     ry: number,
     rz: number
   ): void {
-    console.log(x, y, z, rx, ry, rz);
     this.cameraEase = {
       position: new Ease(this.frame, frames, this.camera.position, {
         x,
@@ -308,11 +302,13 @@ export class Presentation {
   }
 
   goTo(index: number, duration = 120): void {
-    const stepWidth = 20;
-    const stepHeight = 30;
-
     this.currentStep = index;
     const step = this.steps[index];
+
+    const box = new Box3().setFromObject(step.group);
+    box.getSize(this.stepSize);
+    const stepWidth = this.stepSize.x;
+    const stepHeight = 30; // stepSize.y is not right for this :/
 
     const { x, y, z } = step.getPosition();
     const { x: ox, y: oy, z: oz } = step.getRotation();
@@ -332,9 +328,7 @@ export class Presentation {
     }
 
     // Align camera so it'll focus on centre of text geometry.
-    //const alignX = stepWidth / 2;
-    //const alighY = stepHeight / 2;
-    const alignX = 0;
+    const alignX = stepWidth / 2;
     const alighY = 0;
 
     const position = new Vector3(alignX, alighY, distance);
@@ -343,5 +337,21 @@ export class Presentation {
     position.add(new Vector3(x, y, z));
 
     this.updateCamera(duration, position.x, position.y, position.z, ox, oy, oz);
+  }
+
+  next(duration = 120): void {
+    this.currentStep++;
+    if (this.currentStep >= this.steps.length) {
+      this.currentStep = 0;
+    }
+    this.goTo(this.currentStep, duration);
+  }
+
+  prev(duration = 120): void {
+    this.currentStep--;
+    if (this.currentStep < 0) {
+      this.currentStep = this.steps.length - 1;
+    }
+    this.goTo(this.currentStep, duration);
   }
 }

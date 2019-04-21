@@ -8,7 +8,7 @@
  *       Copyright 2019 Parsa Ghadimi. All Rights Reserved.
  */
 
-import { BoxGeometry, MeshBasicMaterial, Mesh, Group } from "three";
+import { Box3, Group } from "three";
 import { Font } from "./font";
 import { Mem } from "./mem";
 import { Step } from "./step";
