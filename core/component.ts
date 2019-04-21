@@ -32,8 +32,8 @@ export interface Component {
   // Position & Rotation.
   setPosition(x: number, y: number, z: number): void;
   setRotation(x: number, y: number, z: number): void;
-  getPosition(x: number, y: number, z: number): Vec3;
-  getRotation(x: number, y: number, z: number): Vec3;
+  getPosition(): Vec3;
+  getRotation(): Vec3;
 }
 
 export type PropValue = string | number | undefined | Font;
@@ -124,7 +124,7 @@ export class SlyeComponent implements Component {
     this.group.rotation.set(x, y, z);
   }
 
-  getPosition(x: number, y: number, z: number): Vec3 {
+  getPosition(): Vec3 {
     return {
       x: this.group.position.x,
       y: this.group.position.y,
@@ -132,7 +132,7 @@ export class SlyeComponent implements Component {
     };
   }
 
-  getRotation(x: number, y: number, z: number): Vec3 {
+  getRotation(): Vec3 {
     return {
       x: this.group.rotation.x,
       y: this.group.rotation.y,

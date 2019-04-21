@@ -88,7 +88,7 @@ export class Step {
     this.group.rotation.set(x, y, z);
   }
 
-  getPosition(x: number, y: number, z: number): Vec3 {
+  getPosition(): Vec3 {
     return {
       x: this.group.position.x,
       y: this.group.position.y,
@@ -96,7 +96,7 @@ export class Step {
     };
   }
 
-  getRotation(x: number, y: number, z: number): Vec3 {
+  getRotation(): Vec3 {
     return {
       x: this.group.rotation.x,
       y: this.group.rotation.y,

@@ -62,6 +62,7 @@ async function main() {
   });
   s2.add(c2);
   s2.setPosition(20, 10, 0);
+  s2.setRotation(THREE.Math.degToRad(45), THREE.Math.degToRad(5), THREE.Math.degToRad(10));
 
   (p as any).camera.position.z = 50;
 

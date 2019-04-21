@@ -11,12 +11,14 @@
 import {
   Vector2,
   Vector3,
+  Euler,
   Raycaster,
   WebGLRenderer,
   Scene,
   PerspectiveCamera,
   Intersection,
-  Group
+  Group,
+  Math as ThreeMath
 } from "three";
 import { Ease } from "./ease";
 import { Component, SlyeComponent } from "./component";
@@ -56,7 +58,7 @@ export class Presentation {
   /**
    * Current step.
    */
-  private readonly currentStep: number;
+  private currentStep: number;
 
   /**
    * Current frame number.
@@ -86,7 +88,10 @@ export class Presentation {
   /**
    * Camera animation.
    */
-  private cameraEase: Ease<Vector3>;
+  private cameraEase: {
+    position: Ease<Vector3>;
+    rotation: Ease<Euler>;
+  };
 
   /**
    * @param width Width of view port.
@@ -142,7 +147,8 @@ export class Presentation {
     this.frame++;
 
     if (this.cameraEase) {
-      this.cameraEase.update(this.frame);
+      this.cameraEase.position.update(this.frame);
+      this.cameraEase.rotation.update(this.frame);
     }
 
     if (this.frame % 5 === 0) {
@@ -277,11 +283,65 @@ export class Presentation {
     this.template = component;
   }
 
-  updateCamera(frames: number, x: number, y: number, z: number): void {
-    this.cameraEase = new Ease(this.frame, frames, this.camera.position, {
-      x,
-      y,
-      z
-    });
+  private updateCamera(
+    frames: number,
+    x: number,
+    y: number,
+    z: number,
+    rx: number,
+    ry: number,
+    rz: number
+  ): void {
+    console.log(x, y, z, rx, ry, rz);
+    this.cameraEase = {
+      position: new Ease(this.frame, frames, this.camera.position, {
+        x,
+        y,
+        z
+      }),
+      rotation: new Ease(this.frame, frames, this.camera.rotation, {
+        x: rx,
+        y: ry,
+        z: rz
+      })
+    };
+  }
+
+  goTo(index: number, duration = 120): void {
+    const stepWidth = 20;
+    const stepHeight = 30;
+
+    this.currentStep = index;
+    const step = this.steps[index];
+
+    const { x, y, z } = step.getPosition();
+    const { x: ox, y: oy, z: oz } = step.getRotation();
+
+    // Find distance between camera and text.
+    const vFov = ThreeMath.degToRad(this.fov);
+    const farHeight = 2 * Math.tan(vFov / 2) * this.far;
+
+    const farWidth = farHeight * this.camera.aspect;
+
+    let distance = (this.far * stepWidth) / farWidth / (2 / 3);
+
+    const presentiveHeight = (stepHeight * this.far) / distance;
+
+    if (presentiveHeight > (3 / 4) * farHeight) {
+      distance = (this.far * stepHeight) / farHeight / (3 / 4);
+    }
+
+    // Align camera so it'll focus on centre of text geometry.
+    //const alignX = stepWidth / 2;
+    //const alighY = stepHeight / 2;
+    const alignX = 0;
+    const alighY = 0;
+
+    const position = new Vector3(alignX, alighY, distance);
+    const e = new Euler(ox, oy, oz, "XYZ");
+    position.applyEuler(e);
+    position.add(new Vector3(x, y, z));
+
+    this.updateCamera(duration, position.x, position.y, position.z, ox, oy, oz);
   }
 }
