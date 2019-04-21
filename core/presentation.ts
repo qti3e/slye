@@ -13,7 +13,9 @@ import {
   Raycaster,
   WebGLRenderer,
   Scene,
-  PerspectiveCamera
+  PerspectiveCamera,
+  Intersection,
+  Group
 } from "three";
 import { Component, SlyeComponent } from "./component";
 import { Step } from "./step";
@@ -72,7 +74,7 @@ export class Presentation {
   /**
    * Cache of components that are clickable.
    */
-  private raycasterComponentsCache: Component[] = [];
+  private raycasterComponentsCache: Group[] = [];
 
   /**
    * Template is also a component.
@@ -103,6 +105,7 @@ export class Presentation {
     this.camera.position.z = 5;
 
     this.onClick = this.onClick.bind(this);
+    this.onMove = this.onMove.bind(this);
   }
 
   /**
@@ -130,6 +133,14 @@ export class Presentation {
    */
   render(): void {
     this.frame++;
+
+    if (this.frame % 5 === 0) {
+      if (this.intersects().length) {
+        this.domElement.style.cursor = "pointer";
+      } else {
+        this.domElement.style.cursor = "auto";
+      }
+    }
 
     if (this.template) {
       this.template.render(this.frame);
@@ -164,24 +175,32 @@ export class Presentation {
     //this.camera.rotation.x += this.n;
   }
 
-  onClick(event: MouseEvent): void {
+  private intersects(): Intersection[] {
+    this.raycaster.setFromCamera(this.mouse, this.camera);
+
+    // calculate objects intersecting the picking ray
+    const intersects = this.raycaster.intersectObjects(
+      this.raycasterComponentsCache,
+      true
+    );
+
+    return intersects;
+  }
+
+  onMove(event: MouseEvent): void {
     // calculate mouse position in normalized device coordinates
     // (-1 to +1) for both components
 
     this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+  }
 
-    this.raycaster.setFromCamera(this.mouse, this.camera);
-
-    // calculate objects intersecting the picking ray
-    const intersects = this.raycaster.intersectObjects(
-      this.raycasterComponentsCache.map(x => x.group),
-      true
-    );
-
+  onClick(): void {
     let tmp: Component;
     let component: Component;
     let minDistance: number = Infinity;
+
+    const intersects = this.intersects();
 
     for (let i = 0; i < intersects.length; ++i) {
       if (intersects[i].distance > minDistance) continue;
@@ -204,7 +223,7 @@ export class Presentation {
   /**
    * Add the given step to current presentation.
    *
-   * @param s step we want to add.
+   * @param {Step} s step we want to add.
    */
   add(s: Step): void {
     s.use(this);
@@ -217,17 +236,17 @@ export class Presentation {
    * Recheck the given step.
    */
   updateRaycastCache(s: Step): void {
-    const newArray: Component[] = [];
+    const newArray: Group[] = [];
 
-    for (const component of this.raycasterComponentsCache) {
-      if (component.owner !== s) {
-        newArray.push(component);
+    for (const group of this.raycasterComponentsCache) {
+      if (group.userData.component.owner !== s) {
+        newArray.push(group);
       }
     }
 
     for (const c of s.components) {
       if (c.isClickable) {
-        newArray.push(c);
+        newArray.push(c.group);
       }
     }
 
@@ -238,6 +257,8 @@ export class Presentation {
     if (this.template) {
       this.scene.remove(this.template.group);
     }
+    // It will remove the component from its current owner, and also will
+    // call updateRaycastCache in case it's needed.
     component.setStep(undefined);
     this.template = component;
     this.scene.add(component.group);

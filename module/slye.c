@@ -40,9 +40,16 @@ extern void three_set_position(obj3d_t obj, float x, float y, float z);
 extern void three_set_rotation(obj3d_t obj, float x, float y, float z);
 extern obj3d_t three_mesh(geometry_t geo, material_t material);
 
+void click_handler()
+{
+        slog("Click!");
+}
+
 void text_init()
 {
         slog("Hey!");
+
+        on_click(click_handler);
 
         font_ref_t font = get_font_prop_ref("font");
         string_ref_t str = get_string_prop_ref("text");

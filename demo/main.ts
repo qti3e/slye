@@ -74,6 +74,7 @@ async function main() {
 
   window.addEventListener("resize", onWindowResize, false);
   window.addEventListener("click", p.onClick, false);
+  window.addEventListener("mousemove", p.onMove, false);
 
   render();
 }

@@ -60,6 +60,9 @@ export class Step {
     this.components.push(c);
     c.setStep(this);
     this.group.add(c.group);
+    if (this.owner && c.isClickable) {
+      this.owner.updateRaycastCache(this);
+    }
   }
 
   /**
@@ -70,6 +73,9 @@ export class Step {
     if (index > -1) {
       this.components.splice(index, 1);
       this.group.remove(c.group);
+      if (this.owner && c.isClickable) {
+        this.owner.updateRaycastCache(this);
+      }
     }
   }
 }
