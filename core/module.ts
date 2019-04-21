@@ -22,28 +22,113 @@ import {
 
 const modulesTable: Map<string, Module> = new Map();
 
+/**
+ * A module is a Slye extension that might provide a set of components, fonts,
+ * template or other functionalities.
+ */
 export interface Module {
+  /**
+   * Returns a new instance of the component.
+   *
+   * @param {string} name Name of the component.
+   * @param {Record<string, PropValue>} props Properties.
+   * @returns {Component}
+   */
   component(name: string, props: Record<string, PropValue>): Component;
+
+  /**
+   * Returns name of the registered fonts.
+   *
+   * @returns {string[]}
+   */
   getFonts(): string[];
+
+  /**
+   * Returns a font instance which is associated with the given name.
+   * @param {string} name Name of the font.
+   * @returns {Font}
+   */
   font(name: string): Font;
 }
 
+/**
+ * Module Implementation.
+ *
+ * @private
+ * @see Module
+ */
 export class ModuleImpl implements Module {
+  /**
+   * Registered components.
+   * Map of componentName -> ComponentInit
+   */
   private readonly components: Map<string, ComponentInit> = new Map();
+
+  /**
+   * Registered fonts.
+   * Map of string to Font.
+   */
   private readonly fonts: Map<string, Font> = new Map();
+
+  /**
+   * Local assets for this module.
+   */
   private readonly assets: Asset<string>;
 
+  /**
+   * WebAssembly memory instance for the loaded wasm file.
+   */
   private readonly memory: WebAssembly.Memory;
+
+  /**
+   * WebAssembly table for the loaded wasm file.
+   */
   private readonly table: WebAssembly.Table;
+
+  /**
+   * WebAssembly instance for this module.
+   */
   private readonly instance: WebAssembly.Instance;
 
+  /**
+   * These are used as part of the init process.
+   * Once the wasm module is resolved and is accessible this promise
+   * is resolved.
+   */
   private wait: Promise<void>;
   private waitResolve: () => void;
 
+  /**
+   * Whenever we do a foreign function call to the wasm land, it might be
+   * a method call for a component, that component is currently in use.
+   *
+   * void my_component_render(int frame)
+   * {
+   *         // Do something with component's state.
+   * }
+   *
+   * void my_component()
+   * {
+   *         on_render(my_component_render);
+   * }
+   *
+   * For example when we call a `render` method of a component we must have
+   * access to that component easily so that we can do some stuff with it
+   * when ever it is required, this variable is used for that use case.
+   *
+   * It can be set using `use` method.
+   */
   private currentComponent: SlyeComponent;
 
+  /**
+   * Uint8Array representation of the wasm module's memory buffer.
+   */
   private readonly uint8: Uint8Array;
 
+  /**
+   * @param {ArrayBuffer} buffer The wasm file.
+   * @param {string} name Name of the current module.
+   */
   constructor(buffer: ArrayBuffer, private readonly name: string) {
     this.memory = new WebAssembly.Memory({
       initial: 256
@@ -61,7 +146,7 @@ export class ModuleImpl implements Module {
       table: this.table,
       __memory_base: 0,
       __table_base: 0,
-      // Callables.
+      // Callable.
       abort() {},
       _register_component: this.registerComponent.bind(this),
       _slog: this.slog.bind(this),
@@ -70,7 +155,20 @@ export class ModuleImpl implements Module {
 
       // For components.
       _on_render: this.onRender.bind(this),
-      _on_click: this.onClick.bind(this)
+      _on_click: this.onClick.bind(this),
+      _get_string_prop_ref: this.getStringPropRef.bind(this),
+      _get_font_prop_ref: this.getFontPropRef.bind(this),
+      _get_prop: this.getProp.bind(this),
+      _font_layout: this.fontLayout.bind(this),
+      _generate_text_geometry: this.generateTextGeometry.bind(this),
+      _add_obj: this.addObj.bind(this),
+
+      _three_mesh_basic_material: this.threeMeshBasicMaterial.bind(this),
+      _three_material_set: this.threeMaterialSet.bind(this),
+      _three_point_light: this.threePointLight.bind(this),
+      _three_set_position: this.threeSetPosition.bind(this),
+      _three_set_rotation: this.threeSetRotation.bind(this),
+      _three_mesh: this.threeMesh.bind(this)
     };
 
     this.wait = new Promise(r => (this.waitResolve = r));
@@ -84,6 +182,10 @@ export class ModuleImpl implements Module {
     this.uint8 = new Uint8Array(this.memory.buffer);
   }
 
+  /**
+   * Wait until the current module is being loaded.
+   * and then do a foreign call and let the module run its initial setup.
+   */
   async init(): Promise<number> {
     await this.wait;
     this.waitResolve = undefined;
@@ -91,15 +193,20 @@ export class ModuleImpl implements Module {
     return this.instance.exports._init();
   }
 
+  /**
+   * Set the current component.
+   */
   use(c: SlyeComponent): void {
     // We're switching the current component, so the execution of the
-    // last wasm function is over - just clear its memory.
+    // last WAsm function is over - just clear its memory.
     if (this.currentComponent) {
       this.currentComponent.mem.gc();
     }
     this.currentComponent = c;
   }
 
+  // === PUBLIC INTERFACE ===
+  // see Module for the docs.
   component(
     name: string,
     props: Record<string, PropValue> = {}
@@ -122,7 +229,14 @@ export class ModuleImpl implements Module {
   font(name: string): Font {
     return this.fonts.get(name);
   }
+  // === END OF PUBLIC INTERFACE ===
 
+  /**
+   * Reads a zero-terminated ASCII string from the memory.
+   *
+   * @param {number} ptr Start offset of the string.
+   * @returns {string}
+   */
   private readChar(ptr: number): string {
     const start = ptr;
     while (this.uint8[++ptr]);
@@ -136,18 +250,38 @@ export class ModuleImpl implements Module {
     console.log("wasm-log:", this.readChar(msgPtr));
   }
 
+  /**
+   * Register a new component.
+   *
+   * @param {char*} namePtr Name of the component.
+   * @param {void cb()} cb Component's constructor function.
+   * @returns {void}
+   */
   private registerComponent(namePtr: number, cb: number): void {
     const name = this.readChar(namePtr);
     const init = this.table.get(cb);
     this.components.set(name, init);
   }
 
+  /**
+   * Load a local asset and returns a reference to it.
+   *
+   * @param {char*} namePtr Name of the asset. (e.g: homa.ttf)
+   * @returns {asset_ref}
+   */
   private loadLocal(namePtr: number): number {
     const name = this.readChar(namePtr);
     const id = this.assets.load(name);
     return id;
   }
 
+  /**
+   * Register a new font.
+   *
+   * @param {char*} namePtr Name of the font.
+   * @param {asset_ref} assetRef Asset reference obtained by calling loadLocal.
+   * @returns {void}
+   */
   private registerFont(namePtr: number, assetRef: number): void {
     const name = this.readChar(namePtr);
     const fetch = () => this.assets.getData(assetRef);
@@ -155,50 +289,28 @@ export class ModuleImpl implements Module {
     this.fonts.set(name, font);
   }
 
+  /**
+   * Set the render handler for the current component.
+   *
+   * @param {void cb(int frame)} Callback function.
+   * @returns {void}
+   */
   private onRender(cbPtr: number): void {
     const cb = this.table.get(cbPtr);
     this.currentComponent.setRenderHandler(cb);
   }
 
+  /**
+   * Sets the click handler for the current component, after that the component
+   * will be added to the raycaster objects - so if there is really nothing
+   * to do in a click event it's better to not call this function at all.
+   *
+   * @param {void cb()} Callback function.
+   * @returns {void}
+   */
   private onClick(cbPtr: number): void {
     const cb = this.table.get(cbPtr);
     this.currentComponent.setClickHandler(cb);
-  }
-
-  // === Three.js API ===
-
-  private threeMeshBasicMaterial(color: number): number {
-    const material = new THREE.MeshBasicMaterial({
-      color
-    });
-    const ref = this.currentComponent.mem.store(material);
-    return ref;
-  }
-
-  private threeMaterialSet(ref: number, keyPtr: number, value: number): void {
-    const material = this.currentComponent.mem.load(ref);
-    const key = this.readChar(keyPtr);
-    material[key] = value;
-  }
-
-  private threePointLight(
-    color: number,
-    intensity: number,
-    distance: number
-  ): number {
-    const light = new THREE.PointLight(color, intensity, distance);
-    const ref = this.currentComponent.mem.store(light);
-    return ref;
-  }
-
-  private threeSetPosition(o: number, x: number, y: number, z: number): void {
-    const obj = this.currentComponent.mem.load(o);
-    obj.position.set(x, y, z);
-  }
-
-  private threeSetRotation(o: number, x: number, y: number, z: number): void {
-    const obj = this.currentComponent.mem.load(o);
-    obj.rotation.set(x, y, z);
   }
 
   private getStringPropRef(keyPtr: number): number {
@@ -216,7 +328,7 @@ export class ModuleImpl implements Module {
     return ref;
   }
 
-  private getPop(keyPtr: number): number {
+  private getProp(keyPtr: number): number {
     const key = this.readChar(keyPtr);
     const value = this.currentComponent.getProp(key);
     return Number(value);
@@ -268,6 +380,49 @@ export class ModuleImpl implements Module {
     return ref;
   }
 
+  private addObj(objRef: number): void {
+    (async () => {
+      const obj = await this.currentComponent.mem.load(objRef);
+      this.currentComponent.group.add(obj);
+    })();
+  }
+
+  // === Three.JS API ===
+
+  private threeMeshBasicMaterial(color: number): number {
+    const material = new THREE.MeshBasicMaterial({
+      color
+    });
+    const ref = this.currentComponent.mem.store(material);
+    return ref;
+  }
+
+  private threeMaterialSet(ref: number, keyPtr: number, value: number): void {
+    const material = this.currentComponent.mem.load(ref);
+    const key = this.readChar(keyPtr);
+    material[key] = value;
+  }
+
+  private threePointLight(
+    color: number,
+    intensity: number,
+    distance: number
+  ): number {
+    const light = new THREE.PointLight(color, intensity, distance);
+    const ref = this.currentComponent.mem.store(light);
+    return ref;
+  }
+
+  private threeSetPosition(o: number, x: number, y: number, z: number): void {
+    const obj = this.currentComponent.mem.load(o);
+    obj.position.set(x, y, z);
+  }
+
+  private threeSetRotation(o: number, x: number, y: number, z: number): void {
+    const obj = this.currentComponent.mem.load(o);
+    obj.rotation.set(x, y, z);
+  }
+
   private threeMesh(geoRef: number, materialRef: number): number {
     const value = new Promise(async (resolve, reject) => {
       const geo = await this.currentComponent.mem.load(geoRef);
@@ -278,18 +433,15 @@ export class ModuleImpl implements Module {
     const ref = this.currentComponent.mem.store(value);
     return ref;
   }
-
-  private addObj(objRef: number): void {
-    (async () => {
-      const obj = await this.currentComponent.mem.load(objRef);
-      this.currentComponent.group.add(obj);
-    })();
-  }
 }
 
 /**
- * Loads a wasm file and register it as a module.
+ * Load the given module, it uses server API to load module by its name.
+ *
+ * @param {string} name Name of the module.
+ * @returns {Promise<Module>}
  */
+
 export async function loadModule(name: string): Promise<Module> {
   if (modulesTable.has(name)) return modulesTable.get(name);
 
@@ -302,7 +454,12 @@ export async function loadModule(name: string): Promise<Module> {
 }
 
 /**
- * Create a component from a module.
+ * Returns a new instance of the component.
+ *
+ * @param {string} moduleName Name of the module which provides this component.
+ * @param {string} componentName Name of the component.
+ * @param {Record<string, PropValue>} props Properties for this instance.
+ * @returns {Promise<Component>}
  */
 export async function component(
   moduleName: string,
@@ -313,6 +470,13 @@ export async function component(
   return m.component(componentName, props);
 }
 
+/**
+ * Returns a font from the given module.
+ *
+ * @param {string} moduleName Module which owns the font.
+ * @param {string} fontName Name of the font.
+ * @returns {Promise<Font>}
+ */
 export async function font(
   moduleName: string,
   fontName: string
