@@ -42,51 +42,18 @@ async function main() {
   const p = new Presentation(window.innerWidth, window.innerHeight);
 
   const s1 = new Step();
-
-  const c1 = await component("slye", "text");
-  s1.add(c1);
-
   p.add(s1);
 
-  console.log(m1.getFonts());
-  const f1 = m1.font("homa");
-  const layout = await f1.layout("سلام");
-  const shape = generateShapes(layout, 5);
-  console.log(shape);
-
-  var extrudeSettings = {
-    steps: 2,
-    depth: 2,
-    bevelEnabled: false,
-    bevelThickness: 1,
-    bevelSize: 1,
-    bevelSegments: 1
-  };
-
-  var geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
-  var material = new THREE.MeshPhongMaterial({
-    color: 0x156289,
-    emissive: 0x072534,
-    side: THREE.DoubleSide,
-    flatShading: true
+  const c1 = await component("slye", "text", {
+    text: "سلام!",
+    font: m1.font("homa")
   });
-  var mesh = new THREE.Mesh(geometry, material);
+  s1.add(c1);
 
-  var lights = [];
-  lights[0] = new THREE.PointLight(0xffffff, 1, 0);
-  lights[1] = new THREE.PointLight(0xffffff, 1, 0);
-  lights[2] = new THREE.PointLight(0xffffff, 1, 0);
+  const template = await component("slye", "template");
+  p.setTemplate(template);
 
-  lights[0].position.set(0, 200, 0);
-  lights[1].position.set(100, 200, 100);
-  lights[2].position.set(-100, -200, -100);
-
-  p.scene.add(lights[0]);
-  p.scene.add(lights[1]);
-  p.scene.add(lights[2]);
-
-  p.camera.position.z = 50;
-  p.scene.add(mesh);
+  (p as any).camera.position.z = 50;
 
   document.body.appendChild(p.domElement);
 

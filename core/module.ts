@@ -346,6 +346,7 @@ export class ModuleImpl implements Module {
 
   private generateTextGeometry(
     layoutRef: number,
+    size: number,
     steps: number,
     depth: number,
     bevelEnabled: boolean,
@@ -360,7 +361,7 @@ export class ModuleImpl implements Module {
       layoutPromise
         .then(layout => {
           try {
-            const shape = generateShapes(layout);
+            const shape = generateShapes(layout, size);
             const geometry = new THREE.ExtrudeGeometry(shape, {
               steps,
               depth,
@@ -381,9 +382,11 @@ export class ModuleImpl implements Module {
   }
 
   private addObj(objRef: number): void {
+    const currentComponent = this.currentComponent;
+    const promise = currentComponent.mem.load(objRef);
     (async () => {
-      const obj = await this.currentComponent.mem.load(objRef);
-      this.currentComponent.group.add(obj);
+      const obj = await promise;
+      currentComponent.group.add(obj);
     })();
   }
 
@@ -424,9 +427,13 @@ export class ModuleImpl implements Module {
   }
 
   private threeMesh(geoRef: number, materialRef: number): number {
+    const currentComponent = this.currentComponent;
+    const geoPromise = currentComponent.mem.load(geoRef);
+    const materialPromise = currentComponent.mem.load(materialRef);
+
     const value = new Promise(async (resolve, reject) => {
-      const geo = await this.currentComponent.mem.load(geoRef);
-      const material = await this.currentComponent.mem.load(materialRef);
+      const geo = await geoPromise;
+      const material = await materialPromise;
       const val = new THREE.Mesh(geo, material);
       resolve(val);
     });

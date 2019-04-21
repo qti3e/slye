@@ -75,6 +75,11 @@ export class Presentation {
   private raycasterComponentsCache: Component[] = [];
 
   /**
+   * Template is also a component.
+   */
+  private template: Component;
+
+  /**
    * @param width Width of view port.
    * @param height Height of view port.
    * @param fov Camera's Field Of View.
@@ -125,6 +130,10 @@ export class Presentation {
    */
   render(): void {
     this.frame++;
+
+    if (this.template) {
+      this.template.render(this.frame);
+    }
 
     if (this.steps.length) {
       if (this.steps.length <= 5) {
@@ -223,5 +232,14 @@ export class Presentation {
     }
 
     this.raycasterComponentsCache = newArray;
+  }
+
+  setTemplate(component: Component): void {
+    if (this.template) {
+      this.scene.remove(this.template.group);
+    }
+    component.setStep(undefined);
+    this.template = component;
+    this.scene.add(component.group);
   }
 }
