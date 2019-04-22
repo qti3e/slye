@@ -15,7 +15,7 @@ function createWindow() {
       // We don't want Node in the renderer thread.
       // Every file access should be done in the main thread.
       nodeIntegration: false,
-      preload: path.join(__dirname, 'preload.js')
+      preload: path.join(__dirname, "preload.js")
     }
   });
 

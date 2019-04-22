@@ -1,6 +1,7 @@
-import * as electron from "electron";
+import { Remote } from "electron";
 
-interface Window {
-  something: string;
-  remote: typeof electron.remote;
+declare global {
+  interface Window {
+    remote: Remote;
+  }
 }
