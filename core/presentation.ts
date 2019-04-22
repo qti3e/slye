@@ -9,6 +9,7 @@
  */
 
 import {
+  Color,
   BoxHelper,
   Box3,
   Vector2,
@@ -306,20 +307,39 @@ export class Presentation {
     };
   }
 
+  showHelpers(): void {
+    const red = new Color(0xff0000);
+    const green = new Color(0x00ff00);
+    for (const step of this.steps) {
+      const helper = new BoxHelper(step.group, red);
+      helper.update();
+      this.scene.add(helper);
+
+      for (const c of step.group.children) {
+        const helper = new BoxHelper(c, green);
+        helper.update();
+        this.scene.add(helper);
+      }
+    }
+  }
+
   goTo(index: number, duration = 120): void {
     this.currentStep = index;
     const step = this.steps[index];
 
     // In case there is no step.
     if (!step) return;
-
-    // Get the bounding box.
-    const box = this.box3.setFromObject(step.group);
+    const { x: rx, y: ry, z: rz } = step.getRotation();
 
     // Find the distance.
-    const stepSize = box.getSize(this.tmpVec);
+    // Set the rotation to zero so we get the right results.
+    step.group.rotation.set(0, 0, 0);
+    const stepSize = this.box3.setFromObject(step.group).getSize(this.tmpVec);
     const stepWidth = stepSize.x;
     const stepHeight = stepSize.y;
+    // Set it to what it used to be.
+    step.group.rotation.set(rx, ry, rz);
+
     const vFov = ThreeMath.degToRad(this.fov);
     const farHeight = 2 * Math.tan(vFov / 2) * this.far;
     const farWidth = farHeight * this.camera.aspect;
@@ -330,8 +350,7 @@ export class Presentation {
     }
 
     // Find camera's position.
-    const center = box.getCenter(this.tmpVec);
-    const { x: rx, y: ry, z: rz } = step.getRotation();
+    const center = this.box3.setFromObject(step.group).getCenter(this.tmpVec);
     this.euler.set(rx, ry, rz);
     this.targetVec.set(0, 0, distance);
     this.targetVec.applyEuler(this.euler);
