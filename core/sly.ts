@@ -73,13 +73,13 @@ export async function sly(
     const jstep = o.steps[i];
 
     const step = new Step();
-    //step.setPosition(jstep.position[0], jstep.position[1], jstep.position[2]);
-    //step.setRotation(jstep.rotation[0], jstep.rotation[1], jstep.rotation[2]);
+    step.setPosition(jstep.position[0], jstep.position[1], jstep.position[2]);
+    step.setRotation(jstep.rotation[0], jstep.rotation[1], jstep.rotation[2]);
 
-    const p = () => Math.random() * 240 - 120;
-    const r = () => Math.random() * Math.PI;
-    step.setPosition(p(), p(), p());
-    step.setRotation(r(), r(), r());
+    //const p = () => Math.random() * 240 - 120;
+    //const r = () => Math.random() * Math.PI;
+    //step.setPosition(p(), p(), p());
+    //step.setRotation(r(), r(), r());
 
     for (let j = 0; j < jstep.components.length; ++j) {
       const jcom = jstep.components[j];

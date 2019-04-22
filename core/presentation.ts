@@ -96,7 +96,11 @@ export class Presentation {
     rotation: Ease<Euler>;
   };
 
-  private readonly stepSize: Vector3 = new Vector3();
+  // Some variables, just to reuse the objects - these are used in goTo method.
+  private readonly tmpVec: Vector3 = new Vector3();
+  private readonly box3: Box3 = new Box3();
+  private readonly targetVec: Vector3 = new Vector3();
+  private readonly euler: Euler = new Euler(0, 0, 0, "XYZ");
 
   /**
    * @param width Width of view port.
@@ -306,52 +310,36 @@ export class Presentation {
     this.currentStep = index;
     const step = this.steps[index];
 
-    console.log(step.group.position, step.group.rotation);
-
     // In case there is no step.
     if (!step) return;
 
-    const box = new Box3().setFromObject(step.group);
-    box.getSize(this.stepSize);
-
-    const helper = new BoxHelper(step.group, 0xff0000);
-    helper.update();
-    this.scene.add(helper);
-
-    for (const c of step.group.children) {
-      const helper = new BoxHelper(step.group, 0xff0000);
-      helper.update();
-      this.scene.add(helper);
-    }
-
-
-    const center = box.max.sub(box.min).divideScalar(2);
-
-    const stepWidth = this.stepSize.x; // This shit is not working.
-    const stepHeight = this.stepSize.y; // stepSize.y is not right for this :/
+    // Get the bounding box.
+    const box = this.box3.setFromObject(step.group);
 
     // Find the distance.
+    const stepSize = box.getSize(this.tmpVec);
+    const stepWidth = stepSize.x;
+    const stepHeight = stepSize.y;
     const vFov = ThreeMath.degToRad(this.fov);
     const farHeight = 2 * Math.tan(vFov / 2) * this.far;
-
     const farWidth = farHeight * this.camera.aspect;
-
     let distance = (this.far * stepWidth) / farWidth / (2 / 3);
-
     const presentiveHeight = (stepHeight * this.far) / distance;
-
     if (presentiveHeight > (3 / 4) * farHeight) {
       distance = (this.far * stepHeight) / farHeight / (3 / 4);
     }
 
-    // Now look at the center.
+    // Find camera's position.
+    const center = box.getCenter(this.tmpVec);
     const { x: rx, y: ry, z: rz } = step.getRotation();
-    const position = step.group.position;
-    const target	= new Vector3(stepWidth / 2, stepHeight / 2, distance);
-    target.applyEuler(new Euler(rx, ry, rz, "XYZ"));
-    target.add(position);
+    this.euler.set(rx, ry, rz);
+    this.targetVec.set(0, 0, distance);
+    this.targetVec.applyEuler(this.euler);
+    this.targetVec.add(center);
 
-    this.updateCamera(duration, target.x, target.y, target.z, rx, ry, rz);
+    // Update the camera.
+    const { x, y, z } = this.targetVec;
+    this.updateCamera(duration, x, y, z, rx, ry, rz);
   }
 
   next(duration = 120): void {
