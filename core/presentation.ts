@@ -9,6 +9,7 @@
  */
 
 import {
+  BoxHelper,
   Box3,
   Vector2,
   Vector3,
@@ -310,15 +311,19 @@ export class Presentation {
     // In case there is no step.
     if (!step) return;
 
-    const tmp = this.stepSize;
-    tmp.set(step.group.rotation.x, step.group.rotation.y, step.group.rotation.z);
-    step.group.rotation.set(0, 0, 0);
-
     const box = new Box3().setFromObject(step.group);
-
-    step.group.rotation.set(tmp.x, tmp.y, tmp.z);
-
     box.getSize(this.stepSize);
+
+    const helper = new BoxHelper(step.group, 0xff0000);
+    helper.update();
+    this.scene.add(helper);
+
+    for (const c of step.group.children) {
+      const helper = new BoxHelper(step.group, 0xff0000);
+      helper.update();
+      this.scene.add(helper);
+    }
+
 
     const center = box.max.sub(box.min).divideScalar(2);
 

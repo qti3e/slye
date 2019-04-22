@@ -367,7 +367,7 @@ async function main() {
 
   // Just for now.
   const worldScene = (p as any).scene as THREE.Scene;
-  worldScene.background = new THREE.Color(0xbfd1e5);
+  //worldScene.background = new THREE.Color(0xbfd1e5);
   const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444);
   hemiLight.position.set(0, 200, 0);
   worldScene.add(hemiLight);
