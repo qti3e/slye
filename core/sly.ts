@@ -101,5 +101,5 @@ export async function sly(
     presentation.add(step);
   }
 
-  presentation.goTo(0);
+  presentation.goTo(0, 0);
 }

@@ -38,7 +38,7 @@ extern font_ref_t get_font_prop_ref(char *key);
 extern asset_ref_t get_ab_prop_ref(char *key);
 extern float get_prop(char *key);
 extern font_layout_t font_layout(font_ref_t font, string_ref_t text);
-extern geometry_t generate_text_geometry(font_layout_t layout, int size,
+extern geometry_t generate_text_geometry(font_layout_t layout, float size,
                 float steps, float depth, int bevel_enabled,
                 int bevel_thickness, int bevel_size, int bevel_segments);
 
@@ -66,10 +66,12 @@ void picture_init()
 
 void text_init()
 {
+        float size = get_prop("size");
+        if (!size) size = 5;
         font_ref_t font = get_font_prop_ref("font");
         string_ref_t str = get_string_prop_ref("text");
         font_layout_t layout = font_layout(font, str);
-        geometry_t geo = generate_text_geometry(layout, 5, 2, 1, 0, 1, 1, 1);
+        geometry_t geo = generate_text_geometry(layout, size, 2, 1, 0, 1, 1, 1);
 
         obj_t mp = new_obj();
         obj_set_num(mp, "color", 0x896215);
@@ -90,9 +92,9 @@ void template()
         lights[1] = three_point_light(0xffffff, 1, 0);
         lights[2] = three_point_light(0xffffff, 1, 0);
 
-        three_set_position(lights[0], 0, 200, 0);
-        three_set_position(lights[1], 100, 200, 100);
-        three_set_position(lights[2], -100, -200, -100);
+        three_set_position(lights[0], 0, 400, 0);
+        three_set_position(lights[1], 200, 400, 200);
+        three_set_position(lights[2], -200, -400, -200);
 
         add_obj(lights[0]);
         add_obj(lights[1]);
@@ -104,6 +106,7 @@ int init()
         register_font("homa", load_local("homa.ttf"));
         register_font("emoji", load_local("emoji.ttf"));
         register_font("sahel", load_local("sahel.ttf"));
+        register_font("shellia", load_local("shellia.ttf"));
 
         register_component("template", template);
         register_component("text", text_init);

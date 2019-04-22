@@ -11,15 +11,19 @@ import { RefKind, sly } from "../core/sly";
 import wasm from "../*.sm";
 import slyeAssets from "../module/assets/*.ttf";
 
-import img from "./assets/img.jpg";
-import pdbSrc from "./assets/ethanol.pdb";
+import images from "./assets/*.png";
 
 const assets: Record<string, Record<string, string>> = {
-  slye: {}
+  slye: {},
+  P1: {}
 };
 
 for (const key in slyeAssets) {
   assets.slye[key + ".ttf"] = slyeAssets[key];
+}
+
+for (const key in images) {
+  assets.P1[key + ".png"] = images[key];
 }
 
 server.setServer({
@@ -40,7 +44,7 @@ server.setServer({
     presentationId: string,
     asset: string
   ): Promise<ArrayBuffer> {
-    const path = img; // Just for now.
+    const path = assets[presentationId][asset]; // Just for now.
     const res = await fetch(path);
     return res.arrayBuffer();
   }
@@ -53,44 +57,34 @@ async function main() {
   const d = THREE.Math.degToRad;
 
   sly(p, {
+    template: {
+      moduleName: "slye",
+      component: "template"
+    },
     steps: [
       {
-        position: [0, 0, 0] as any,
-        rotation: [0, 0, 0] as any,
+        position: [0, 0, 100] as any,
+        rotation: [0, d(90), 0] as any,
         components: [
-          {
-            moduleName: "slye",
-            component: "text",
-            position: [0, 0, 0] as any,
-            rotation: [0, 0, 0] as any,
-            props: {
-              text: "سلام!",
-              font: {
-                kind: RefKind.FONT,
-                moduleName: "slye",
-                font: "homa"
-              }
-            }
-          },
           {
             moduleName: "slye",
             component: "picture",
             position: [0, 0, 0] as any,
-            rotation: [0, d(35), 0] as any,
+            rotation: [0, 0, 0] as any,
             props: {
               img: {
                 kind: RefKind.ASSET,
-                key: "img.jpg"
+                key: "slye.png"
               },
-              width: 19.2,
-              height: 10.8
+              width: 9.42,
+              height: 10.09
             }
           }
         ]
       },
       {
-        position: [20, 10, 0] as any,
-        rotation: [d(45), d(5), d(10)] as any,
+        position: [30, 10, 0] as any,
+        rotation: [d(45), d(39), d(10)] as any,
         components: [
           {
             moduleName: "slye",
@@ -98,7 +92,137 @@ async function main() {
             position: [0, 0, 0] as any,
             rotation: [0, 0, 0] as any,
             props: {
-              text: "سلام! این یک متن طولانی تر است.",
+              text: "Slye!",
+              size: 15,
+              font: {
+                kind: 1,
+                moduleName: "slye",
+                font: "shellia"
+              }
+            }
+          },
+          {
+            moduleName: "slye",
+            component: "text",
+            position: [-7, -10, 0] as any,
+            rotation: [0, 0, 0] as any,
+            props: {
+              text: "علیرضا قدیمی",
+              size: 5,
+              font: {
+                kind: 1,
+                moduleName: "slye",
+                font: "sahel"
+              }
+            }
+          }
+        ]
+      },
+      {
+        position: [30, 50, 0] as any,
+        rotation: [d(45), d(39), d(10)] as any,
+        components: [
+          {
+            moduleName: "slye",
+            component: "text",
+            position: [-10, 0, 0] as any,
+            rotation: [0, 0, 0] as any,
+            props: {
+              text: "Because presentation softwares are important.",
+              size: 5,
+              font: {
+                kind: 1,
+                moduleName: "slye",
+                font: "sahel"
+              }
+            }
+          }
+        ]
+      },
+      {
+        position: [120, -50, 0] as any,
+        rotation: [d(45), d(0), d(10)] as any,
+        components: [
+          {
+            moduleName: "slye",
+            component: "text",
+            position: [0, 0, 0] as any,
+            rotation: [0, 0, 0] as any,
+            props: {
+              text: "30M",
+              size: 25,
+              font: {
+                kind: 1,
+                moduleName: "slye",
+                font: "sahel"
+              }
+            }
+          },
+          {
+            moduleName: "slye",
+            component: "text",
+            position: [0, -5, 0] as any,
+            rotation: [0, 0, 0] as any,
+            props: {
+              text: "پاورپوینت روزانه ساخته میشود.",
+              size: 4,
+              font: {
+                kind: 1,
+                moduleName: "slye",
+                font: "sahel"
+              }
+            }
+          }
+        ]
+      },
+      {
+        position: [120, -50, 100] as any,
+        rotation: [d(45), d(0), d(10)] as any,
+        components: [
+          {
+            moduleName: "slye",
+            component: "text",
+            position: [0, 0, 0] as any,
+            rotation: [0, 0, 0] as any,
+            props: {
+              text: "15 M Hours",
+              size: 15,
+              font: {
+                kind: 1,
+                moduleName: "slye",
+                font: "sahel"
+              }
+            }
+          },
+          {
+            moduleName: "slye",
+            component: "text",
+            position: [15, -5, 0] as any,
+            rotation: [0, 0, 0] as any,
+            props: {
+              text: "روزانه صرف مشاهده ارائه ها میشود.",
+              size: 4,
+              font: {
+                kind: 1,
+                moduleName: "slye",
+                font: "sahel"
+              }
+            }
+          }
+        ]
+      },
+      {
+        position: [-50, -50, 0] as any,
+        rotation: [d(0), d(0), d(0)] as any,
+        components: [
+          {
+            moduleName: "slye",
+            component: "text",
+            position: [0, 0, 0] as any,
+            rotation: [0, 0, 0] as any,
+            props: {
+              text: "Lack of Imagination",
+              size: 15,
               font: {
                 kind: 1,
                 moduleName: "slye",
@@ -107,9 +231,139 @@ async function main() {
             }
           }
         ]
-      }
+      },
+      {
+        position: [-120, 0, 0] as any,
+        rotation: [d(-45), d(90), d(0)] as any,
+        components: [
+          {
+            moduleName: "slye",
+            component: "text",
+            position: [-30, 10, 0] as any,
+            rotation: [0, 0, 0] as any,
+            props: {
+              text: "What is",
+              size: 10,
+              font: {
+                kind: 1,
+                moduleName: "slye",
+                font: "sahel"
+              }
+            }
+          },
+          {
+            moduleName: "slye",
+            component: "text",
+            position: [0, -5, 0] as any,
+            rotation: [0, 0, 0] as any,
+            props: {
+              text: "Slye",
+              size: 20,
+              font: {
+                kind: 1,
+                moduleName: "slye",
+                font: "shellia"
+              }
+            }
+          },
+          {
+            moduleName: "slye",
+            component: "text",
+            position: [29, -15, 0] as any,
+            rotation: [0, 0, 0] as any,
+            props: {
+              text: "?",
+              size: 10,
+              font: {
+                kind: RefKind.FONT,
+                moduleName: "slye",
+                font: "sahel"
+              }
+            }
+          },
+        ]
+      },
+      {
+        position: [-20, -10, 0] as any,
+        rotation: [d(0), d(45), d(0)] as any,
+        components: [
+          {
+            moduleName: "slye",
+            component: "picture",
+            position: [10, 0, 0] as any,
+            rotation: [0, 0, 0] as any,
+            props: {
+              img: {
+                kind: RefKind.ASSET,
+                key: "image3.png"
+              },
+              width: 5 * 7.20,
+              height: 5 * 4.20
+            }
+          }
+        ]
+      },
+      {
+        position: [-50, 70, 0] as any,
+        rotation: [d(0), d(90), d(0)] as any,
+        components: [
+          {
+            moduleName: "slye",
+            component: "text",
+            position: [-30, 10, 0] as any,
+            rotation: [0, 0, 0] as any,
+            props: {
+              text: "It’s just PowerPoint,",
+              size: 7,
+              font: {
+                kind: 1,
+                moduleName: "slye",
+                font: "homa"
+              }
+            }
+          },
+          {
+            moduleName: "slye",
+            component: "text",
+            position: [-5, 0, 0] as any,
+            rotation: [0, 0, 0] as any,
+            props: {
+              text: "But it's 3D.",
+              size: 7,
+              font: {
+                kind: 1,
+                moduleName: "slye",
+                font: "homa"
+              }
+            }
+          }
+        ]
+      },
+      {
+        position: [-50, 90, 0] as any,
+        rotation: [d(0), d(0), d(0)] as any,
+        components: [
+          {
+            moduleName: "slye",
+            component: "text",
+            position: [0, 0, 0] as any,
+            rotation: [0, 0, 0] as any,
+            props: {
+              text: "Wait! there is “a lot” more...",
+              size: 7,
+              font: {
+                kind: 1,
+                moduleName: "slye",
+                font: "homa"
+              }
+            }
+          }
+        ]
+      },
     ]
   });
+
+  document.body.appendChild(p.domElement);
 
   // Just for now.
   const worldScene = (p as any).scene as THREE.Scene;
@@ -127,8 +381,6 @@ async function main() {
   dirLight.shadow.camera.near = 0.1;
   dirLight.shadow.camera.far = 40;
   worldScene.add(dirLight);
-
-  document.body.appendChild(p.domElement);
 
   // Debugging
   (window as any).p = p;

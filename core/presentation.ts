@@ -305,10 +305,14 @@ export class Presentation {
     this.currentStep = index;
     const step = this.steps[index];
 
-    const box = new Box3().setFromObject(step.group);
+    // In case there is no step.
+    if (!step) return;
+
+    const box = new Box3().setFromObject(step.group.children[0]);
     box.getSize(this.stepSize);
-    const stepWidth = this.stepSize.x;
-    const stepHeight = 30; // stepSize.y is not right for this :/
+
+    const stepWidth = this.stepSize.x; // This shit is not working.
+    const stepHeight = 40; // stepSize.y is not right for this :/
 
     const { x, y, z } = step.getPosition();
     const { x: ox, y: oy, z: oz } = step.getRotation();

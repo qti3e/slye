@@ -513,7 +513,8 @@ export class ModuleImpl implements Module {
           const geometry = new THREE.PlaneBufferGeometry(width, height, 32);
           const material = new THREE.MeshBasicMaterial({
             side: THREE.DoubleSide,
-            map: texture
+            map: texture,
+            transparent: true
           });
 
           const plane = new THREE.Mesh(geometry, material);
