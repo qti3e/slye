@@ -23,6 +23,7 @@ import {
 } from "three";
 import { Ease } from "./ease";
 import { Component, SlyeComponent } from "./component";
+import { fetchAsset } from "./server";
 import { Step } from "./step";
 
 /**
@@ -104,6 +105,7 @@ export class Presentation {
    * @param far Camera's far.
    */
   constructor(
+    private readonly id: string,
     private width: number,
     private height: number,
     private readonly fov: number = 75,
@@ -116,8 +118,6 @@ export class Presentation {
     this.renderer = new WebGLRenderer();
     this.renderer.setSize(width, height);
     this.domElement = this.renderer.domElement;
-
-    this.camera.position.z = 5;
 
     this.onClick = this.onClick.bind(this);
     this.onMove = this.onMove.bind(this);
@@ -353,5 +353,9 @@ export class Presentation {
       this.currentStep = this.steps.length - 1;
     }
     this.goTo(this.currentStep, duration);
+  }
+
+  asset(key: string): Promise<ArrayBuffer> {
+    return fetchAsset(this.id, key);
   }
 }

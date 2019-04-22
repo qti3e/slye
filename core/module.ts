@@ -162,10 +162,12 @@ export class ModuleImpl implements Module {
       _obj_set_num: this.objSetNum.bind(this),
       _get_string_prop_ref: this.getStringPropRef.bind(this),
       _get_font_prop_ref: this.getFontPropRef.bind(this),
+      _get_ab_prop_ref: this.getABPropRef.bind(this),
       _get_prop: this.getProp.bind(this),
       _font_layout: this.fontLayout.bind(this),
       _generate_text_geometry: this.generateTextGeometry.bind(this),
       _add_obj: this.addObj.bind(this),
+      _picture: this.picture.bind(this),
 
       _three_mesh_basic_material: this.threeMeshBasicMaterial.bind(this),
       _three_mesh_phong_material: this.threeMeshPhongMaterial.bind(this),
@@ -208,6 +210,9 @@ export class ModuleImpl implements Module {
       this.currentComponent.mem.gc();
     }
     this.currentComponent = c;
+    setTimeout(() => {
+      c.mem.gc();
+    });
   }
 
   // === PUBLIC INTERFACE ===
@@ -358,6 +363,14 @@ export class ModuleImpl implements Module {
     return ref;
   }
 
+  private getABPropRef(keyPtr: number): number {
+    const key = this.readChar(keyPtr);
+    const ab = this.currentComponent.getProp(key);
+    if (!(ab instanceof ArrayBuffer)) return -1;
+    const id = this.assets.alloc(ab);
+    return id;
+  }
+
   private getProp(keyPtr: number): number {
     const key = this.readChar(keyPtr);
     const value = this.currentComponent.getProp(key);
@@ -463,9 +476,8 @@ export class ModuleImpl implements Module {
   }
 
   private threeMesh(geoRef: number, materialRef: number): number {
-    const currentComponent = this.currentComponent;
-    const geoPromise = currentComponent.mem.load(geoRef);
-    const materialPromise = currentComponent.mem.load(materialRef);
+    const geoPromise = this.currentComponent.mem.load(geoRef);
+    const materialPromise = this.currentComponent.mem.load(materialRef);
 
     const value = new Promise(async (resolve, reject) => {
       const geo = await geoPromise;
@@ -473,6 +485,44 @@ export class ModuleImpl implements Module {
       const val = new THREE.Mesh(geo, material);
       resolve(val);
     });
+    const ref = this.currentComponent.mem.store(value);
+    return ref;
+  }
+
+  private picture(assetRef: number, width: number, height: number): number {
+    const abPromise = this.assets.getData(assetRef);
+
+    const value = new Promise((resolve, reject) => {
+      abPromise
+        .then(ab => {
+          const texture = new THREE.Texture();
+          texture.generateMipmaps = false;
+          texture.wrapS = texture.wrapT = THREE.ClampToEdgeWrapping;
+          texture.minFilter = THREE.LinearFilter;
+
+          const imageBlob = new Blob([ab], { type: "image/png" });
+          const url = URL.createObjectURL(imageBlob);
+
+          const image = new Image();
+          image.src = url;
+          image.onload = () => {
+            texture.image = image;
+            texture.needsUpdate = true;
+          };
+
+          const geometry = new THREE.PlaneBufferGeometry(width, height, 32);
+          const material = new THREE.MeshBasicMaterial({
+            side: THREE.DoubleSide,
+            map: texture
+          });
+
+          const plane = new THREE.Mesh(geometry, material);
+
+          resolve(plane);
+        })
+        .catch(reject);
+    });
+
     const ref = this.currentComponent.mem.store(value);
     return ref;
   }

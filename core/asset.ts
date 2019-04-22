@@ -53,9 +53,15 @@ export class Asset<Key = string> {
    */
   load(key: Key): number {
     if (this.key2id.has(key)) return this.key2id.get(key);
-    let id = this.last_id++;
+    const id = this.last_id++;
     this.key2id.set(key, id);
     this.id2key.set(id, key);
+    return id;
+  }
+
+  alloc(ab: ArrayBuffer): number {
+    const id = this.last_id++;
+    this.data.set(id, ab);
     return id;
   }
 

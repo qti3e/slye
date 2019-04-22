@@ -36,7 +36,7 @@ export interface Component {
   getRotation(): Vec3;
 }
 
-export type PropValue = string | number | undefined | Font;
+export type PropValue = string | number | undefined | Font | ArrayBuffer;
 
 /**
  * Component implementation.

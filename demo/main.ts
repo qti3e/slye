@@ -3,14 +3,16 @@ import Stats from "stats.js";
 import * as THREE from "three";
 
 import * as server from "../core/server";
-import { loadModule, component } from "../core/module";
+import { loadModule } from "../core/module";
 
 import { Presentation } from "../core/presentation";
-import { Step } from "../core/step";
-import { generateShapes } from "../core/draw";
+import { RefKind, sly } from "../core/sly";
 
 import wasm from "../*.sm";
 import slyeAssets from "../module/assets/*.ttf";
+
+import img from "./assets/img.jpg";
+import pdbSrc from "./assets/ethanol.pdb";
 
 const assets: Record<string, Record<string, string>> = {
   slye: {}
@@ -33,44 +35,104 @@ server.setServer({
     const path = assets[moduleName][assetKey];
     const res = await fetch(path);
     return res.arrayBuffer();
+  },
+  async fetchAsset(
+    presentationId: string,
+    asset: string
+  ): Promise<ArrayBuffer> {
+    const path = img; // Just for now.
+    const res = await fetch(path);
+    return res.arrayBuffer();
   }
 });
 
 async function main() {
   const m1 = await loadModule("slye");
 
-  const p = new Presentation(window.innerWidth, window.innerHeight);
+  const p = new Presentation("P1", window.innerWidth, window.innerHeight);
+  const d = THREE.Math.degToRad;
 
-  const template = await component("slye", "template");
-  p.setTemplate(template);
-
-  const s1 = new Step();
-  p.add(s1);
-
-  const c1 = await component("slye", "text", {
-    text: "سلام!",
-    font: m1.font("homa")
+  sly(p, {
+    steps: [
+      {
+        position: [0, 0, 0] as any,
+        rotation: [0, 0, 0] as any,
+        components: [
+          {
+            moduleName: "slye",
+            component: "text",
+            position: [0, 0, 0] as any,
+            rotation: [0, 0, 0] as any,
+            props: {
+              text: "سلام!",
+              font: {
+                kind: RefKind.FONT,
+                moduleName: "slye",
+                font: "homa"
+              }
+            }
+          },
+          {
+            moduleName: "slye",
+            component: "picture",
+            position: [0, 0, 0] as any,
+            rotation: [0, d(35), 0] as any,
+            props: {
+              img: {
+                kind: RefKind.ASSET,
+                key: "img.jpg"
+              },
+              width: 19.2,
+              height: 10.8
+            }
+          }
+        ]
+      },
+      {
+        position: [20, 10, 0] as any,
+        rotation: [d(45), d(5), d(10)] as any,
+        components: [
+          {
+            moduleName: "slye",
+            component: "text",
+            position: [0, 0, 0] as any,
+            rotation: [0, 0, 0] as any,
+            props: {
+              text: "سلام! این یک متن طولانی تر است.",
+              font: {
+                kind: 1,
+                moduleName: "slye",
+                font: "homa"
+              }
+            }
+          }
+        ]
+      }
+    ]
   });
-  s1.add(c1);
 
-  const s2 = new Step();
-  p.add(s2);
-
-  const c2 = await component("slye", "text", {
-    text: "سلام! این یک متن بلند تر است.",
-    font: m1.font("sahel")
-  });
-  s2.add(c2);
-  s2.setPosition(20, 10, 0);
-  s2.setRotation(THREE.Math.degToRad(45), THREE.Math.degToRad(5), THREE.Math.degToRad(10));
-
-  (p as any).camera.position.z = 50;
+  // Just for now.
+  const worldScene = (p as any).scene as THREE.Scene;
+  worldScene.background = new THREE.Color(0xbfd1e5);
+  const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444);
+  hemiLight.position.set(0, 200, 0);
+  worldScene.add(hemiLight);
+  const dirLight = new THREE.DirectionalLight(0xffffff);
+  dirLight.position.set(-30, 100, -100);
+  dirLight.castShadow = true;
+  dirLight.shadow.camera.top = 100;
+  dirLight.shadow.camera.bottom = -10;
+  dirLight.shadow.camera.left = -10;
+  dirLight.shadow.camera.right = 10;
+  dirLight.shadow.camera.near = 0.1;
+  dirLight.shadow.camera.far = 40;
+  worldScene.add(dirLight);
 
   document.body.appendChild(p.domElement);
+
+  // Debugging
   (window as any).p = p;
   (window as any).THREE = THREE;
-
-  p.goTo(0);
 
   // Events
 
@@ -98,9 +160,11 @@ async function main() {
   }
 
   function keydown(event: KeyboardEvent) {
-    if (event.keyCode === 9 ||
+    if (
+      event.keyCode === 9 ||
       (event.keyCode >= 32 && event.keyCode <= 34) ||
-      (event.keyCode >= 37 && event.keyCode <= 40)) {
+      (event.keyCode >= 37 && event.keyCode <= 40)
+    ) {
       event.preventDefault();
     }
   }
@@ -112,7 +176,7 @@ async function main() {
       case 38: // up
         goToPrev();
         break;
-      case 9:  // tab
+      case 9: // tab
       case 32: // space
       case 34: // pg down
       case 39: // right
