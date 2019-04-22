@@ -290,7 +290,7 @@ async function main() {
           {
             moduleName: "slye",
             component: "picture",
-            position: [10, 0, 0] as any,
+            position: [0, 0, 0] as any,
             rotation: [0, 0, 0] as any,
             props: {
               img: {

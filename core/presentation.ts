@@ -305,19 +305,27 @@ export class Presentation {
     this.currentStep = index;
     const step = this.steps[index];
 
+    console.log(step.group.position, step.group.rotation);
+
     // In case there is no step.
     if (!step) return;
 
-    const box = new Box3().setFromObject(step.group.children[0]);
+    const tmp = this.stepSize;
+    tmp.set(step.group.rotation.x, step.group.rotation.y, step.group.rotation.z);
+    step.group.rotation.set(0, 0, 0);
+
+    const box = new Box3().setFromObject(step.group);
+
+    step.group.rotation.set(tmp.x, tmp.y, tmp.z);
+
     box.getSize(this.stepSize);
 
+    const center = box.max.sub(box.min).divideScalar(2);
+
     const stepWidth = this.stepSize.x; // This shit is not working.
-    const stepHeight = 40; // stepSize.y is not right for this :/
+    const stepHeight = this.stepSize.y; // stepSize.y is not right for this :/
 
-    const { x, y, z } = step.getPosition();
-    const { x: ox, y: oy, z: oz } = step.getRotation();
-
-    // Find distance between camera and text.
+    // Find the distance.
     const vFov = ThreeMath.degToRad(this.fov);
     const farHeight = 2 * Math.tan(vFov / 2) * this.far;
 
@@ -331,16 +339,14 @@ export class Presentation {
       distance = (this.far * stepHeight) / farHeight / (3 / 4);
     }
 
-    // Align camera so it'll focus on centre of text geometry.
-    const alignX = stepWidth / 2;
-    const alighY = 0;
+    // Now look at the center.
+    const { x: rx, y: ry, z: rz } = step.getRotation();
+    const position = step.group.position;
+    const target	= new Vector3(stepWidth / 2, stepHeight / 2, distance);
+    target.applyEuler(new Euler(rx, ry, rz, "XYZ"));
+    target.add(position);
 
-    const position = new Vector3(alignX, alighY, distance);
-    const e = new Euler(ox, oy, oz, "XYZ");
-    position.applyEuler(e);
-    position.add(new Vector3(x, y, z));
-
-    this.updateCamera(duration, position.x, position.y, position.z, ox, oy, oz);
+    this.updateCamera(duration, target.x, target.y, target.z, rx, ry, rz);
   }
 
   next(duration = 120): void {
