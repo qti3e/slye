@@ -6,8 +6,9 @@
     "preserveConstEnums": true,
     "sourceMap": true,
     "downlevelIteration": true,
+    "noEmit": true,
     "lib": ["ES2015", "DOM"]
   },
-  "include": ["core/**/*", "demo/**/*", "*.d.ts"],
+  "include": ["core/**/*", "demo/**/*", "*.d.ts", "ui/**/*"],
   "exclude": ["node_modules", "**/*.spec.ts"]
 }

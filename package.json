@@ -1,15 +1,26 @@
 {
+  "license": "UNLICENSED",
   "dependencies": {
     "fontkit": "^1.8.0",
     "stats.js": "^0.17.0",
     "three": "^0.103.0"
   },
   "scripts": {
-    "build-wasm": "emcc module/*.c -O3 -s WASM=1 -s SIDE_MODULE=1 -s EXPORTED_FUNCTIONS='[\"_init\"]' -o slye.wasm; mv slye.wasm slye.sm"
+    "build:wasm": "rm slye.sm; emcc module/*.c -O3 -s WASM=1 -s SIDE_MODULE=1 -s EXPORTED_FUNCTIONS='[\"_init\"]' -o slye.wasm; mv ./slye.wasm ./slye.sm",
+    "build:module": "yarn run build:wasm; mkdir -p ./dist/modules/slye;  cp ./slye.sm ./dist/modules/slye/main.wasm; cp -rf ./module/assets/ ./dist/modules/slye",
+    "build:static": "yarn build:module && cp ./ui/static/ dist/ -r",
+    "rollup": "rollup -c",
+    "build": "yarn rollup && yarn build:static",
+    "start:app": "electron ./dist/main.js",
+    "start": "yarn build && yarn start:app"
   },
   "devDependencies": {
     "@types/node": "^11.13.6",
     "cssnano": "^4.1.10",
+    "electron": "4.1.4",
+    "rollup": "1.10.1",
+    "rollup-plugin-typescript": "^1.0.1",
+    "tslib": "^1.9.3",
     "typescript": "^3.4.4"
   }
 }
