@@ -1,0 +1,8 @@
+@import "@material/button/mdc-button";
+@import "@material/textfield/mdc-text-field";
+@import "@material/floating-label/mdc-floating-label";
+
+.foo-button {
+  @include mdc-button-ink-color(teal);
+  @include mdc-states(teal);
+}

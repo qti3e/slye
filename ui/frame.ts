@@ -12,7 +12,7 @@ import { Remote } from "electron";
 
 const remote: Remote = window.remote;
 
-function bind(): void {
+export function bind(): void {
   document.getElementById("min-btn").addEventListener("click", () => {
     const window = remote.getCurrentWindow();
     window.minimize();
@@ -32,9 +32,3 @@ function bind(): void {
     window.close();
   });
 }
-
-document.addEventListener("readystatechange", () => {
-  if (document.readyState === "complete") {
-    bind();
-  }
-});

@@ -2,6 +2,7 @@
   "license": "UNLICENSED",
   "dependencies": {
     "fontkit": "^1.8.0",
+    "material-components-web": "^1.1.1",
     "stats.js": "^0.17.0",
     "three": "^0.103.0"
   },
@@ -18,7 +19,10 @@
     "@types/node": "^11.13.6",
     "cssnano": "^4.1.10",
     "electron": "4.1.4",
+    "postcss": "^7.0.14",
     "rollup": "1.10.1",
+    "rollup-plugin-node-resolve": "^4.2.3",
+    "rollup-plugin-sass": "^1.2.2",
     "rollup-plugin-typescript": "^1.0.1",
     "tslib": "^1.9.3",
     "typescript": "^3.4.4"
