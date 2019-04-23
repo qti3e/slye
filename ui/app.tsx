@@ -8,9 +8,12 @@
  *       Copyright 2019 Parsa Ghadimi. All Rights Reserved.
  */
 
-import { editor } from "./editor";
-import { open } from "./util";
+import React, { Component } from "react";
 
-export function render(wrapper: HTMLElement): void {
-  open(wrapper, editor);
+export class App extends Component {
+  render() {
+    return (
+      <div>Hello World</div>
+    );
+  }
 }

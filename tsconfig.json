@@ -7,7 +7,9 @@
     "sourceMap": true,
     "downlevelIteration": true,
     "noEmit": true,
-    "lib": ["ES2015", "DOM"]
+    "lib": ["ES2015", "DOM"],
+    "allowSyntheticDefaultImports": true,
+    "jsx": "react"
   },
   "include": ["core/**/*", "demo/**/*", "*.d.ts", "ui/**/*"],
   "exclude": ["node_modules", "**/*.spec.ts"]

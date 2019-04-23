@@ -1,28 +1,39 @@
 {
   "license": "UNLICENSED",
   "dependencies": {
+    "@material-ui/core": "^3.9.3",
     "fontkit": "^1.8.0",
     "material-components-web": "^1.1.1",
+    "material-design-icons": "^3.0.1",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
     "stats.js": "^0.17.0",
     "three": "^0.103.0"
   },
   "scripts": {
     "build:wasm": "rm slye.sm; emcc module/*.c -O3 -s WASM=1 -s SIDE_MODULE=1 -s EXPORTED_FUNCTIONS='[\"_init\"]' -o slye.wasm; mv ./slye.wasm ./slye.sm",
     "build:module": "yarn run build:wasm; mkdir -p ./dist/modules/slye;  cp ./slye.sm ./dist/modules/slye/main.wasm; cp -rf ./module/assets/ ./dist/modules/slye",
-    "build:static": "yarn build:module && cp ./ui/static/ dist/ -r",
+    "build:font": "cp ./node_modules/material-design-icons/iconfont/ dist/static/ -r",
+    "build:static": "yarn build:module && cp ./ui/static dist/ -r && yarn build:font",
     "rollup": "rollup -c",
     "build": "yarn rollup && yarn build:static",
     "start:app": "electron ./dist/main.js",
-    "start": "yarn build && yarn start:app"
+    "start": "yarn build && yarn start:app",
+    "dev": "rollup -c --watch & yarn start:app"
   },
   "devDependencies": {
     "@types/node": "^11.13.6",
+    "@types/react-dom": "^16.8.4",
     "cssnano": "^4.1.10",
     "electron": "4.1.4",
     "postcss": "^7.0.14",
     "rollup": "1.10.1",
+    "rollup-plugin-commonjs": "^9.3.4",
+    "rollup-plugin-livereload": "^1.0.0",
+    "rollup-plugin-node-globals": "^1.4.0",
     "rollup-plugin-node-resolve": "^4.2.3",
     "rollup-plugin-sass": "^1.2.2",
+    "rollup-plugin-serve": "^1.0.1",
     "rollup-plugin-typescript": "^1.0.1",
     "tslib": "^1.9.3",
     "typescript": "^3.4.4"

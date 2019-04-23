@@ -30,7 +30,8 @@ function createWindow() {
     }
   });
 
-  mainWindow.loadURL(`file://${__dirname}/static/app.html`);
+  //mainWindow.loadURL(`file://${__dirname}/static/index.html`);
+  mainWindow.loadURL(`http://localhost:10001`);
 
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
