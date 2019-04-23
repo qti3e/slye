@@ -56,3 +56,4 @@ npm-debug.log.*
 tmp
 
 *.sm
+package-lock.json
