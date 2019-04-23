@@ -1,4 +1,15 @@
+/**
+ *    _____ __
+ *   / ___// /_  _____
+ *   \__ \/ / / / / _ \
+ *  ___/ / / /_/ /  __/
+ * /____/_/\__, /\___/
+ *       /____/
+ *       Copyright 2019 Parsa Ghadimi. All Rights Reserved.
+ */
+
 import { app, BrowserWindow } from "electron";
+import { Server } from "./server";
 import * as path from "path";
 
 let mainWindow: Electron.BrowserWindow;
@@ -35,6 +46,9 @@ function createWindow() {
   mainWindow.on("closed", () => {
     mainWindow = null;
   });
+
+  // TODO(qti3e) Support multi window process.
+  new Server(mainWindow);
 }
 
 app.on("ready", createWindow);
