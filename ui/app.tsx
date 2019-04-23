@@ -9,11 +9,31 @@
  */
 
 import React, { Component } from "react";
+import { Dashboard } from "./dashboard";
+import { Editor } from "./editor";
 
-export class App extends Component {
+interface AppState {
+  presentationDescriptor?: string;
+}
+
+export class App extends Component<{}, AppState> {
+  constructor(props: {}) {
+    super(props);
+    this.state = {};
+  }
+
+  create = async (title: string, description: string) => {
+    const { presentationDescriptor } = await client.create();
+    this.setState({
+      presentationDescriptor
+    });
+  }
+
   render() {
-    return (
-      <div>Hello World</div>
-    );
+    const { presentationDescriptor } = this.state;
+    if (presentationDescriptor) {
+      return <Editor presentationDescriptor={presentationDescriptor}/>;
+    }
+    return <Dashboard onCreate={this.create} />;
   }
 }

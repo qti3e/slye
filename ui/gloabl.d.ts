@@ -16,4 +16,5 @@ declare global {
     remote: Remote;
     client: Client;
   }
+  const client: Client;
 }
