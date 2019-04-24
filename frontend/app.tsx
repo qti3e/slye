@@ -19,7 +19,9 @@ interface AppState {
 export class App extends Component<{}, AppState> {
   constructor(props: {}) {
     super(props);
-    this.state = {};
+    this.state = {
+      presentationDescriptor: "xxx"
+    };
   }
 
   create = async (title: string, description: string) => {

@@ -11,30 +11,23 @@
     "three": "^0.103.0"
   },
   "scripts": {
-    "build:wasm": "rm slye.sm; emcc module/*.c -O3 -s WASM=1 -s SIDE_MODULE=1 -s EXPORTED_FUNCTIONS='[\"_init\"]' -o slye.wasm; mv ./slye.wasm ./slye.sm",
+    "preinstall": "rm -r node_modules/@slye; echo 'Otherwise yarn removes the files.' > /dev/null",
+    "postinstall": "mkdir -p node_modules/@slye && ln -nsf ../../core node_modules/@slye/core",
+    "build:wasm": "emcc module/*.c -O3 -s WASM=1 -s SIDE_MODULE=1 -s EXPORTED_FUNCTIONS='[\"_init\"]' -o slye.wasm; mv ./slye.wasm ./slye.sm",
     "build:module": "yarn run build:wasm; mkdir -p ./dist/modules/slye;  cp ./slye.sm ./dist/modules/slye/main.wasm; cp -rf ./module/assets/ ./dist/modules/slye",
-    "build:font": "cp ./node_modules/material-design-icons/iconfont/ dist/static/ -r",
-    "build:static": "yarn build:module && cp ./ui/static dist/ -r && yarn build:font",
-    "rollup": "rollup -c",
-    "build": "yarn rollup && yarn build:static",
-    "start:app": "electron ./dist/main.js",
+    "build:electron": "parcel build electron/main.ts --target electron && parcel build electron/preload.ts --target electron",
+    "build": "parcel build static/index.html --public-url ./ && yarn build:module",
+    "start:app": "yarn build:electron && electron ./dist/main.js",
     "start": "yarn build && yarn start:app",
-    "dev": "rollup -c --watch & yarn start:app"
+    "dev": "parcel static/index.html & SLYE_DEV=1 yarn start:app"
   },
   "devDependencies": {
     "@types/node": "^11.13.6",
+    "@types/react": "^16.8.14",
     "@types/react-dom": "^16.8.4",
     "cssnano": "^4.1.10",
     "electron": "4.1.4",
-    "postcss": "^7.0.14",
-    "rollup": "1.10.1",
-    "rollup-plugin-commonjs": "^9.3.4",
-    "rollup-plugin-livereload": "^1.0.0",
-    "rollup-plugin-node-globals": "^1.4.0",
-    "rollup-plugin-node-resolve": "^4.2.3",
-    "rollup-plugin-sass": "^1.2.2",
-    "rollup-plugin-serve": "^1.0.1",
-    "rollup-plugin-typescript": "^1.0.1",
+    "parcel": "^1.12.3",
     "tslib": "^1.9.3",
     "typescript": "^3.4.4"
   }

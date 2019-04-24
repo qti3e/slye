@@ -9,7 +9,7 @@
  */
 
 import { Remote } from "electron";
-import { Client } from "./client";
+import { Client } from "./ipc";
 
 declare global {
   interface Window {

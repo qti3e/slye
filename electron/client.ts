@@ -9,9 +9,9 @@
  */
 
 import { ipcRenderer, IpcMessageEvent } from "electron";
-import * as types from "./ipc";
+import * as types from "../frontend/ipc";
 
-export class Client {
+export class Client implements types.Client {
   private readonly resolves: Map<number, any> = new Map();
   private lastReqId: number = 0;
 

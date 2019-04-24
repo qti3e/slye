@@ -30,8 +30,11 @@ function createWindow() {
     }
   });
 
-  //mainWindow.loadURL(`file://${__dirname}/static/index.html`);
-  mainWindow.loadURL(`http://localhost:10001`);
+  if (process.env.SLYE_DEV) {
+    mainWindow.loadURL(`http://localhost:1234`);
+  } else {
+    mainWindow.loadURL(`file://${__dirname}/index.html`);
+  }
 
   // Open the DevTools.
   mainWindow.webContents.openDevTools();

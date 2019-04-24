@@ -9,7 +9,7 @@
  */
 
 import { ipcMain, IpcMessageEvent, BrowserWindow } from "electron";
-import * as types from "./ipc";
+import * as types from "../frontend/ipc";
 
 export class Server {
   constructor(private readonly window: BrowserWindow) {

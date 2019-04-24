@@ -10,6 +10,10 @@
 
 // Types for client and server.
 
+export interface Client {
+  create(): Promise<CreateResponseData>;
+}
+
 export enum MsgKind {
   CREATE
 }
