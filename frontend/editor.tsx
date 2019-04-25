@@ -63,6 +63,7 @@ export class Editor extends Component<EditorProps> {
     }, false);
 
     // TODO(qti3e) Construct the presentation.
+    console.log("open", presentationDescriptor);
 
     this.canvasWrapper = (
       <div

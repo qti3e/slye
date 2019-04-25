@@ -33,7 +33,7 @@ export class Step {
    */
   group: Group;
 
-  constructor() {
+  constructor(private readonly uuid: string) {
     this.group = new Group();
   }
 

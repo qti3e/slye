@@ -2,13 +2,18 @@
   "license": "UNLICENSED",
   "dependencies": {
     "@material-ui/core": "^3.9.3",
+    "@types/uuid": "^3.4.4",
+    "@types/yauzl": "^2.9.1",
     "fontkit": "^1.8.0",
     "material-components-web": "^1.1.1",
     "material-design-icons": "^3.0.1",
+    "mktemp": "^0.4.0",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "stats.js": "^0.17.0",
-    "three": "^0.103.0"
+    "three": "^0.103.0",
+    "uuid": "^3.3.2",
+    "yauzl": "^2.10.0"
   },
   "scripts": {
     "preinstall": "rm -r node_modules/@slye; echo 'Otherwise yarn removes the files.' > /dev/null",

@@ -56,6 +56,8 @@ async function main() {
   const p = new Presentation("P1", window.innerWidth, window.innerHeight);
   const d = THREE.Math.degToRad;
 
+  const u = () => (Math.random() + 1).toString(16).padEnd(10, "0").substr(2);
+
   sly(p, {
     template: {
       moduleName: "slye",
@@ -63,6 +65,7 @@ async function main() {
     },
     steps: [
       {
+        uuid: u(),
         position: [0, 0, 100] as any,
         rotation: [0, d(90), 0] as any,
         components: [
@@ -83,6 +86,7 @@ async function main() {
         ]
       },
       {
+        uuid: u(),
         position: [30, 10, 0] as any,
         rotation: [d(45), d(39), d(10)] as any,
         components: [
@@ -119,6 +123,7 @@ async function main() {
         ]
       },
       {
+        uuid: u(),
         position: [30, 50, 0] as any,
         rotation: [d(45), d(39), d(10)] as any,
         components: [
@@ -140,6 +145,7 @@ async function main() {
         ]
       },
       {
+        uuid: u(),
         position: [120, -50, 0] as any,
         rotation: [d(45), d(0), d(10)] as any,
         components: [
@@ -176,6 +182,7 @@ async function main() {
         ]
       },
       {
+        uuid: u(),
         position: [120, -50, 100] as any,
         rotation: [d(45), d(0), d(10)] as any,
         components: [
@@ -212,6 +219,7 @@ async function main() {
         ]
       },
       {
+        uuid: u(),
         position: [-50, -50, 0] as any,
         rotation: [d(0), d(0), d(0)] as any,
         components: [
@@ -233,6 +241,7 @@ async function main() {
         ]
       },
       {
+        uuid: u(),
         position: [-120, 0, 0] as any,
         rotation: [d(-45), d(90), d(0)] as any,
         components: [
@@ -284,6 +293,7 @@ async function main() {
         ]
       },
       {
+        uuid: u(),
         position: [-20, -10, 0] as any,
         rotation: [d(0), d(45), d(0)] as any,
         components: [
@@ -304,6 +314,7 @@ async function main() {
         ]
       },
       {
+        uuid: u(),
         position: [-50, 70, 0] as any,
         rotation: [d(0), d(90), d(0)] as any,
         components: [
@@ -340,6 +351,7 @@ async function main() {
         ]
       },
       {
+        uuid: u(),
         position: [-50, 90, 0] as any,
         rotation: [d(0), d(0), d(0)] as any,
         components: [
