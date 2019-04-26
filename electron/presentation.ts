@@ -24,15 +24,12 @@ export class PresentationFile {
     return path.join(this.dir, f);
   }
 
+  // Public Interface.
+
   close(): void {
     // Remove dir.
   }
 
-  /**
-   * Init a new presentation.
-   *
-   * @returns {undefined}
-   */
   async init(): Promise<void> {
     this.meta = {
       uuid: this.uuid,

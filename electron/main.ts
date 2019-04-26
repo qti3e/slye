@@ -10,6 +10,7 @@
 
 import { app, BrowserWindow } from "electron";
 import { Server } from "./server";
+import { registerSlyeProtocol } from "./protocol";
 import * as path from "path";
 
 let mainWindow: Electron.BrowserWindow;
@@ -30,12 +31,6 @@ function createWindow() {
     }
   });
 
-  if (process.env.SLYE_DEV) {
-    mainWindow.loadURL(`http://localhost:1234`);
-  } else {
-    mainWindow.loadURL(`file://${__dirname}/index.html`);
-  }
-
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
 
@@ -51,8 +46,14 @@ function createWindow() {
     mainWindow = null;
   });
 
-  // TODO(qti3e) Support multi window process.
-  new Server(mainWindow);
+  const server = new Server();
+  registerSlyeProtocol(server);
+
+  if (process.env.SLYE_DEV) {
+    mainWindow.loadURL(`http://localhost:1234`);
+  } else {
+    mainWindow.loadURL(`file://${__dirname}/index.html`);
+  }
 }
 
 app.on("ready", createWindow);

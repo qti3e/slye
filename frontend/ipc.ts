@@ -12,7 +12,7 @@ import * as sly from "@slye/core/sly";
 
 // Types for client and server.
 
-type Meta = Record<string, string | number>;
+export type Meta = Record<string, string | number>;
 
 export interface Client {
   create(): Promise<CreateResponseData>;
@@ -193,7 +193,7 @@ export interface FetchWAsmResponse extends ResponseBase {
 }
 
 export interface FetchWAsmResponseData {
-  ab: ArrayBuffer;
+  url: string;
 }
 
 // === FETCH_MODULE_ASSET

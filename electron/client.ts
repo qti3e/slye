@@ -9,6 +9,7 @@
  */
 
 import { ipcRenderer, IpcMessageEvent } from "electron";
+import * as sly from "@slye/core/sly";
 import * as types from "../frontend/ipc";
 
 export class Client implements types.Client {
@@ -34,12 +35,14 @@ export class Client implements types.Client {
     resolve(res.data);
   }
 
+  // TODO(qti3e) Typing on this function can be improved or simpilfied.
   private sendRequest<
-    T extends Pick<types.RequestBase, Exclude<keyof types.RequestBase, "id">>,
-    V = (types.Response & { kind: T["kind"] })["data"]
-  >(req: T): Promise<V> {
+    R extends types.Request,
+    D extends types.ResponseData,
+    T = Pick<R, Exclude<keyof R, "id">>
+  >(req: T): Promise<D> {
     const id = this.lastReqId++;
-    const promise = new Promise<V>(resolve => {
+    const promise = new Promise<D>(resolve => {
       this.resolves.set(id, resolve);
     });
     // Set the id & send the message.
@@ -52,8 +55,99 @@ export class Client implements types.Client {
    * Create a new presentation.
    */
   create(): Promise<types.CreateResponseData> {
-    return this.sendRequest({
+    return this.sendRequest<types.CreateRequest, types.CreateResponseData>({
       kind: types.MsgKind.CREATE
+    });
+  }
+
+  close(presentationDescriptor: string): Promise<types.CloseResponseData> {
+    return this.sendRequest<types.CloseRequest, types.CloseResponseData>({
+      kind: types.MsgKind.CLOSE,
+      presentationDescriptor
+    });
+  }
+
+  patchMeta(
+    presentationDescriptor: string,
+    meta: types.Meta
+  ): Promise<types.PatchMetaResponseData> {
+    return this.sendRequest<
+      types.PatchMetaRequest,
+      types.PatchMetaResponseData
+    >({
+      kind: types.MsgKind.PATCH_META,
+      presentationDescriptor,
+      meta
+    });
+  }
+
+  getMeta(presentationDescriptor: string): Promise<types.GetMetaResponseData> {
+    return this.sendRequest<types.GetMetaRequest, types.GetMetaResponseData>({
+      kind: types.MsgKind.GET_META,
+      presentationDescriptor
+    });
+  }
+
+  patchStep(
+    presentationDescriptor: string,
+    uuid: string,
+    step: Partial<sly.JSONPresentationStep>
+  ): Promise<types.PatchStepResponseData> {
+    return this.sendRequest<
+      types.PatchStepRequest,
+      types.PatchStepResponseData
+    >({
+      kind: types.MsgKind.PATCH_STEP,
+      presentationDescriptor,
+      uuid,
+      step
+    });
+  }
+
+  fetchSly(
+    presentationDescriptor: string
+  ): Promise<types.FetchSlyResponseData> {
+    return this.sendRequest<types.FetchSlyRequest, types.FetchSlyResponseData>({
+      kind: types.MsgKind.FETCH_SLY,
+      presentationDescriptor
+    });
+  }
+
+  fetchWAsm(moduleName: string): Promise<types.FetchWAsmResponseData> {
+    return this.sendRequest<
+      types.FetchWAsmRequest,
+      types.FetchWAsmResponseData
+    >({
+      kind: types.MsgKind.FETCH_WASM,
+      moduleName
+    });
+  }
+
+  fetchModuleAsset(
+    moduleName: string,
+    assetName: string
+  ): Promise<types.FetchModuleAssetResponseData> {
+    return this.sendRequest<
+      types.FetchModuleAssetRequest,
+      types.FetchModuleAssetResponseData
+    >({
+      kind: types.MsgKind.FETCH_MODULE_ASSET,
+      moduleName,
+      assetName
+    });
+  }
+
+  fetchAsset(
+    presentationDescriptor: string,
+    assetId: string
+  ): Promise<types.FetchAssetResponseData> {
+    return this.sendRequest<
+      types.FetchAssetRequest,
+      types.FetchAssetResponseData
+    >({
+      kind: types.MsgKind.FETCH_ASSET,
+      presentationDescriptor,
+      assetId
     });
   }
 }
