@@ -112,36 +112,4 @@ export class Server implements ServerInterface {
       presentation
     };
   }
-
-  // There is no need to this message to the server.
-  async [types.MsgKind.FETCH_WASM](
-    req: types.FetchWAsmRequest
-  ): Promise<types.FetchWAsmResponseData> {
-    const { moduleName } = req;
-    const url = `slye://modules/${moduleName}/main.wasm`;
-    return {
-      url
-    };
-  }
-
-  async [types.MsgKind.FETCH_MODULE_ASSET](
-    req: types.FetchModuleAssetRequest
-  ): Promise<types.FetchAssetResponseData> {
-    const { moduleName, assetName } = req;
-    // TODO(qti3e)
-    const ab: ArrayBuffer = undefined;
-    return {
-      ab
-    };
-  }
-
-  async [types.MsgKind.FETCH_ASSET](
-    req: types.FetchAssetRequest
-  ): Promise<types.FetchAssetResponseData> {
-    const p = this.presentations.get(req.presentationDescriptor);
-    const ab = await p.getAsset(req.assetId);
-    return {
-      ab
-    };
-  }
 }

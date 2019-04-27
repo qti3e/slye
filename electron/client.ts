@@ -113,41 +113,15 @@ export class Client implements types.Client {
     });
   }
 
-  fetchWAsm(moduleName: string): Promise<types.FetchWAsmResponseData> {
-    return this.sendRequest<
-      types.FetchWAsmRequest,
-      types.FetchWAsmResponseData
-    >({
-      kind: types.MsgKind.FETCH_WASM,
-      moduleName
-    });
+  async getWAsmURL(moduleName: string): Promise<string> {
+    return `slye://modules/${moduleName}/main.wasm`;
   }
 
-  fetchModuleAsset(
-    moduleName: string,
-    assetName: string
-  ): Promise<types.FetchModuleAssetResponseData> {
-    return this.sendRequest<
-      types.FetchModuleAssetRequest,
-      types.FetchModuleAssetResponseData
-    >({
-      kind: types.MsgKind.FETCH_MODULE_ASSET,
-      moduleName,
-      assetName
-    });
+  async getModuleAssetURL(moduleName: string, asset: string): Promise<string> {
+    return `slye://modules/${moduleName}/assets/${asset}`;
   }
 
-  fetchAsset(
-    presentationDescriptor: string,
-    assetId: string
-  ): Promise<types.FetchAssetResponseData> {
-    return this.sendRequest<
-      types.FetchAssetRequest,
-      types.FetchAssetResponseData
-    >({
-      kind: types.MsgKind.FETCH_ASSET,
-      presentationDescriptor,
-      assetId
-    });
+  async getAssetURL(pd: string, asset: string): Promise<string> {
+    return `slye://presentation/${pd}/assets/${asset}`;
   }
 }

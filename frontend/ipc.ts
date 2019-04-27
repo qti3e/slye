@@ -25,12 +25,9 @@ export interface Client {
     step: Partial<sly.JSONPresentationStep>
   ): Promise<PatchStepResponseData>;
   fetchSly(pd: string): Promise<FetchSlyResponseData>;
-  fetchWAsm(moduleName: string): Promise<FetchWAsmResponseData>;
-  fetchModuleAsset(
-    moduleName: string,
-    asset: string
-  ): Promise<FetchAssetResponseData>;
-  fetchAsset(pd: string, asset: string): Promise<FetchAssetResponseData>;
+  getWAsmURL(moduleName: string): Promise<string>;
+  getModuleAssetURL(moduleName: string, asset: string): Promise<string>;
+  getAssetURL(pd: string, asset: string): Promise<string>;
 }
 
 export enum MsgKind {
@@ -39,10 +36,7 @@ export enum MsgKind {
   PATCH_META,
   GET_META,
   PATCH_STEP,
-  FETCH_SLY,
-  FETCH_WASM,
-  FETCH_MODULE_ASSET,
-  FETCH_ASSET
+  FETCH_SLY
 }
 
 export type Request =
@@ -51,10 +45,7 @@ export type Request =
   | PatchMetaRequest
   | GetMetaRequest
   | PatchStepRequest
-  | FetchSlyRequest
-  | FetchWAsmRequest
-  | FetchModuleAssetRequest
-  | FetchAssetRequest;
+  | FetchSlyRequest;
 
 export type Response =
   | CreateResponse
@@ -62,10 +53,7 @@ export type Response =
   | PatchMetaResponse
   | GetMetaResponse
   | PatchStepResponse
-  | FetchSlyResponse
-  | FetchWAsmResponse
-  | FetchModuleAssetResponse
-  | FetchAssetResponse;
+  | FetchSlyResponse;
 
 export type ResponseData =
   | CreateResponseData
@@ -73,10 +61,7 @@ export type ResponseData =
   | PatchMetaResponseData
   | GetMetaResponseData
   | PatchStepResponseData
-  | FetchSlyResponseData
-  | FetchWAsmResponseData
-  | FetchModuleAssetResponseData
-  | FetchAssetResponseData;
+  | FetchSlyResponseData;
 
 export interface RequestBase {
   kind: MsgKind;
@@ -179,51 +164,4 @@ export interface FetchSlyResponse extends ResponseBase {
 
 export interface FetchSlyResponseData {
   presentation: sly.JSONPresentation;
-}
-
-// === FETCH_WASM
-export interface FetchWAsmRequest extends RequestBase {
-  kind: MsgKind.FETCH_WASM;
-  moduleName: string;
-}
-
-export interface FetchWAsmResponse extends ResponseBase {
-  kind: MsgKind.FETCH_WASM;
-  data: FetchWAsmResponseData;
-}
-
-export interface FetchWAsmResponseData {
-  url: string;
-}
-
-// === FETCH_MODULE_ASSET
-export interface FetchModuleAssetRequest extends RequestBase {
-  kind: MsgKind.FETCH_MODULE_ASSET;
-  moduleName: string;
-  assetName: string;
-}
-
-export interface FetchModuleAssetResponse extends ResponseBase {
-  kind: MsgKind.FETCH_MODULE_ASSET;
-  data: FetchModuleAssetResponseData;
-}
-
-export interface FetchModuleAssetResponseData {
-  ab: ArrayBuffer;
-}
-
-// === FETCH_ASSET
-export interface FetchAssetRequest extends RequestBase {
-  kind: MsgKind.FETCH_ASSET;
-  presentationDescriptor: string;
-  assetId: string;
-}
-
-export interface FetchAssetResponse extends ResponseBase {
-  kind: MsgKind.FETCH_ASSET;
-  data: FetchAssetResponseData;
-}
-
-export interface FetchAssetResponseData {
-  ab: ArrayBuffer;
 }
