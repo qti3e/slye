@@ -10,7 +10,7 @@
 
 import { protocol } from "electron";
 import { Server } from "./server";
-import * as path from "path";
+import { join, normalize } from "path";
 
 export function registerSlyeProtocol(server: Server): void {
   protocol.registerFileProtocol(
@@ -20,9 +20,17 @@ export function registerSlyeProtocol(server: Server): void {
       const [cmd, ...internalUrlParts] = url.split("/");
       const internalUrl = internalUrlParts.join("/");
 
-      console.log(cmd);
-
-      callback(path.normalize(path.join(__dirname, "modules", internalUrl)));
+      switch (cmd) {
+        case "modules":
+          callback(normalize(join(__dirname, "modules", internalUrl)));
+          break;
+        case "presentation-assets":
+          const [pd, asset] = internalUrlParts;
+          callback(server.getAssetURL(pd, asset));
+          break;
+        default:
+        // TODO(qti3e) Handle 404.
+      }
     },
     error => {
       if (error) console.error("Failed to register protocol");

@@ -40,7 +40,6 @@ export interface JSONPresentationComponent {
 }
 
 export interface JSONPresentationStep {
-  uuid: string;
   position: [number, number, number];
   rotation: [number, number, number];
   components: JSONPresentationComponent[];
@@ -51,7 +50,7 @@ export interface JSONPresentation {
     moduleName: string;
     component: string;
   };
-  steps: JSONPresentationStep[];
+  steps: Record<string, JSONPresentationStep>;
 }
 
 /**
@@ -70,10 +69,10 @@ export async function sly(
     presentation.setTemplate(tem);
   }
 
-  for (let i = 0; i < o.steps.length; ++i) {
-    const jstep = o.steps[i];
+  for (let uuid in o.steps) {
+    const jstep = o.steps[uuid];
 
-    const step = new Step(jstep.uuid);
+    const step = new Step(uuid);
     step.setPosition(jstep.position[0], jstep.position[1], jstep.position[2]);
     step.setRotation(jstep.rotation[0], jstep.rotation[1], jstep.rotation[2]);
 

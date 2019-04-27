@@ -56,16 +56,13 @@ async function main() {
   const p = new Presentation("P1", window.innerWidth, window.innerHeight);
   const d = THREE.Math.degToRad;
 
-  const u = () => (Math.random() + 1).toString(16).padEnd(10, "0").substr(2);
-
   sly(p, {
     template: {
       moduleName: "slye",
       component: "template"
     },
-    steps: [
-      {
-        uuid: u(),
+    steps: {
+      "s1": {
         position: [0, 0, 100] as any,
         rotation: [0, d(90), 0] as any,
         components: [
@@ -85,8 +82,7 @@ async function main() {
           }
         ]
       },
-      {
-        uuid: u(),
+      "s2": {
         position: [30, 10, 0] as any,
         rotation: [d(45), d(39), d(10)] as any,
         components: [
@@ -122,8 +118,7 @@ async function main() {
           }
         ]
       },
-      {
-        uuid: u(),
+      "s3": {
         position: [30, 50, 0] as any,
         rotation: [d(45), d(39), d(10)] as any,
         components: [
@@ -144,8 +139,7 @@ async function main() {
           }
         ]
       },
-      {
-        uuid: u(),
+      "s4": {
         position: [120, -50, 0] as any,
         rotation: [d(45), d(0), d(10)] as any,
         components: [
@@ -181,8 +175,7 @@ async function main() {
           }
         ]
       },
-      {
-        uuid: u(),
+      "s5": {
         position: [120, -50, 100] as any,
         rotation: [d(45), d(0), d(10)] as any,
         components: [
@@ -218,8 +211,7 @@ async function main() {
           }
         ]
       },
-      {
-        uuid: u(),
+      "s6": {
         position: [-50, -50, 0] as any,
         rotation: [d(0), d(0), d(0)] as any,
         components: [
@@ -240,8 +232,7 @@ async function main() {
           }
         ]
       },
-      {
-        uuid: u(),
+      "s7": {
         position: [-120, 0, 0] as any,
         rotation: [d(-45), d(90), d(0)] as any,
         components: [
@@ -292,8 +283,7 @@ async function main() {
           },
         ]
       },
-      {
-        uuid: u(),
+      "s8": {
         position: [-20, -10, 0] as any,
         rotation: [d(0), d(45), d(0)] as any,
         components: [
@@ -313,8 +303,7 @@ async function main() {
           }
         ]
       },
-      {
-        uuid: u(),
+      "s9": {
         position: [-50, 70, 0] as any,
         rotation: [d(0), d(90), d(0)] as any,
         components: [
@@ -350,8 +339,7 @@ async function main() {
           }
         ]
       },
-      {
-        uuid: u(),
+      "s10": {
         position: [-50, 90, 0] as any,
         rotation: [d(0), d(0), d(0)] as any,
         components: [
@@ -372,7 +360,7 @@ async function main() {
           }
         ]
       },
-    ]
+    }
   });
 
   document.body.appendChild(p.domElement);

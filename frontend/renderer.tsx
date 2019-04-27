@@ -16,7 +16,7 @@ import { loadModule, setServer } from "@slye/core";
 
 setServer({
   async fetchWAsm(moduleName: string): Promise<ArrayBuffer> {
-    const { url } = await client.fetchWAsm(moduleName);
+    const url = await client.getWAsmURL(moduleName);
     const res = await fetch(url);
     return res.arrayBuffer();
   },
@@ -24,14 +24,17 @@ setServer({
     moduleName: string,
     assetKey: string
   ): Promise<ArrayBuffer> {
-    console.log(moduleName, assetKey);
-    return undefined;
+    const url = await client.getModuleAssetURL(moduleName, assetKey);
+    const res = await fetch(url);
+    return res.arrayBuffer();
   },
   async fetchAsset(
     presentationId: string,
     asset: string
   ): Promise<ArrayBuffer> {
-    return undefined;
+    const url = await client.getAssetURL(presentationId, asset);
+    const res = await fetch(url);
+    return res.arrayBuffer();
   }
 });
 

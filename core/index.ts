@@ -9,6 +9,6 @@
  */
 
 export { Presentation } from "./presentation";
-export { JSONPresentation, sly } from "./sly";
+export { RefKind, JSONPresentation, sly } from "./sly";
 export { setServer } from "./server";
 export { loadModule } from "./module";

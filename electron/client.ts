@@ -122,6 +122,6 @@ export class Client implements types.Client {
   }
 
   async getAssetURL(pd: string, asset: string): Promise<string> {
-    return `slye://presentation/${pd}/assets/${asset}`;
+    return `slye://presentation-assets/${pd}/${asset}`;
   }
 }

@@ -12,7 +12,7 @@ import { promises as fs } from "fs";
 import { ipcMain, IpcMessageEvent, BrowserWindow } from "electron";
 import { PresentationFile } from "./presentation";
 import uuidv1 from "uuid/v1";
-import { createDir } from "mktemp";
+import * as tmp from "tmp";
 import * as path from "path";
 import * as types from "../frontend/ipc";
 
@@ -45,15 +45,19 @@ export class Server implements ServerInterface {
       id: req.id,
       data
     };
-    console.log(res);
     event.sender.send("asynchronous-reply", res);
+  }
+
+  getAssetURL(pd: string, asset: string): string {
+    const p = this.presentations.get(pd);
+    return path.normalize(path.join(p.dir, "assets", asset));
   }
 
   async [types.MsgKind.CREATE](
     req: types.CreateRequest
   ): Promise<types.CreateResponseData> {
     const uuid = uuidv1();
-    const dir = await createDir("slye-XXXXX");
+    const dir = tmp.dirSync({ prefix: "slye-" }).name;
     const presentation = new PresentationFile(dir, uuid);
     await presentation.init();
     this.presentations.set(uuid, presentation);
@@ -97,7 +101,7 @@ export class Server implements ServerInterface {
     req: types.PatchStepRequest
   ): Promise<types.PatchStepResponseData> {
     const p = this.presentations.get(req.presentationDescriptor);
-    p.patchStep(req.step);
+    p.patchStep(req.uuid, req.step);
     return {
       ok: true
     };
