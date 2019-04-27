@@ -9,7 +9,7 @@
  */
 
 import React, { Component } from "react";
-import { Presentation } from "@slye/core";
+import { sly, Presentation } from "@slye/core";
 
 export interface EditorProps {
   presentationDescriptor: string;
@@ -45,7 +45,7 @@ export class Editor extends Component<EditorProps> {
   /**
    * Open the current presentation.
    */
-  open(): void {
+  async open(): Promise<void> {
     const { presentationDescriptor } = this.props;
     if (Editor.presentations.has(presentationDescriptor)) {
       this.presentation = Editor.presentations.get(presentationDescriptor);
@@ -62,9 +62,6 @@ export class Editor extends Component<EditorProps> {
       this.presentation.resize(w(), h());
     }, false);
 
-    // TODO(qti3e) Construct the presentation.
-    console.log("open", presentationDescriptor);
-
     this.canvasWrapper = (
       <div
         style={{ position: "fixed", top: 24, left: 0 }}
@@ -73,6 +70,17 @@ export class Editor extends Component<EditorProps> {
 
     // Set it into the Map.
     Editor.presentations.set(presentationDescriptor, this.presentation);
+
+    // Construct the presentation.
+    const slyRes = await client.fetchSly(presentationDescriptor);
+    await sly(this.presentation, slyRes.presentation);
+    this.presentation.goTo(0, 0);
+
+    const render = () => {
+      this.presentation.render();
+      window.requestAnimationFrame(render);
+    };
+    window.requestAnimationFrame(render);
   }
 
   render() {

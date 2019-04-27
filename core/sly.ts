@@ -76,11 +76,6 @@ export async function sly(
     step.setPosition(jstep.position[0], jstep.position[1], jstep.position[2]);
     step.setRotation(jstep.rotation[0], jstep.rotation[1], jstep.rotation[2]);
 
-    //const p = () => Math.random() * 240 - 120;
-    //const r = () => Math.random() * Math.PI;
-    //step.setPosition(p(), p(), p());
-    //step.setRotation(r(), r(), r());
-
     for (let j = 0; j < jstep.components.length; ++j) {
       const jcom = jstep.components[j];
       const props: Record<string, PropValue> = {};
@@ -106,5 +101,5 @@ export async function sly(
     presentation.add(step);
   }
 
-  presentation.goTo(0, 0);
+  setTimeout(() => presentation.goTo(0, 0));
 }
