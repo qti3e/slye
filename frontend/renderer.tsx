@@ -12,7 +12,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { bind } from "./frame";
 import { App } from "./app";
-import { loadModule, setServer } from "@slye/core";
+import { setServer } from "@slye/core";
 
 setServer({
   async fetchWAsm(moduleName: string): Promise<ArrayBuffer> {
@@ -39,9 +39,6 @@ setServer({
 });
 
 async function init() {
-  const m = await loadModule("slye");
-  console.log(m);
-
   const root = document.getElementById("page");
   bind();
   ReactDOM.render(<App />, root);

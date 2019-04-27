@@ -2,6 +2,7 @@
   "license": "UNLICENSED",
   "dependencies": {
     "@material-ui/core": "^3.9.3",
+    "@material-ui/icons": "^3.0.2",
     "@types/tmp": "^0.1.0",
     "@types/uuid": "^3.4.4",
     "@types/yauzl": "^2.9.1",
@@ -23,8 +24,8 @@
     "build:wasm": "emcc module/*.c -O3 -s WASM=1 -s SIDE_MODULE=1 -s EXPORTED_FUNCTIONS='[\"_init\"]' -o slye.wasm; mv ./slye.wasm ./slye.sm",
     "build:module": "yarn run build:wasm; mkdir -p ./dist/modules/slye;  cp ./slye.sm ./dist/modules/slye/main.wasm; cp -rf ./module/assets/ ./dist/modules/slye",
     "build:electron": "parcel build electron/main.ts --target electron && parcel build electron/preload.ts --target electron",
-    "build": "parcel build static/index.html --public-url ./ && yarn build:module",
-    "start:app": "yarn build:electron && electron ./dist/main.js",
+    "build": "yarn build:electron && parcel build static/index.html --public-url ./ && yarn build:module",
+    "start:app": "electron ./dist/main.js",
     "start": "yarn build && yarn start:app",
     "dev": "parcel static/index.html & SLYE_DEV=1 yarn start:app"
   },

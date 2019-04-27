@@ -22,7 +22,6 @@ function createWindow() {
     width: 1024,
     height: 728,
     frame: false,
-    transparent: true,
     webPreferences: {
       // We don't want Node in the renderer thread.
       // Every file access should be done in the main thread.
@@ -30,9 +29,6 @@ function createWindow() {
       preload: path.join(__dirname, "preload.js")
     }
   });
-
-  // Open the DevTools.
-  mainWindow.webContents.openDevTools();
 
   mainWindow.webContents.on("did-finish-load", () => {
     if (!mainWindow) {
@@ -51,6 +47,8 @@ function createWindow() {
 
   if (process.env.SLYE_DEV) {
     mainWindow.loadURL(`http://localhost:1234`);
+    // Open the DevTools.
+    mainWindow.webContents.openDevTools();
   } else {
     mainWindow.loadURL(`file://${__dirname}/index.html`);
   }
