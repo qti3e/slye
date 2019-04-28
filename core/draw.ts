@@ -12,7 +12,7 @@ import { Shape, ShapePath } from "three";
 import { Glyph, PathCommand } from "./font";
 
 /**
- * Create aa Three.js Shape from the given text layout.
+ * Create a Three.js Shape from the given text layout.
  *
  * @param glyphs Set of glyphs. (Obtained by calling font.layout)
  * @param size Font size.

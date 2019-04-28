@@ -8,7 +8,13 @@
  *       Copyright 2019 Parsa Ghadimi. All Rights Reserved.
  */
 
-export { Presentation } from "./presentation";
-export { RefKind, JSONPresentation, sly } from "./sly";
-export { setServer } from "./server";
-export { loadModule } from "./module";
+export * from "./sly";
+export * from "./server";
+export * from "./presentation";
+export * from "./module";
+export * from "./component";
+export * from "./step";
+export * from "./math";
+export * from "./font";
+export * from "./draw";
+export * from "./asset";
