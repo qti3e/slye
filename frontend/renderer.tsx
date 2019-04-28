@@ -15,11 +15,6 @@ import { App } from "./app";
 import { setServer } from "@slye/core";
 
 setServer({
-  async fetchWAsm(moduleName: string): Promise<ArrayBuffer> {
-    const url = await client.getWAsmURL(moduleName);
-    const res = await fetch(url);
-    return res.arrayBuffer();
-  },
   async fetchModuleAsset(
     moduleName: string,
     assetKey: string

@@ -113,10 +113,6 @@ export class Client implements types.Client {
     });
   }
 
-  async getWAsmURL(moduleName: string): Promise<string> {
-    return `slye://modules/${moduleName}/main.wasm`;
-  }
-
   async getModuleAssetURL(moduleName: string, asset: string): Promise<string> {
     return `slye://modules/${moduleName}/assets/${asset}`;
   }

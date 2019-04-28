@@ -24,7 +24,7 @@ import {
   Math as ThreeMath
 } from "three";
 import { Ease } from "./ease";
-import { Component, SlyeComponent } from "./component";
+import { Component } from "./component";
 import { fetchAsset } from "./server";
 import { Step } from "./step";
 
@@ -225,7 +225,7 @@ export class Presentation {
       let current = intersects[i].object;
       for (; current; current = current.parent) {
         tmp = current.userData.component;
-        if (tmp instanceof SlyeComponent) {
+        if (tmp && tmp.isClickable) {
           component = tmp;
           minDistance = intersects[i].distance;
           break;
@@ -278,7 +278,7 @@ export class Presentation {
     // It will remove the component from its current owner, and also will
     // call updateRaycastCache in case it's needed.
     if (component) {
-      component.setStep(undefined);
+      component.setOwner(undefined);
       this.scene.add(component.group);
     }
     this.template = component;

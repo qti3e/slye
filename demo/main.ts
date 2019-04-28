@@ -27,11 +27,6 @@ for (const key in images) {
 }
 
 server.setServer({
-  async fetchWAsm(moduleName: string): Promise<ArrayBuffer> {
-    const path = wasm[moduleName];
-    const res = await fetch(path);
-    return res.arrayBuffer();
-  },
   async fetchModuleAsset(
     moduleName: string,
     assetKey: string
@@ -360,6 +355,11 @@ async function main() {
           }
         ]
       },
+      "s11": {
+        position: [50, 0, 200] as any,
+        rotation: [d(0), d(0), d(0)] as any,
+        components: []
+      }
     }
   });
 

@@ -8,10 +8,23 @@
  *       Copyright 2019 Parsa Ghadimi. All Rights Reserved.
  */
 
-import { Group } from "three";
+import {
+  DoubleSide,
+  Group,
+  PlaneGeometry,
+  MeshBasicMaterial,
+  Mesh
+} from "three";
 import { Presentation } from "./presentation";
 import { Component } from "./component";
 import { Vec3 } from "./math";
+
+// We reuse these.
+const geometry = new PlaneGeometry(2 * 19.20, 2 * 10.80, 2);
+const material = new MeshBasicMaterial({
+  color: 0xffff00,
+  side: DoubleSide
+});
 
 /**
  * An step is a slie, it is part of a presentation and has a few
@@ -35,6 +48,12 @@ export class Step {
 
   constructor(private readonly uuid: string) {
     this.group = new Group();
+    // We add an invisible plane to each step, so in this case we can still
+    // have a non-zero width and height for the step when it has no component
+    // in it.
+    const plane = new Mesh(geometry, material);
+    plane.visible = false;
+    this.group.add(plane);
   }
 
   /**
@@ -59,7 +78,7 @@ export class Step {
    */
   add(c: Component): void {
     this.components.push(c);
-    c.setStep(this);
+    c.setOwner(this);
     this.group.add(c.group);
     if (this.owner && c.isClickable) {
       this.owner.updateRaycastCache(this);
