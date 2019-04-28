@@ -19,13 +19,6 @@ import { Presentation } from "./presentation";
 import { Component } from "./component";
 import { Vec3 } from "./math";
 
-// We reuse these.
-const geometry = new PlaneGeometry(2 * 19.20, 2 * 10.80, 2);
-const material = new MeshBasicMaterial({
-  color: 0xffff00,
-  side: DoubleSide
-});
-
 /**
  * An step is a slie, it is part of a presentation and has a few
  * different components in it.
@@ -48,6 +41,13 @@ export class Step {
 
   constructor(private readonly uuid: string) {
     this.group = new Group();
+    // TODO(qti3e) Reuse these.
+    const geometry = new PlaneGeometry(2 * 19.20, 2 * 10.80, 2);
+    const material = new MeshBasicMaterial({
+      color: 0xffff00,
+      side: DoubleSide
+    });
+
     // We add an invisible plane to each step, so in this case we can still
     // have a non-zero width and height for the step when it has no component
     // in it.

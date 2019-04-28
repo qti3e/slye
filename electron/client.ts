@@ -9,7 +9,7 @@
  */
 
 import { ipcRenderer, IpcMessageEvent } from "electron";
-import * as sly from "@slye/core/sly";
+import { JSONPresentationStep } from "@slye/core/sly";
 import * as types from "../frontend/ipc";
 
 export class Client implements types.Client {
@@ -91,7 +91,7 @@ export class Client implements types.Client {
   patchStep(
     presentationDescriptor: string,
     uuid: string,
-    step: Partial<sly.JSONPresentationStep>
+    step: Partial<JSONPresentationStep>
   ): Promise<types.PatchStepResponseData> {
     return this.sendRequest<
       types.PatchStepRequest,

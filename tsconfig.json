@@ -11,6 +11,13 @@
     "allowSyntheticDefaultImports": true,
     "jsx": "react"
   },
-  "include": ["core/**/*", "demo/**/*", "*.d.ts", "electron/**/*", "frontend/**/*"],
+  "include": [
+    "core/**/*",
+    "demo/**/*",
+    "*.d.ts",
+    "electron/**/*",
+    "frontend/**/*",
+    "modules/**/*"
+  ],
   "exclude": ["node_modules", "**/*.spec.ts"]
 }

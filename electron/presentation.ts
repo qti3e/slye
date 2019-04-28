@@ -9,11 +9,9 @@
  */
 
 import { promises as fs } from "fs";
-import { JSONPresentation } from "@slye/core";
 import uuidv1 from "uuid/v1";
-import * as sly from "@slye/core/sly";
 import * as path from "path";
-import { RefKind } from "../core/sly";
+import { JSONPresentation, JSONPresentationStep, RefKind } from "../core/sly";
 
 type Meta = Record<string, string | number>;
 
@@ -139,7 +137,7 @@ export class PresentationFile {
     return this.meta;
   }
 
-  patchStep(uuid: string, step: Partial<sly.JSONPresentationStep>): void {
+  patchStep(uuid: string, step: Partial<JSONPresentationStep>): void {
     this.sly.steps[uuid] = {
       ...this.sly.steps[uuid],
       ...step
@@ -147,7 +145,7 @@ export class PresentationFile {
     this.change();
   }
 
-  getSly(): sly.JSONPresentation {
+  getSly(): JSONPresentation {
     return this.sly;
   }
 }
