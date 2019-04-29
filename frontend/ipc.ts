@@ -25,6 +25,7 @@ export interface Client {
     step: Partial<sly.JSONPresentationStep>
   ): Promise<PatchStepResponseData>;
   fetchSly(pd: string): Promise<FetchSlyResponseData>;
+  getModuleMainURL(moduleName: string): Promise<string>;
   getModuleAssetURL(moduleName: string, asset: string): Promise<string>;
   getAssetURL(pd: string, asset: string): Promise<string>;
 }

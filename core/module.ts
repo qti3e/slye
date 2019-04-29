@@ -9,20 +9,33 @@
  */
 
 import { generateShapes } from "./draw";
-import { Glyph, Font, FontImpl } from "./font";
+import { Font, FontImpl } from "./font";
+import { Asset } from "./asset";
+import { fetchModuleAsset, requestModule } from "./server";
 import {
   Component,
   ComponentInit,
   PropValue
 } from "./component";
 
-const modulesTable: Map<string, Module> = new Map();
+const modulesTable: Map<string, ModuleInterface> = window.slyeModulesTable =
+  (window.slyeModulesTable || new Map());
 
 /**
  * A module is a Slye extension that might provide a set of components, fonts,
  * template or other functionalities.
  */
-export interface Module {
+export interface ModuleInterface {
+  /**
+   * Name of the module.
+   */
+  readonly name: string;
+
+  /**
+   * Asset manager for the module.
+   */
+  readonly assets: Asset<string>;
+
   /**
    * Returns a new instance of the component.
    *
@@ -47,20 +60,74 @@ export interface Module {
   font(name: string): Font;
 }
 
-export function registerModule(name: string, m: Module): void {
-  modulesTable.set(name, m);
+type ComponentClass = {
+  new (props: Record<string, PropValue>, module: ModuleInterface): Component
+};
+
+type ModuleClass = {
+  new (name: string): ModuleInterface;
+}
+
+export abstract class Module implements ModuleInterface {
+  private readonly components: Map<string, ComponentClass> = new Map();
+  private readonly fonts: Map<string, Font> = new Map();
+  readonly assets: Asset<string>;
+  readonly name: string;
+
+  constructor(name: string) {
+    this.name = name;
+    this.assets = new Asset(key => fetchModuleAsset(name, key));
+  }
+
+  protected registerComponent(name: string, c: ComponentClass): void {
+    this.components.set(name, c);
+  }
+
+  protected registerFont(name: string, asset: number): void {
+    const font = new FontImpl(
+      () => this.assets.getData(asset),
+      this.name,
+      name
+    );
+    this.fonts.set(name, font);
+  }
+
+  component(name: string, props: Record<string, PropValue>): Component {
+    const c = this.components.get(name);
+    if (!c) {
+      throw new Error(`Component ${name} is not registered by ${this.name}.`);
+    }
+    return new c(props, this);
+  }
+
+  getFonts(): string[] {
+    return [...this.fonts.keys()];
+  }
+
+  font(name: string): Font {
+    return this.fonts.get(name);
+  }
+
+  abstract init(): Promise<void> | void;
+}
+
+export function registerModule(name: string, m: ModuleClass): void {
+  const instance = new m(name);
+  modulesTable.set(name, instance);
 }
 
 /**
  * Load the given module, it uses server API to load module by its name.
  *
  * @param {string} name Name of the module.
- * @returns {Promise<Module>}
+ * @returns {Promise<ModuleInterface>}
  */
-export async function loadModule(name: string): Promise<Module> {
+export async function loadModule(name: string): Promise<ModuleInterface> {
   if (modulesTable.has(name)) {
     return modulesTable.get(name);
   }
+  await requestModule(name);
+  return modulesTable.get(name);
 }
 
 /**

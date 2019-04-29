@@ -14,7 +14,25 @@ import { bind } from "./frame";
 import { App } from "./app";
 import { setServer } from "@slye/core";
 
+import * as Slye from "../core";
+import * as Three from "three";
+
+window.slye = Slye;
+window.three = Three;
+
 setServer({
+  requestModule(moduleName: string): Promise<boolean> {
+    console.log("req module", moduleName);
+    return new Promise(async resolve => {
+      const url = await client.getModuleMainURL(moduleName);
+      const script = document.createElement("script");
+      script.type = "text/javascript";
+      script.async = true;
+      script.src = url;
+      script.onload = () => resolve(true);
+      document.head.appendChild(script);
+    });
+  },
   async fetchModuleAsset(
     moduleName: string,
     assetKey: string

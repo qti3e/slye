@@ -9,6 +9,7 @@
  */
 
 export interface Server {
+  requestModule(moduleName: string): Promise<boolean>;
   fetchModuleAsset(moduleName: string, assetKey: string): Promise<ArrayBuffer>;
   fetchAsset(presentationId: string, assetKey: string): Promise<ArrayBuffer>;
 }
@@ -17,6 +18,10 @@ let current_server: Server;
 
 export function setServer(s: Server): void {
   current_server = s;
+}
+
+export function requestModule(moduleName: string): Promise<boolean> {
+  return current_server.requestModule(moduleName);
 }
 
 export function fetchModuleAsset(

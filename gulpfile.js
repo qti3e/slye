@@ -31,7 +31,7 @@ gulp.task("electron:main", function() {
       typescript({
         target: "esnext",
         module: "ESNext"
-      })
+      }),
     ]
   };
 

@@ -9,5 +9,14 @@
  */
 
 import * as slye from "@slye/core";
-const m = undefined;
-slye.registerModule("slye", m);
+
+class SlyeModule extends slye.Module {
+  init() {
+    this.registerFont("Homa", this.assets.load("homa.ttf"));
+    this.registerFont("Sahel", this.assets.load("sahel.ttf"));
+    this.registerFont("Shellia", this.assets.load("shellia.ttf"));
+    this.registerFont("Emoji", this.assets.load("emoji.ttf"));
+  }
+}
+
+slye.registerModule("slye", SlyeModule);

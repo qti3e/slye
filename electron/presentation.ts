@@ -11,7 +11,7 @@
 import { promises as fs } from "fs";
 import uuidv1 from "uuid/v1";
 import * as path from "path";
-import { JSONPresentation, JSONPresentationStep, RefKind } from "../core/sly";
+import { JSONPresentation, JSONPresentationStep } from "../core/sly";
 
 type Meta = Record<string, string | number>;
 
@@ -80,7 +80,7 @@ export class PresentationFile {
                 font: {
                   kind: 1,
                   moduleName: "slye",
-                  font: "sahel"
+                  font: "Sahel"
                 }
               }
             },
@@ -95,7 +95,7 @@ export class PresentationFile {
                 font: {
                   kind: 1,
                   moduleName: "slye",
-                  font: "shellia"
+                  font: "Shellia"
                 }
               }
             },
@@ -108,9 +108,9 @@ export class PresentationFile {
                 text: "?",
                 size: 10,
                 font: {
-                  kind: RefKind.FONT,
+                  kind: 1,
                   moduleName: "slye",
-                  font: "sahel"
+                  font: "Sahel"
                 }
               }
             }
