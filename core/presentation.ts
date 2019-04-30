@@ -8,19 +8,7 @@
  *       Copyright 2019 Parsa Ghadimi. All Rights Reserved.
  */
 
-import {
-  Box3,
-  Vector2,
-  Vector3,
-  Euler,
-  Raycaster,
-  WebGLRenderer,
-  Scene,
-  PerspectiveCamera,
-  Intersection,
-  Group,
-  Math as ThreeMath
-} from "three";
+import * as THREE from "three";
 import { Ease } from "./ease";
 import { Component } from "./component";
 import { fetchAsset } from "./server";
@@ -40,17 +28,17 @@ export class Presentation {
   /**
    * Three.js scene.
    */
-  private readonly scene: Scene;
+  private readonly scene: THREE.Scene;
 
   /**
    * Global camera.
    */
-  private readonly camera: PerspectiveCamera;
+  private readonly camera: THREE.PerspectiveCamera;
 
   /**
    * Three.js WebGL renderer used to render this presentation.
    */
-  private readonly renderer: WebGLRenderer;
+  private readonly renderer: THREE.WebGLRenderer;
 
   /**
    * HTML5 Canvas Element which is used by renderer.
@@ -74,19 +62,24 @@ export class Presentation {
   private isPlaying: boolean = false;
 
   /**
+   * Whatever we are currently in focus mode or not.
+   */
+  private isFocused: boolean = false;
+
+  /**
    * Raycaster - to handle events such as click.
    */
-  private readonly raycaster: Raycaster = new Raycaster();
+  private readonly raycaster: THREE.Raycaster = new THREE.Raycaster();
 
   /**
    * Mouse position - part of the raycaster implementation.
    */
-  private readonly mouse: Vector2 = new Vector2();
+  private readonly mouse: THREE.Vector2 = new THREE.Vector2();
 
   /**
    * Cache of components that are clickable.
    */
-  private raycasterComponentsCache: Group[] = [];
+  private raycasterComponentsCache: THREE.Group[] = [];
 
   /**
    * Template is also a component.
@@ -97,15 +90,15 @@ export class Presentation {
    * Camera animation.
    */
   private cameraEase: {
-    position: Ease<Vector3>;
-    rotation: Ease<Euler>;
+    position: Ease<THREE.Vector3>;
+    rotation: Ease<THREE.Euler>;
   };
 
   // Some variables, just to reuse the objects - these are used in goTo method.
-  private readonly tmpVec: Vector3 = new Vector3();
-  private readonly box3: Box3 = new Box3();
-  private readonly targetVec: Vector3 = new Vector3();
-  private readonly euler: Euler = new Euler(0, 0, 0, "XYZ");
+  private readonly tmpVec: THREE.Vector3 = new THREE.Vector3();
+  private readonly box3: THREE.Box3 = new THREE.Box3();
+  private readonly targetVec: THREE.Vector3 = new THREE.Vector3();
+  private readonly euler: THREE.Euler = new THREE.Euler(0, 0, 0, "XYZ");
 
   /**
    * @param width Width of view port.
@@ -122,12 +115,28 @@ export class Presentation {
     private readonly near: number = 0.1,
     private readonly far: number = 1000
   ) {
-    this.scene = new Scene();
-    this.camera = new PerspectiveCamera(fov, width / height, near, far);
+    this.scene = new THREE.Scene();
+    this.camera = new THREE.PerspectiveCamera(fov, width / height, near, far);
 
-    this.renderer = new WebGLRenderer();
+    this.renderer = new THREE.WebGLRenderer();
     this.renderer.setSize(width, height);
     this.domElement = this.renderer.domElement;
+
+    // Just for now.
+    this.scene.background = new THREE.Color(0xbfd1e5);
+    const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444);
+    hemiLight.position.set(0, 200, 0);
+    this.scene.add(hemiLight);
+    const dirLight = new THREE.DirectionalLight(0xffffff);
+    dirLight.position.set(-30, 100, -100);
+    dirLight.castShadow = true;
+    dirLight.shadow.camera.top = 100;
+    dirLight.shadow.camera.bottom = -10;
+    dirLight.shadow.camera.left = -10;
+    dirLight.shadow.camera.right = 10;
+    dirLight.shadow.camera.near = 0.1;
+    dirLight.shadow.camera.far = 40;
+    this.scene.add(dirLight);
   }
 
   /**
@@ -142,7 +151,7 @@ export class Presentation {
     this.renderer.setSize(width, height);
     this.width = width;
     this.height = height;
-    this.goTo(this.currentStep);
+    this.goTo(this.currentStep, 60);
   }
 
   /**
@@ -211,7 +220,7 @@ export class Presentation {
     this.mouse.y = y;
   }
 
-  private intersectClickable(): Intersection[] {
+  private intersectClickable(): THREE.Intersection[] {
     this.raycaster.setFromCamera(this.mouse, this.camera);
 
     // calculate objects intersecting the picking ray
@@ -223,7 +232,7 @@ export class Presentation {
     return intersects;
   }
 
-  private intersectAll(): Intersection[] {
+  private intersectAll(): THREE.Intersection[] {
     this.raycaster.setFromCamera(this.mouse, this.camera);
 
     const intersects = this.raycaster.intersectObjects(
@@ -235,7 +244,7 @@ export class Presentation {
   }
 
   private findIntersectByUserData<T>(
-    intersections: Intersection[],
+    intersections: THREE.Intersection[],
     cb: (userData: Record<string, any>) => T
   ): T {
     let result: T;
@@ -296,10 +305,53 @@ export class Presentation {
     const component = this.findIntersectByUserData<Component>(
       intersections,
       ({ component }) =>
-        component instanceof Component ? component : undefined
+        component instanceof Component && component.isClickable
+          ? component
+          : undefined
     );
 
     if (component) component.click();
+  }
+
+  /**
+   * Set isPlaying to true.
+   */
+  play(): void {
+    this.isPlaying = true;
+  }
+
+  /**
+   * Set isPlaying to false, it will pause all child (Steps) animations.
+   */
+  pause(): void {
+    this.isPlaying = false;
+    // See render function - to understand this line.
+    this.domElement.style.cursor = "auto";
+  }
+
+  /**
+   * Focus on the current step.
+   */
+  focus(): void {
+    this.isFocused = true;
+    const step = this.steps[this.currentStep];
+    if (!step) return;
+
+    for (let i = 0; i < this.scene.children.length; ++i) {
+      this.scene.children[i].visible = false;
+    }
+
+    step.group.visible = true;
+  }
+
+  /**
+   * Blur.
+   */
+  blur(): void {
+    this.isFocused = false;
+    for (let i = 0; i < this.scene.children.length; ++i) {
+      this.scene.children[i].visible = true;
+    }
   }
 
   /**
@@ -318,7 +370,7 @@ export class Presentation {
    * Recheck the given step.
    */
   updateRaycastCache(s: Step): void {
-    const newArray: Group[] = [];
+    const newArray: THREE.Group[] = [];
 
     for (const group of this.raycasterComponentsCache) {
       if (group.userData.component.owner !== s) {
@@ -335,6 +387,10 @@ export class Presentation {
     this.raycasterComponentsCache = newArray;
   }
 
+  /**
+   * Set the world component.
+   * TODO(qti3e) We need a Template type.
+   */
   setTemplate(component: Component): void {
     if (this.template) {
       this.scene.remove(this.template.group);
@@ -348,6 +404,11 @@ export class Presentation {
     this.template = component;
   }
 
+  /**
+   * Fetch a presentation asset.
+   * @param {string} key Asset key.
+   * @return {Promise<ArrayBuffer>}
+   */
   asset(key: string): Promise<ArrayBuffer> {
     return fetchAsset(this.id, key);
   }
@@ -377,8 +438,8 @@ export class Presentation {
 
   goTo(index: number, duration = 120): void {
     // Normalize index.
-    if (index < 0) index = this.steps.length + index;
-    if (index >= this.steps.length) index %= this.steps.length;
+    if (index > 0 && index >= this.steps.length) index %= this.steps.length;
+    else while (index < 0) index = this.steps.length + index;
 
     this.currentStep = index;
     const step = this.steps[index];
@@ -396,7 +457,7 @@ export class Presentation {
     // Set it to what it used to be.
     step.group.rotation.set(rx, ry, rz);
 
-    const vFov = ThreeMath.degToRad(this.fov);
+    const vFov = THREE.Math.degToRad(this.fov);
     const farHeight = 2 * Math.tan(vFov / 2) * this.far;
     const farWidth = farHeight * this.camera.aspect;
     let distance = (this.far * stepWidth) / farWidth / (2 / 3);
@@ -415,6 +476,8 @@ export class Presentation {
     // Update the camera.
     const { x, y, z } = this.targetVec;
     this.updateCamera(duration, x, y, z, rx, ry, rz);
+
+    if (this.isFocused) this.focus();
   }
 
   next(duration = 120): void {
