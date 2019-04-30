@@ -41,8 +41,10 @@ export class Step {
 
   constructor(private readonly uuid: string) {
     this.group = new Group();
+    this.group.userData.step = this;
+
     // TODO(qti3e) Reuse these.
-    const geometry = new PlaneGeometry(2 * 19.20, 2 * 10.80, 2);
+    const geometry = new PlaneGeometry(2 * 19.2, 2 * 10.8, 2);
     const material = new MeshBasicMaterial({
       color: 0xffff00,
       side: DoubleSide

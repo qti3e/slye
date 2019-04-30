@@ -28,12 +28,12 @@ export class Dashboard extends Component<DashboardProps> {
 
   render() {
     return (
-      <div style={{padding: 30}}>
+      <div style={{padding: 42}}>
         <Typography component="h1" variant="h5" gutterBottom>
           Create your next stunning presentation...
         </Typography>
         <hr />
-        <div style={{width: "calc(100% - 115px)", marginRight: 15, display: "inline-flex"}}>
+        <div style={styles.titleWrapper}>
           <TextField
             label="Presentation title"
             margin="normal"
@@ -58,3 +58,11 @@ export class Dashboard extends Component<DashboardProps> {
     );
   }
 }
+
+const styles: Record<string, React.CSSProperties> = {
+  titleWrapper: {
+    width: "calc(100% - 115px)",
+    marginRight: 15,
+    display: "inline-flex"
+  }
+};

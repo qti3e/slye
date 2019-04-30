@@ -12,14 +12,10 @@ import { generateShapes } from "./draw";
 import { Font, FontImpl } from "./font";
 import { Asset } from "./asset";
 import { fetchModuleAsset, requestModule } from "./server";
-import {
-  Component,
-  ComponentInit,
-  PropValue
-} from "./component";
+import { Component, ComponentInit, PropValue } from "./component";
 
-const modulesTable: Map<string, ModuleInterface> = window.slyeModulesTable =
-  (window.slyeModulesTable || new Map());
+const modulesTable: Map<string, ModuleInterface> = (window.slyeModulesTable =
+  window.slyeModulesTable || new Map());
 
 /**
  * A module is a Slye extension that might provide a set of components, fonts,
@@ -61,12 +57,12 @@ export interface ModuleInterface {
 }
 
 type ComponentClass = {
-  new (props: Record<string, PropValue>, module: ModuleInterface): Component
+  new (props: Record<string, PropValue>, module: ModuleInterface): Component;
 };
 
 type ModuleClass = {
   new (name: string): ModuleInterface;
-}
+};
 
 export abstract class Module implements ModuleInterface {
   private readonly components: Map<string, ComponentClass> = new Map();

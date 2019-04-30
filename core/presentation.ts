@@ -9,8 +9,6 @@
  */
 
 import {
-  Color,
-  BoxHelper,
   Box3,
   Vector2,
   Vector3,
@@ -70,6 +68,12 @@ export class Presentation {
   private frame: number = 0;
 
   /**
+   * Whatever we're in `play` mode or not.
+   * (otherwise we're probably in the editor.)
+   */
+  private isPlaying: boolean = false;
+
+  /**
    * Raycaster - to handle events such as click.
    */
   private readonly raycaster: Raycaster = new Raycaster();
@@ -124,9 +128,6 @@ export class Presentation {
     this.renderer = new WebGLRenderer();
     this.renderer.setSize(width, height);
     this.domElement = this.renderer.domElement;
-
-    this.onClick = this.onClick.bind(this);
-    this.onMove = this.onMove.bind(this);
   }
 
   /**
@@ -145,12 +146,10 @@ export class Presentation {
   }
 
   /**
-   * Render the presentation into the given canvas at the given frame.
-   *
-   * @param frame
-   *  Current frame number.
+   * Render the presentation.
    */
   render(): void {
+    // Overflow?
     this.frame++;
 
     if (this.cameraEase) {
@@ -158,8 +157,15 @@ export class Presentation {
       this.cameraEase.rotation.update(this.frame);
     }
 
+    // When we're in the edit mode (i.e. we're not playing the presentation)
+    // everything should be static.
+    if (this.isPlaying) {
+      this.renderer.render(this.scene, this.camera);
+      return;
+    }
+
     if (this.frame % 5 === 0) {
-      if (this.intersects().length) {
+      if (this.intersectClickable().length) {
         this.domElement.style.cursor = "pointer";
       } else {
         this.domElement.style.cursor = "auto";
@@ -193,7 +199,19 @@ export class Presentation {
     this.renderer.render(this.scene, this.camera);
   }
 
-  private intersects(): Intersection[] {
+  /**
+   * Update the mouse position.
+   *
+   * @param {number} x World coordinate (-1, 1)
+   * @param {number} y World coordinate (-1, 1)
+   * @returns {void}
+   */
+  updateMouse(x: number, y: number): void {
+    this.mouse.x = x;
+    this.mouse.y = y;
+  }
+
+  private intersectClickable(): Intersection[] {
     this.raycaster.setFromCamera(this.mouse, this.camera);
 
     // calculate objects intersecting the picking ray
@@ -205,37 +223,83 @@ export class Presentation {
     return intersects;
   }
 
-  onMove(event: MouseEvent): void {
-    // calculate mouse position in normalized device coordinates
-    // (-1 to +1) for both components
+  private intersectAll(): Intersection[] {
+    this.raycaster.setFromCamera(this.mouse, this.camera);
 
-    this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    const intersects = this.raycaster.intersectObjects(
+      this.scene.children,
+      true
+    );
+
+    return intersects;
   }
 
-  onClick(): void {
-    let tmp: Component;
-    let component: Component;
+  private findIntersectByUserData<T>(
+    intersections: Intersection[],
+    cb: (userData: Record<string, any>) => T
+  ): T {
+    let result: T;
+    let tmp: T;
     let minDistance: number = Infinity;
 
-    const intersects = this.intersects();
-
-    for (let i = 0; i < intersects.length; ++i) {
-      if (intersects[i].distance > minDistance) continue;
-      let current = intersects[i].object;
+    main_loop: for (const intersection of intersections) {
+      if (intersection.distance > minDistance) continue;
+      let current = intersection.object;
+      tmp = undefined;
+      // Search backward. (parents)
       for (; current; current = current.parent) {
-        tmp = current.userData.component;
-        if (tmp && tmp.isClickable) {
-          component = tmp;
-          minDistance = intersects[i].distance;
-          break;
+        tmp = cb(current.userData);
+        if (tmp) {
+          result = tmp;
+          minDistance = intersection.distance;
+          continue main_loop;
         }
+      }
+      // Search frontward. (children)
+      const notVisited = [...intersection.object.children];
+      while (notVisited.length) {
+        const obj = notVisited.pop();
+        tmp = cb(obj.userData);
+        if (tmp) {
+          result = tmp;
+          minDistance = intersection.distance;
+          notVisited.length = 0; // Just for fun ;)
+          continue main_loop;
+        }
+        // Cheek the children.
+        notVisited.push(...obj.children);
       }
     }
 
-    if (component) {
-      component.click();
-    }
+    return result;
+  }
+
+  raycastStep(): Step {
+    const intersections = this.intersectAll();
+    return this.findIntersectByUserData<Step>(intersections, ({ step }) =>
+      step instanceof Step ? step : undefined
+    );
+  }
+
+  raycastComponent(): Component {
+    const inters = this.intersectAll();
+    return this.findIntersectByUserData<Component>(inters, ({ component }) =>
+      component instanceof Component ? component : undefined
+    );
+  }
+
+  handleClick(): void {
+    // This kind of click event is only meant to be part of the `player`.
+    if (!this.isPlaying) return;
+
+    const intersections = this.intersectClickable();
+    const component = this.findIntersectByUserData<Component>(
+      intersections,
+      ({ component }) =>
+        component instanceof Component ? component : undefined
+    );
+
+    if (component) component.click();
   }
 
   /**
@@ -284,6 +348,10 @@ export class Presentation {
     this.template = component;
   }
 
+  asset(key: string): Promise<ArrayBuffer> {
+    return fetchAsset(this.id, key);
+  }
+
   private updateCamera(
     frames: number,
     x: number,
@@ -307,23 +375,11 @@ export class Presentation {
     };
   }
 
-  showHelpers(): void {
-    const red = new Color(0xff0000);
-    const green = new Color(0x00ff00);
-    for (const step of this.steps) {
-      const helper = new BoxHelper(step.group, red);
-      helper.update();
-      this.scene.add(helper);
-
-      for (const c of step.group.children) {
-        const helper = new BoxHelper(c, green);
-        helper.update();
-        this.scene.add(helper);
-      }
-    }
-  }
-
   goTo(index: number, duration = 120): void {
+    // Normalize index.
+    if (index < 0) index = this.steps.length + index;
+    if (index >= this.steps.length) index %= this.steps.length;
+
     this.currentStep = index;
     const step = this.steps[index];
 
@@ -362,22 +418,10 @@ export class Presentation {
   }
 
   next(duration = 120): void {
-    this.currentStep++;
-    if (this.currentStep >= this.steps.length) {
-      this.currentStep = 0;
-    }
-    this.goTo(this.currentStep, duration);
+    this.goTo(this.currentStep + 1, duration);
   }
 
   prev(duration = 120): void {
-    this.currentStep--;
-    if (this.currentStep < 0) {
-      this.currentStep = this.steps.length - 1;
-    }
-    this.goTo(this.currentStep, duration);
-  }
-
-  asset(key: string): Promise<ArrayBuffer> {
-    return fetchAsset(this.id, key);
+    this.goTo(this.currentStep - 1, duration);
   }
 }

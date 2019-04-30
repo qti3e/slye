@@ -17,21 +17,36 @@ export type ComponentInit = () => number;
 export type ClickHandler = () => void;
 export type RenderHandler = (frame: number) => void;
 
-export interface Component {
+export type PropValue = string | number | undefined | Font | ArrayBuffer;
+
+export abstract class Component {
   readonly group: Group;
   isClickable: boolean;
-  setOwner(s: Step): void;
   owner: Step;
-  // Event handlers.
-  click(): void;
-  render(frame: number): void;
-  // Props.
-  getProp(key: string): PropValue;
-  // Position & Rotation.
-  setPosition(x: number, y: number, z: number): void;
-  setRotation(x: number, y: number, z: number): void;
-  getPosition(): Vec3;
-  getRotation(): Vec3;
-}
 
-export type PropValue = string | number | undefined | Font | ArrayBuffer;
+  constructor() {
+    this.group = new Group();
+    this.group.userData.component = this;
+  }
+
+  setOwner(s: Step): void {}
+
+  // Event handlers.
+  click(): void {}
+  render(frame: number): void {}
+
+  // Props.
+  getProp(key: string): PropValue {
+    return null;
+  }
+
+  // Position & Rotation.
+  setPosition(x: number, y: number, z: number): void {}
+  setRotation(x: number, y: number, z: number): void {}
+  getPosition(): Vec3 {
+    return null;
+  }
+  getRotation(): Vec3 {
+    return null;
+  }
+}

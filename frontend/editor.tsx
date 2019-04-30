@@ -17,7 +17,7 @@ import Paper from "@material-ui/core/Paper";
 import BottomNavigation from "@material-ui/core/BottomNavigation";
 import BottomNavigationAction from "@material-ui/core/BottomNavigationAction";
 
-// Icons
+// Icons.
 import ThreeDRoationIcon from "@material-ui/icons/ThreeDRotation";
 import StorylineIcon from "@material-ui/icons/FormatListNumbered";
 import PlayIcon from "@material-ui/icons/PlayArrow";
@@ -114,39 +114,40 @@ export class Editor extends Component<EditorProps, EditorState> {
       <Fragment>
         { this.canvasWrapper }
         <BottomNavigation
-          style={{
-            position: "fixed",
-            top: 32,
-            width: 300,
-            left: "calc(50% - 150px)",
-            borderRadius: "0 0 40px 40px"
-          }}
+          style={styles.buttonGroup}
           value={value}
-          onChange={this.handleChange}
-        >
+          onChange={this.handleChange}>
           <BottomNavigationAction icon={<ThreeDRoationIcon />} />
           <BottomNavigationAction icon={<StorylineIcon />} />
           <BottomNavigationAction icon={<PlayIcon />} />
         </BottomNavigation>
 
         <Collapse in={value === 1}>
-          <Paper style={paperStyle}>
+          <Paper style={styles.paper}>
             X
           </Paper>
         </Collapse>
-
       </Fragment>
     );
   }
 }
 
-const paperStyle: React.CSSProperties = {
-  height: "calc(100vh - 56px - 65px - 2 * 15px)",
-  width: "calc(100vw - 70px - 2 * 15px)",
-  position: "relative",
-  top: 47,
-  left: 35,
-  opacity: 0.9,
-  borderRadius: 15,
-  padding: 15
+const styles: Record<string, React.CSSProperties> = {
+  paper: {
+    height: "calc(100vh - 56px - 65px - 2 * 15px)",
+    width: "calc(100vw - 70px - 2 * 15px)",
+    position: "relative",
+    top: 59,
+    left: 35,
+    opacity: 0.9,
+    borderRadius: 15,
+    padding: 15
+  },
+  buttonGroup: {
+    position: "fixed",
+    top: 32,
+    width: 300,
+    left: "calc(50% - 150px)",
+    borderRadius: "0 0 40px 40px"
+  }
 };

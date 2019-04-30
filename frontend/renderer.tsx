@@ -12,15 +12,15 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { bind } from "./frame";
 import { App } from "./app";
-import { setServer } from "@slye/core";
 
-import * as Slye from "../core";
+import * as Slye from "@slye/core";
 import * as Three from "three";
 
+// For module loader.
 window.slye = Slye;
 window.three = Three;
 
-setServer({
+Slye.setServer({
   requestModule(moduleName: string): Promise<boolean> {
     console.log("req module", moduleName);
     return new Promise(async resolve => {
