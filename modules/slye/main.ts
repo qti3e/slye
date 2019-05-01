@@ -49,7 +49,7 @@ class Text extends slye.Component<TextProps> {
 
 class Template extends slye.Component {
   init() {}
-  render() {}
+  async render() {}
 }
 
 class SlyeModule extends slye.Module {

@@ -28,7 +28,7 @@ export class Dashboard extends Component<DashboardProps> {
 
   render() {
     return (
-      <div style={{padding: 42}}>
+      <div style={{ padding: 42 }}>
         <Typography component="h1" variant="h5" gutterBottom>
           Create your next stunning presentation...
         </Typography>
@@ -38,8 +38,8 @@ export class Dashboard extends Component<DashboardProps> {
             label="Presentation title"
             margin="normal"
             fullWidth={true}
-						defaultValue={this.title}
-						onChange={e => this.title = e.currentTarget.value}
+            defaultValue={this.title}
+            onChange={e => (this.title = e.currentTarget.value)}
           />
         </div>
         <Button variant="contained" color="primary" onClick={this.create}>
@@ -52,7 +52,7 @@ export class Dashboard extends Component<DashboardProps> {
           multiline={true}
           rows={5}
           defaultValue={this.description}
-          onChange={e => this.description = e.currentTarget.value}
+          onChange={e => (this.description = e.currentTarget.value)}
         />
       </div>
     );

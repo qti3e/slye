@@ -49,12 +49,12 @@ export class Step {
       color: 0xffff00,
       side: DoubleSide
     });
+    material.visible = false;
 
     // We add an invisible plane to each step, so in this case we can still
     // have a non-zero width and height for the step when it has no component
     // in it.
     const plane = new Mesh(geometry, material);
-    plane.visible = false;
     this.group.add(plane);
   }
 

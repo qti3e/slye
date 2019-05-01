@@ -16,6 +16,9 @@ import { Vec3 } from "./math";
 export type PropValue = string | number | undefined | Font | ArrayBuffer;
 
 export abstract class Component<Props = Record<string, PropValue>> {
+  private isUpdating = false;
+  private nextProps: Props;
+
   protected props: Props;
   readonly group: Group;
   isClickable: boolean;
@@ -46,11 +49,39 @@ export abstract class Component<Props = Record<string, PropValue>> {
     });
   }
 
+  patchProps(props: Partial<Props>) {
+    this.updateProps({
+      ...this.props,
+      ...props
+    });
+  }
+
   updateProps(props: Props) {
+    if (this.isUpdating) {
+      this.nextProps = props;
+      return;
+    }
     // I hope it does not cause a memory leak :/
     this.group.children.length = 0;
     this.props = props;
-    this.render();
+
+    this.isUpdating = true;
+
+    (async () => {
+      try {
+        await this.render();
+      } catch (e) {
+        console.error(e);
+        this.group.children.length = 0;
+      }
+
+      this.isUpdating = false;
+      if (this.nextProps) {
+        props = this.nextProps;
+        this.nextProps = undefined;
+        this.updateProps(props);
+      }
+    })();
   }
 
   setPosition(x: number, y: number, z: number): void {
@@ -74,6 +105,6 @@ export abstract class Component<Props = Record<string, PropValue>> {
   click(): void {}
   animationFrame(frame: number): void {}
 
-  protected abstract render(): void;
+  protected abstract render(): Promise<void>;
   protected abstract init(): void;
 }

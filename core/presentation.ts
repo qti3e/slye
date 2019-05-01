@@ -14,6 +14,8 @@ import { Component } from "./component";
 import { fetchAsset } from "./server";
 import { Step } from "./step";
 
+export type AnimationFrameCb = (frame: number) => void;
+
 /**
  * Main part of the API, provides set of functions to work with
  * a presentation - most of the time there is only one instance
@@ -28,12 +30,12 @@ export class Presentation {
   /**
    * Three.js scene.
    */
-  private readonly scene: THREE.Scene;
+  public readonly scene: THREE.Scene;
 
   /**
    * Global camera.
    */
-  private readonly camera: THREE.PerspectiveCamera;
+  public readonly camera: THREE.PerspectiveCamera;
 
   /**
    * Three.js WebGL renderer used to render this presentation.
@@ -59,12 +61,12 @@ export class Presentation {
    * Whatever we're in `play` mode or not.
    * (otherwise we're probably in the editor.)
    */
-  private isPlaying: boolean = false;
+  public isPlaying: boolean = false;
 
   /**
    * Whatever we are currently in focus mode or not.
    */
-  private isFocused: boolean = false;
+  public isFocused: boolean = false;
 
   /**
    * Raycaster - to handle events such as click.
@@ -93,6 +95,8 @@ export class Presentation {
     position: Ease<THREE.Vector3>;
     rotation: Ease<THREE.Euler>;
   };
+
+  private animationFrameHandlers: AnimationFrameCb[] = [];
 
   // Some variables, just to reuse the objects - these are used in goTo method.
   private readonly tmpVec: THREE.Vector3 = new THREE.Vector3();
@@ -154,6 +158,10 @@ export class Presentation {
     this.goTo(this.currentStep, 60);
   }
 
+  use(cb: AnimationFrameCb): void {
+    this.animationFrameHandlers.push(cb);
+  }
+
   /**
    * Render the presentation.
    */
@@ -166,9 +174,13 @@ export class Presentation {
       this.cameraEase.rotation.update(this.frame);
     }
 
+    for (let i = 0; i < this.animationFrameHandlers.length; ++i) {
+      this.animationFrameHandlers[i](this.frame);
+    }
+
     // When we're in the edit mode (i.e. we're not playing the presentation)
     // everything should be static.
-    if (this.isPlaying) {
+    if (!this.isPlaying) {
       this.renderer.render(this.scene, this.camera);
       return;
     }
@@ -236,9 +248,11 @@ export class Presentation {
     this.raycaster.setFromCamera(this.mouse, this.camera);
 
     const intersects = this.raycaster.intersectObjects(
-      this.scene.children,
+      this.steps.map(x => x.group),
       true
     );
+
+    console.log(intersects);
 
     return intersects;
   }
@@ -337,8 +351,9 @@ export class Presentation {
     const step = this.steps[this.currentStep];
     if (!step) return;
 
-    for (let i = 0; i < this.scene.children.length; ++i) {
-      this.scene.children[i].visible = false;
+    this.template.group.visible = false;
+    for (let i = 0; i < this.steps.length; ++i) {
+      this.steps[i].group.visible = false;
     }
 
     step.group.visible = true;
@@ -349,8 +364,9 @@ export class Presentation {
    */
   blur(): void {
     this.isFocused = false;
-    for (let i = 0; i < this.scene.children.length; ++i) {
-      this.scene.children[i].visible = true;
+    this.template.group.visible = true;
+    for (let i = 0; i < this.steps.length; ++i) {
+      this.steps[i].group.visible = true;
     }
   }
 
@@ -434,6 +450,10 @@ export class Presentation {
         z: rz
       })
     };
+  }
+
+  getStepId(step: Step): number {
+    return this.steps.indexOf(step);
   }
 
   goTo(index: number, duration = 120): void {

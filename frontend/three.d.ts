@@ -13,7 +13,7 @@ declare namespace THREE {
     constructor(camera: THREE.Camera, dom?: HTMLElement);
 
     attach(o: THREE.Object3D): void;
-    detach(o: THREE.Object3D): void;
+    detach(): void;
 
     setMode(m: "translate" | "rotate" | "scale"): void;
     setSpace(space: "world" | "local"): void;

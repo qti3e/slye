@@ -27,12 +27,12 @@ export class App extends Component<{}, AppState> {
     this.setState({
       presentationDescriptor
     });
-  }
+  };
 
   render() {
     const { presentationDescriptor } = this.state;
     if (presentationDescriptor) {
-      return <Editor presentationDescriptor={presentationDescriptor}/>;
+      return <Editor presentationDescriptor={presentationDescriptor} />;
     }
     return <Dashboard onCreate={this.create} />;
   }
