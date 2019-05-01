@@ -16,9 +16,12 @@ import { App } from "./app";
 import * as Slye from "@slye/core";
 import * as Three from "three";
 
-// For module loader.
+// For module loader & THREE modules.
 window.slye = Slye;
 window.THREE = Three;
+
+import "three/examples/js/controls/TransformControls";
+import "three/examples/js/controls/OrbitControls";
 
 Slye.setServer({
   requestModule(moduleName: string): Promise<boolean> {
