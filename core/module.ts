@@ -12,7 +12,7 @@ import { generateShapes } from "./draw";
 import { Font, FontImpl } from "./font";
 import { Asset } from "./asset";
 import { fetchModuleAsset, requestModule } from "./server";
-import { Component, ComponentInit, PropValue } from "./component";
+import { Component, PropValue } from "./component";
 
 const modulesTable: Map<string, ModuleInterface> = (window.slyeModulesTable =
   window.slyeModulesTable || new Map());
@@ -39,7 +39,7 @@ export interface ModuleInterface {
    * @param {Record<string, PropValue>} props Properties.
    * @returns {Component}
    */
-  component(name: string, props: Record<string, PropValue>): Component;
+  component(name: string, props: Record<string, PropValue>): Component<any>;
 
   /**
    * Returns name of the registered fonts.
@@ -56,8 +56,8 @@ export interface ModuleInterface {
   font(name: string): Font;
 }
 
-type ComponentClass = {
-  new (props: Record<string, PropValue>, module: ModuleInterface): Component;
+type ComponentClass<P> = {
+  new (props: P, module: ModuleInterface): Component<P>;
 };
 
 type ModuleClass = {
@@ -65,7 +65,7 @@ type ModuleClass = {
 };
 
 export abstract class Module implements ModuleInterface {
-  private readonly components: Map<string, ComponentClass> = new Map();
+  private readonly components: Map<string, ComponentClass<any>> = new Map();
   private readonly fonts: Map<string, Font> = new Map();
   readonly assets: Asset<string>;
   readonly name: string;
@@ -73,9 +73,10 @@ export abstract class Module implements ModuleInterface {
   constructor(name: string) {
     this.name = name;
     this.assets = new Asset(key => fetchModuleAsset(name, key));
+    this.init();
   }
 
-  protected registerComponent(name: string, c: ComponentClass): void {
+  protected registerComponent(name: string, c: ComponentClass<any>): void {
     this.components.set(name, c);
   }
 
@@ -88,7 +89,7 @@ export abstract class Module implements ModuleInterface {
     this.fonts.set(name, font);
   }
 
-  component(name: string, props: Record<string, PropValue>): Component {
+  component(name: string, props: Record<string, PropValue>): Component<any> {
     const c = this.components.get(name);
     if (!c) {
       throw new Error(`Component ${name} is not registered by ${this.name}.`);
@@ -138,7 +139,7 @@ export async function component(
   moduleName: string,
   componentName: string,
   props: Record<string, PropValue> = {}
-): Promise<Component> {
+): Promise<Component<any>> {
   const m = await loadModule(moduleName);
   return m.component(componentName, props);
 }

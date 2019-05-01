@@ -18,7 +18,7 @@ declare global {
     remote: Remote;
     client: Client;
     slye: typeof Slye;
-    three: typeof Three;
+    THREE: typeof Three;
     slyeModulesTable: Map<string, Slye.ModuleInterface>;
   }
   const client: Client;

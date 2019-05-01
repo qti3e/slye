@@ -18,7 +18,7 @@ import * as Three from "three";
 
 // For module loader.
 window.slye = Slye;
-window.three = Three;
+window.THREE = Three;
 
 Slye.setServer({
   requestModule(moduleName: string): Promise<boolean> {

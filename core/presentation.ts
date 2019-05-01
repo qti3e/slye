@@ -182,17 +182,17 @@ export class Presentation {
     }
 
     if (this.template) {
-      this.template.render(this.frame);
+      this.template.animationFrame(this.frame);
     }
 
     if (this.steps.length) {
       if (this.steps.length <= 5) {
         for (let i = 0; i < this.steps.length; ++i) {
-          this.steps[i].render(this.frame);
+          this.steps[i].animationFrame(this.frame);
         }
       } else {
         if (this.currentStep) {
-          this.steps[this.currentStep].render(this.frame);
+          this.steps[this.currentStep].animationFrame(this.frame);
         }
         // At most render 5 steps in each frame.
         let base = (this.frame * 5) % this.steps.length;
@@ -200,7 +200,7 @@ export class Presentation {
           let id = (base + i) % this.steps.length;
           // Don't render it twice.
           if (id == this.currentStep) continue;
-          this.steps[id].render(this.frame);
+          this.steps[id].animationFrame(this.frame);
         }
       }
     }

@@ -101,6 +101,8 @@ export class Editor extends Component<EditorProps, EditorState> {
       window.requestAnimationFrame(render);
     };
     window.requestAnimationFrame(render);
+
+    (window as any).p = this.presentation;
   }
 
   handleChange = (event: any, value: number) => {

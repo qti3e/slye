@@ -13,40 +13,67 @@ import { Font } from "./font";
 import { Step } from "./step";
 import { Vec3 } from "./math";
 
-export type ComponentInit = () => number;
-export type ClickHandler = () => void;
-export type RenderHandler = (frame: number) => void;
-
 export type PropValue = string | number | undefined | Font | ArrayBuffer;
 
-export abstract class Component {
+export abstract class Component<Props = Record<string, PropValue>> {
+  protected props: Props;
   readonly group: Group;
   isClickable: boolean;
   owner: Step;
 
-  constructor() {
+  constructor(props: Props) {
     this.group = new Group();
     this.group.userData.component = this;
+    this.updateProps(props);
+    this.init();
   }
 
-  setOwner(s: Step): void {}
+  setOwner(s: Step): void {
+    if (this.owner) {
+      this.owner.del(this);
+    }
+    this.owner = s;
+  }
 
-  // Event handlers.
-  click(): void {}
-  render(frame: number): void {}
-
-  // Props.
   getProp(key: string): PropValue {
-    return null;
+    return (this as any).props[key];
   }
 
-  // Position & Rotation.
-  setPosition(x: number, y: number, z: number): void {}
-  setRotation(x: number, y: number, z: number): void {}
+  setProp(key: string, value: PropValue): void {
+    this.updateProps({
+      ...this.props,
+      [key]: value
+    });
+  }
+
+  updateProps(props: Props) {
+    // I hope it does not cause a memory leak :/
+    this.group.children.length = 0;
+    this.props = props;
+    this.render();
+  }
+
+  setPosition(x: number, y: number, z: number): void {
+    this.group.position.set(x, y, z);
+  }
+
+  setRotation(x: number, y: number, z: number): void {
+    this.group.rotation.set(x, y, z);
+  }
+
   getPosition(): Vec3 {
-    return null;
+    const { x, y, z } = this.group.position;
+    return { x, y, z };
   }
+
   getRotation(): Vec3 {
-    return null;
+    const { x, y, z } = this.group.rotation;
+    return { x, y, z };
   }
+
+  click(): void {}
+  animationFrame(frame: number): void {}
+
+  protected abstract render(): void;
+  protected abstract init(): void;
 }

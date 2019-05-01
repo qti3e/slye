@@ -32,7 +32,7 @@ export class Step {
   /**
    * Components.
    */
-  components: Component[] = [];
+  components: Component<any>[] = [];
 
   /**
    * Three.js Group for this step.
@@ -69,16 +69,16 @@ export class Step {
   /**
    * Render components.
    */
-  render(frame: number): void {
+  animationFrame(frame: number): void {
     for (let i = 0; i < this.components.length; ++i) {
-      this.components[i].render(frame);
+      this.components[i].animationFrame(frame);
     }
   }
 
   /**
    * Add/Move component c into this step.
    */
-  add(c: Component): void {
+  add(c: Component<any>): void {
     this.components.push(c);
     c.setOwner(this);
     this.group.add(c.group);
@@ -90,7 +90,7 @@ export class Step {
   /**
    * Remove the given component from this step.
    */
-  del(c: Component): void {
+  del(c: Component<any>): void {
     const index = this.components.indexOf(c);
     if (index > -1) {
       this.components.splice(index, 1);
