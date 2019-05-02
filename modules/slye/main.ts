@@ -18,6 +18,12 @@ interface TextProps {
 }
 
 class Text extends slye.Component<TextProps> {
+  ui = {
+    font: undefined as any,
+    size: slye.sizeWidget,
+    text: slye.textWidget
+  };
+
   init() {}
 
   async render() {
@@ -47,7 +53,8 @@ class Text extends slye.Component<TextProps> {
   }
 }
 
-class Template extends slye.Component {
+class Template extends slye.Component<{}> {
+  ui = {};
   init() {}
   async render() {}
 }
