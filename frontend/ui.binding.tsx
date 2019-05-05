@@ -31,4 +31,4 @@ export const ui: UI.Binding<React.ReactElement> = {
   [UI.FONT](value: slye.Font, onUpdate: UI.OnUpdate<slye.Font>) {
     return null;
   }
-}
+};

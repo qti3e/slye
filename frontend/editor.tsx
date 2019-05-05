@@ -156,15 +156,52 @@ export class Editor extends Component<EditorProps, EditorState> {
     dom.addEventListener("mousemove", this.onMouseMove);
     dom.addEventListener("click", this.onClick);
     dom.addEventListener("dblclick", this.onDblClick);
+    // Document wise events.
+    document.addEventListener("keydown", this.onKeydown);
+    document.addEventListener("keyup", this.onKeyup);
   }
 
   handleChange = (event: any, mode: number) => {
     if (mode === EditorMode.LOCAL || mode == EditorMode.WORLD) {
-      this.setState({
-        mode
-      });
+      this.switchMode(mode);
     }
   };
+
+  enableTransformControl(): void {
+    this.orbitControl.enabled = false;
+    this.transformControl.enabled = true;
+  }
+
+  disableTransformControl(): void {
+    if (this.state.mode === EditorMode.LOCAL) {
+      this.orbitControl.enabled = true;
+    }
+    this.transformControl.enabled = false;
+    this.transformControl.detach();
+  }
+
+  switchMode(mode: EditorMode): void {
+    // Disable controls.
+    this.transformControl.enabled = false;
+    this.orbitControl.enabled = false;
+    this.transformControl.detach();
+
+    if (mode === EditorMode.LOCAL) {
+      // Make sure we're looking at the step.
+      this.presentation.current(60);
+      // Focus on the current step.
+      // Hide everything else.
+      this.presentation.focus();
+      // Setup orbit control.
+      const { x, y, z } = this.presentation.getCurrentStep().getPosition();
+      this.orbitControl.enabled = true;
+      this.orbitControl.target.set(x, y, z);
+    }
+
+    this.setState({ mode });
+  }
+
+  onAnimationFrame = (frame: number): void => {};
 
   onMouseMove = (event: MouseEvent): void => {
     if (this.transformControl.enabled) return;
@@ -195,28 +232,24 @@ export class Editor extends Component<EditorProps, EditorState> {
     }
   };
 
-  onAnimationFrame = (frame: number): void => {};
-
   onClick = (event: MouseEvent): void => {
     switch (this.state.mode) {
       case EditorMode.WORLD:
         if (this.intersectedStep) {
           this.transformControl.attach(this.intersectedStep.group);
-          this.transformControl.enabled = true;
+          this.enableTransformControl();
           this.presentation.domElement.style.cursor = "auto";
         } else {
-          this.transformControl.detach();
-          this.transformControl.enabled = false;
+          this.disableTransformControl();
         }
         break;
       case EditorMode.LOCAL:
         if (this.intersectedComponent) {
           this.transformControl.attach(this.intersectedComponent.group);
-          this.transformControl.enabled = true;
+          this.enableTransformControl();
           this.presentation.domElement.style.cursor = "auto";
         } else {
-          this.transformControl.detach();
-          this.transformControl.enabled = false;
+          this.disableTransformControl();
         }
         break;
     }
@@ -226,14 +259,66 @@ export class Editor extends Component<EditorProps, EditorState> {
     switch (this.state.mode) {
       case EditorMode.WORLD:
         if (this.intersectedStep) {
-          this.transformControl.enabled = false;
-          this.transformControl.detach();
           const id = this.presentation.getStepId(this.intersectedStep);
           this.presentation.goTo(id, 60);
-          this.setState({ mode: EditorMode.LOCAL });
+          this.switchMode(EditorMode.LOCAL);
         }
         break;
     }
+  };
+
+  onKeydown = (event: KeyboardEvent): void => {
+    const { mode } = this.state;
+    const { keyCode } = event;
+
+    // Alt
+    if (mode === EditorMode.LOCAL && keyCode === 18) {
+      this.transformControl.enabled = false;
+      this.orbitControl.enabled = true;
+      event.preventDefault();
+      return;
+    }
+  };
+
+  onKeyup = (event: KeyboardEvent): void => {
+    const { mode } = this.state;
+    const { keyCode, ctrlKey } = event;
+
+    // For keys: "S", "R" and "T"
+    if (this.transformControl.enabled && (keyCode >= 82 && keyCode <= 84)) {
+      const mode = ["rotate", "scale", "translate"][keyCode - 82];
+      this.transformControl.mode = mode as any;
+      event.preventDefault();
+      return;
+    }
+
+    // Escape.
+    if (
+      mode !== EditorMode.PLAY &&
+      this.transformControl.enabled &&
+      keyCode == 27
+    ) {
+      this.disableTransformControl();
+      event.preventDefault();
+      return;
+    }
+
+    // Ctrl+F in local mode should focus on the step.
+    if (mode === EditorMode.LOCAL && ctrlKey && keyCode == 70) {
+      this.presentation.current();
+      event.preventDefault();
+      return;
+    }
+
+    // Alt
+    if (mode === EditorMode.LOCAL && keyCode === 18) {
+      this.transformControl.enabled = true;
+      this.orbitControl.enabled = false;
+      event.preventDefault();
+      return;
+    }
+
+    console.log("U", event);
   };
 
   render() {

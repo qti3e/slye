@@ -252,8 +252,6 @@ export class Presentation {
       true
     );
 
-    console.log(intersects);
-
     return intersects;
   }
 
@@ -498,6 +496,14 @@ export class Presentation {
     this.updateCamera(duration, x, y, z, rx, ry, rz);
 
     if (this.isFocused) this.focus();
+  }
+
+  getCurrentStep(): Step {
+    return this.steps[this.currentStep];
+  }
+
+  current(duration = 120): void {
+    this.goTo(this.currentStep, duration);
   }
 
   next(duration = 120): void {
