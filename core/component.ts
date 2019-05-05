@@ -12,16 +12,14 @@ import { Group } from "three";
 import { Font } from "./font";
 import { Step } from "./step";
 import { Vec3 } from "./math";
-import { Widget } from "./ui";
+import { Widgets } from "./ui";
 
 export type PropValue = string | number | undefined | Font | ArrayBuffer;
-
-type UI<Props> = { [K in keyof Props]: Widget<Props[K]> };
 
 export abstract class Component<Props = Record<string, PropValue>> {
   private isUpdating = false;
   private nextProps: Props;
-  public abstract readonly ui: UI<Props>;
+  public abstract readonly ui: Widgets<Props>;
 
   protected props: Props;
   readonly group: Group;

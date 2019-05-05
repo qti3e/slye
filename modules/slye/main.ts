@@ -9,6 +9,7 @@
  */
 
 import * as slye from "@slye/core";
+import * as UI from "@slye/core/ui";
 import * as THREE from "three";
 
 interface TextProps {
@@ -18,10 +19,14 @@ interface TextProps {
 }
 
 class Text extends slye.Component<TextProps> {
-  ui = {
-    font: undefined as any,
-    size: slye.sizeWidget,
-    text: slye.textWidget
+  // Currently contextual types are not supported in ts - so we need to
+  // explicitly use Widgets type here.
+  // https://github.com/Microsoft/TypeScript/issues/31242
+  ui: UI.Widgets<TextProps> = {
+    font: UI.FONT,
+    size: UI.SIZE,
+    text: UI.TEXT,
+    _order: ["text", "font", "text"]
   };
 
   init() {}
