@@ -40,11 +40,11 @@ export abstract class Component<Props = Record<string, PropValue>> {
     this.owner = s;
   }
 
-  getProp(key: string): PropValue {
-    return (this as any).props[key];
+  getProp<T extends keyof Props>(key: T): Props[T] {
+    return this.props[key];
   }
 
-  setProp(key: string, value: PropValue): void {
+  setProp<T extends keyof Props>(key: T, value: Props[T]): void {
     this.updateProps({
       ...this.props,
       [key]: value
