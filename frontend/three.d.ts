@@ -22,10 +22,28 @@ declare namespace THREE {
     setSize(n: number): void;
   }
 
-  export class OrbitControls extends THREE.Object3D {
+  export class OrbitControls {
     public enabled: boolean;
     public readonly target: THREE.Vector3;
 
     constructor(camera: THREE.Camera, dom?: HTMLElement);
+  }
+
+  export class TrackballControls {
+    public rotateSpeed: number;
+    public zoomSpeed: number;
+    public panSpeed: number;
+    public dynamicDampingFactor: number;
+
+    public noZoom: boolean;
+    public noPan: boolean;
+    public staticMoving: boolean;
+
+    public keys: number[];
+
+    constructor(camera: THREE.Camera, dom?: HTMLElement);
+
+    handleResize(): void;
+    update(): void;
   }
 }

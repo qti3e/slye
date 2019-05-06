@@ -66,14 +66,16 @@ export class PresentationFile {
       },
       steps: {
         [uuidv1()]: {
-          position: [-120, 0, 0] as any,
+          position: [-110, 0, 0] as any,
           rotation: [0, 0, 0] as any,
+          scale: [1, 1, 1] as any,
           components: [
             {
               moduleName: "slye",
               component: "text",
               position: [-30, 10, 0] as any,
               rotation: [0, 0, 0] as any,
+              scale: [1, 1, 1] as any,
               props: {
                 text: "What is",
                 size: 10,
@@ -89,6 +91,7 @@ export class PresentationFile {
               component: "text",
               position: [0, -5, 0] as any,
               rotation: [0, 0, 0] as any,
+              scale: [1, 1, 1] as any,
               props: {
                 text: "Slye",
                 size: 20,
@@ -104,6 +107,62 @@ export class PresentationFile {
               component: "text",
               position: [29, -15, 0] as any,
               rotation: [0, 0, 0] as any,
+              scale: [1, 1, 1] as any,
+              props: {
+                text: "!!!",
+                size: 10,
+                font: {
+                  kind: 1,
+                  moduleName: "slye",
+                  font: "Sahel"
+                }
+              }
+            }
+          ]
+        },
+        [uuidv1()]: {
+          position: [-120, 0, 0] as any,
+          rotation: [0, 0, 0] as any,
+          scale: [1, 1, 1] as any,
+          components: [
+            {
+              moduleName: "slye",
+              component: "text",
+              position: [-30, 10, 0] as any,
+              rotation: [0, 0, 0] as any,
+              scale: [1, 1, 1] as any,
+              props: {
+                text: "What is",
+                size: 10,
+                font: {
+                  kind: 1,
+                  moduleName: "slye",
+                  font: "Sahel"
+                }
+              }
+            },
+            {
+              moduleName: "slye",
+              component: "text",
+              position: [0, -5, 0] as any,
+              rotation: [0, 0, 0] as any,
+              scale: [1, 1, 1] as any,
+              props: {
+                text: "Slye",
+                size: 20,
+                font: {
+                  kind: 1,
+                  moduleName: "slye",
+                  font: "Shellia"
+                }
+              }
+            },
+            {
+              moduleName: "slye",
+              component: "text",
+              position: [29, -15, 0] as any,
+              rotation: [0, 0, 0] as any,
+              scale: [1, 1, 1] as any,
               props: {
                 text: "?",
                 size: 10,

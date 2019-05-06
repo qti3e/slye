@@ -109,6 +109,10 @@ export class Step {
     this.group.rotation.set(x, y, z);
   }
 
+  setScale(x: number, y: number, z: number): void {
+    this.group.scale.set(x, y, z);
+  }
+
   getPosition(): Vec3 {
     return {
       x: this.group.position.x,
@@ -123,5 +127,10 @@ export class Step {
       y: this.group.rotation.y,
       z: this.group.rotation.z
     };
+  }
+
+  getScale(): Vec3 {
+    const { x, y, z } = this.group.scale;
+    return { x, y, z };
   }
 }

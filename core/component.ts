@@ -94,6 +94,10 @@ export abstract class Component<Props = Record<string, PropValue>> {
     this.group.rotation.set(x, y, z);
   }
 
+  setScale(x: number, y: number, z: number): void {
+    this.group.scale.set(x, y, z);
+  }
+
   getPosition(): Vec3 {
     const { x, y, z } = this.group.position;
     return { x, y, z };
@@ -101,6 +105,11 @@ export abstract class Component<Props = Record<string, PropValue>> {
 
   getRotation(): Vec3 {
     const { x, y, z } = this.group.rotation;
+    return { x, y, z };
+  }
+
+  getScale(): Vec3 {
+    const { x, y, z } = this.group.scale;
     return { x, y, z };
   }
 

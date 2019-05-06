@@ -36,12 +36,14 @@ export interface JSONPresentationComponent {
   component: string;
   position: [number, number, number];
   rotation: [number, number, number];
+  scale: [number, number, number];
   props: Record<string, ComponentPropValue>;
 }
 
 export interface JSONPresentationStep {
   position: [number, number, number];
   rotation: [number, number, number];
+  scale: [number, number, number];
   components: JSONPresentationComponent[];
 }
 
@@ -75,6 +77,7 @@ export async function sly(
     const step = new Step(uuid);
     step.setPosition(jstep.position[0], jstep.position[1], jstep.position[2]);
     step.setRotation(jstep.rotation[0], jstep.rotation[1], jstep.rotation[2]);
+    step.setScale(jstep.scale[0], jstep.scale[1], jstep.scale[2]);
 
     for (let j = 0; j < jstep.components.length; ++j) {
       const jcom = jstep.components[j];
@@ -94,6 +97,7 @@ export async function sly(
       const com = await component(jcom.moduleName, jcom.component, props);
       com.setPosition(jcom.position[0], jcom.position[1], jcom.position[2]);
       com.setRotation(jcom.rotation[0], jcom.rotation[1], jcom.rotation[2]);
+      com.setScale(jcom.scale[0], jcom.scale[1], jcom.scale[2]);
 
       step.add(com);
     }

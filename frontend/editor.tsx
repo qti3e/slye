@@ -208,6 +208,7 @@ export class Editor extends Component<EditorProps, EditorState> {
       this.orbitControl.target.set(x, y, z);
     } else {
       selectedComponent = undefined;
+      this.presentation.blur();
     }
 
     this.setState({
@@ -348,6 +349,13 @@ export class Editor extends Component<EditorProps, EditorState> {
       // Enable orbit control.
       this.disableTransformControl();
       this.setState({ selectedComponent: undefined });
+      event.preventDefault();
+      return;
+    }
+
+    // Escape.
+    if (mode === EditorMode.LOCAL && keyCode == 27) {
+      this.switchMode(EditorMode.WORLD);
       event.preventDefault();
       return;
     }
