@@ -67,6 +67,12 @@ export interface Font {
   layout(text: string): Promise<Glyph[]>;
 }
 
+const fonts: Font[] = [];
+
+export function getFonts(): Font[] {
+  return [...fonts];
+}
+
 export class FontImpl implements Font {
   private font: fontkit.Font;
 
@@ -74,7 +80,9 @@ export class FontImpl implements Font {
     private readonly fetch: () => Promise<ArrayBuffer>,
     readonly moduleName: string,
     readonly name: string
-  ) {}
+  ) {
+    fonts.push(this);
+  }
 
   private async ensure(): Promise<void> {
     if (this.font) return;

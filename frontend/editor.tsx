@@ -14,9 +14,11 @@ import {
   sly,
   Presentation,
   Step,
-  Component as SlyeComponent
+  Component as SlyeComponent,
+  renderComponentProps
 } from "@slye/core";
 import { sleep } from "./util";
+import { ComponentUI } from "./componentUI";
 
 // Material-UI component.
 import Collapse from "@material-ui/core/Collapse";
@@ -43,11 +45,17 @@ enum EditorMode {
 
 interface EditorState {
   mode: EditorMode;
+  selectedComponent: SlyeComponent;
+  x: number;
+  y: number;
 }
 
 export class Editor extends Component<EditorProps, EditorState> {
-  state = {
-    mode: EditorMode.WORLD
+  state: EditorState = {
+    mode: EditorMode.WORLD,
+    selectedComponent: undefined,
+    x: 0,
+    y: 0
   };
 
   /**
@@ -73,6 +81,7 @@ export class Editor extends Component<EditorProps, EditorState> {
 
   private transformControl: THREE.TransformControls;
   private orbitControl: THREE.OrbitControls;
+  private isAltDown: boolean;
 
   componentWillMount() {
     this.open();
@@ -185,6 +194,7 @@ export class Editor extends Component<EditorProps, EditorState> {
     this.transformControl.enabled = false;
     this.orbitControl.enabled = false;
     this.transformControl.detach();
+    let selectedComponent = this.state.selectedComponent;
 
     if (mode === EditorMode.LOCAL) {
       // Make sure we're looking at the step.
@@ -196,15 +206,25 @@ export class Editor extends Component<EditorProps, EditorState> {
       const { x, y, z } = this.presentation.getCurrentStep().getPosition();
       this.orbitControl.enabled = true;
       this.orbitControl.target.set(x, y, z);
+    } else {
+      selectedComponent = undefined;
     }
 
-    this.setState({ mode });
+    this.setState({
+      mode,
+      selectedComponent
+    });
   }
 
   onAnimationFrame = (frame: number): void => {};
 
   onMouseMove = (event: MouseEvent): void => {
-    if (this.transformControl.enabled) return;
+    if (
+      this.transformControl.enabled ||
+      this.isAltDown ||
+      this.state.selectedComponent
+    )
+      return;
 
     const { width, height } = this.presentation.domElement;
     const x = event.offsetX;
@@ -244,6 +264,7 @@ export class Editor extends Component<EditorProps, EditorState> {
         }
         break;
       case EditorMode.LOCAL:
+        if (this.isAltDown || this.state.selectedComponent) break;
         if (this.intersectedComponent) {
           this.transformControl.attach(this.intersectedComponent.group);
           this.enableTransformControl();
@@ -255,13 +276,23 @@ export class Editor extends Component<EditorProps, EditorState> {
     }
   };
 
-  onDblClick = (evnet: MouseEvent): void => {
+  onDblClick = (event: MouseEvent): void => {
     switch (this.state.mode) {
       case EditorMode.WORLD:
         if (this.intersectedStep) {
           const id = this.presentation.getStepId(this.intersectedStep);
           this.presentation.goTo(id, 60);
           this.switchMode(EditorMode.LOCAL);
+        }
+        break;
+      case EditorMode.LOCAL:
+        if (this.intersectedComponent) {
+          this.disableTransformControl();
+          this.setState({
+            selectedComponent: this.intersectedComponent,
+            x: event.offsetX,
+            y: event.offsetY
+          });
         }
         break;
     }
@@ -272,9 +303,14 @@ export class Editor extends Component<EditorProps, EditorState> {
     const { keyCode } = event;
 
     // Alt
-    if (mode === EditorMode.LOCAL && keyCode === 18) {
+    if (
+      mode === EditorMode.LOCAL &&
+      this.transformControl.enabled &&
+      keyCode === 18
+    ) {
       this.transformControl.enabled = false;
       this.orbitControl.enabled = true;
+      this.isAltDown = true;
       event.preventDefault();
       return;
     }
@@ -303,6 +339,19 @@ export class Editor extends Component<EditorProps, EditorState> {
       return;
     }
 
+    // Escape.
+    if (
+      mode === EditorMode.LOCAL &&
+      this.state.selectedComponent &&
+      keyCode == 27
+    ) {
+      // Enable orbit control.
+      this.disableTransformControl();
+      this.setState({ selectedComponent: undefined });
+      event.preventDefault();
+      return;
+    }
+
     // Ctrl+F in local mode should focus on the step.
     if (mode === EditorMode.LOCAL && ctrlKey && keyCode == 70) {
       this.presentation.current();
@@ -311,9 +360,10 @@ export class Editor extends Component<EditorProps, EditorState> {
     }
 
     // Alt
-    if (mode === EditorMode.LOCAL && keyCode === 18) {
+    if (mode === EditorMode.LOCAL && this.isAltDown && keyCode === 18) {
       this.transformControl.enabled = true;
       this.orbitControl.enabled = false;
+      this.isAltDown = false;
       event.preventDefault();
       return;
     }
@@ -322,7 +372,12 @@ export class Editor extends Component<EditorProps, EditorState> {
   };
 
   render() {
-    const { mode } = this.state;
+    const { mode, selectedComponent, x, y } = this.state;
+
+    if (selectedComponent) {
+      this.disableTransformControl();
+      this.orbitControl.enabled = false;
+    }
 
     return (
       <Fragment>
@@ -336,6 +391,10 @@ export class Editor extends Component<EditorProps, EditorState> {
           <BottomNavigationAction icon={<StorylineIcon />} />
           <BottomNavigationAction icon={<PlayIcon />} />
         </BottomNavigation>
+
+        {selectedComponent ? (
+          <ComponentUI component={selectedComponent} x={x} y={y} />
+        ) : null}
 
         <div style={styles.transformControlButtons}>
           <Fab

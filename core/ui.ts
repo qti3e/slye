@@ -12,9 +12,11 @@ import { Font } from "./font";
 import { Component, PropValue } from "./component";
 
 // UI widgets
-export const TEXT: unique symbol = Symbol();
-export const SIZE: unique symbol = Symbol();
-export const FONT: unique symbol = Symbol();
+const e = eval;
+const g: any = e("this");
+export const TEXT: unique symbol = g.swT || (g.swT = Symbol());
+export const SIZE: unique symbol = g.swS || (g.swS = Symbol());
+export const FONT: unique symbol = g.swF || (g.swF = Symbol());
 
 // Types
 export type OnUpdate<T> = (value: T) => void;
@@ -51,7 +53,7 @@ export function render<T, S extends keyof Binding>(
   init: ValueType<Binding[S]>,
   onUpdate: OnUpdate<ValueType<Binding[S]>>
 ): T {
-  return null;
+  return (binding[sym] as any)(init, onUpdate);
 }
 
 interface RenderComponentResult<T> {

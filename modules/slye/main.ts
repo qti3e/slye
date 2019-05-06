@@ -26,7 +26,7 @@ class Text extends slye.Component<TextProps> {
     font: UI.FONT,
     size: UI.SIZE,
     text: UI.TEXT,
-    _order: ["text", "font", "text"]
+    _order: ["text", "font", "size"]
   };
 
   init() {}
