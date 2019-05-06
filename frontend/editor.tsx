@@ -129,7 +129,11 @@ export class Editor extends Component<EditorProps, EditorState> {
     window.addEventListener(
       "resize",
       () => {
-        this.presentation.resize(w(), h());
+        if (this.state.mode === EditorMode.PLAY) {
+          this.presentation.resize(window.innerWidth, window.innerHeight);
+        } else {
+          this.presentation.resize(w(), h());
+        }
       },
       false
     );
@@ -168,11 +172,20 @@ export class Editor extends Component<EditorProps, EditorState> {
     // Document wise events.
     document.addEventListener("keydown", this.onKeydown);
     document.addEventListener("keyup", this.onKeyup);
+    document.addEventListener("touchstart", this.onTouchStart);
   }
 
   handleChange = (event: any, mode: number) => {
-    if (mode === EditorMode.LOCAL || mode == EditorMode.WORLD) {
-      this.switchMode(mode);
+    switch (mode) {
+      case 0:
+        this.switchMode(EditorMode.WORLD);
+        break;
+      case 1:
+        this.switchMode(EditorMode.LOCAL);
+        break;
+      case 2:
+        this.switchMode(EditorMode.PLAY);
+        break;
     }
   };
 
@@ -211,6 +224,17 @@ export class Editor extends Component<EditorProps, EditorState> {
       this.presentation.blur();
     }
 
+    if (mode === EditorMode.PLAY) {
+      this.presentation.play();
+      this.orbitControl.enabled = false;
+      this.transformControl.enabled = false;
+      this.transformControl.detach();
+      (this.presentation.domElement as any).webkitRequestFullScreen();
+      this.presentation.resize(window.innerWidth, window.innerHeight);
+    } else if (this.state.mode === EditorMode.PLAY) {
+      (document as any).webkitExitFullscreen();
+    }
+
     this.setState({
       mode,
       selectedComponent
@@ -227,14 +251,18 @@ export class Editor extends Component<EditorProps, EditorState> {
     )
       return;
 
-    const { width, height } = this.presentation.domElement;
+    const { width, height, offsetTop } = this.presentation.domElement;
     const x = event.offsetX;
-    const y = event.offsetY - 32;
+    const y = event.offsetY - offsetTop;
     const webglX = (x / width) * 2 - 1;
     const webglY = -(y / height) * 2 + 1;
     let intersected = false;
 
     this.presentation.updateMouse(webglX, webglY);
+
+    if (this.state.mode === EditorMode.PLAY) {
+      return;
+    }
 
     if (this.state.mode === EditorMode.WORLD) {
       this.intersectedStep = this.presentation.raycastStep();
@@ -315,6 +343,17 @@ export class Editor extends Component<EditorProps, EditorState> {
       event.preventDefault();
       return;
     }
+
+    if (mode === EditorMode.PLAY) {
+      if (
+        event.keyCode === 9 ||
+        (event.keyCode >= 32 && event.keyCode <= 34) ||
+        (event.keyCode >= 37 && event.keyCode <= 40)
+      ) {
+        event.preventDefault();
+        return;
+      }
+    }
   };
 
   onKeyup = (event: KeyboardEvent): void => {
@@ -333,7 +372,7 @@ export class Editor extends Component<EditorProps, EditorState> {
     if (
       mode !== EditorMode.PLAY &&
       this.transformControl.enabled &&
-      keyCode == 27
+      keyCode === 27
     ) {
       this.disableTransformControl();
       event.preventDefault();
@@ -344,7 +383,7 @@ export class Editor extends Component<EditorProps, EditorState> {
     if (
       mode === EditorMode.LOCAL &&
       this.state.selectedComponent &&
-      keyCode == 27
+      keyCode === 27
     ) {
       // Enable orbit control.
       this.disableTransformControl();
@@ -354,15 +393,34 @@ export class Editor extends Component<EditorProps, EditorState> {
     }
 
     // Escape.
-    if (mode === EditorMode.LOCAL && keyCode == 27) {
+    if (mode === EditorMode.LOCAL && keyCode === 27) {
       this.switchMode(EditorMode.WORLD);
       event.preventDefault();
       return;
     }
 
-    // Ctrl+F in local mode should focus on the step.
-    if (mode === EditorMode.LOCAL && ctrlKey && keyCode == 70) {
-      this.presentation.current();
+    // Escape.
+    if (mode === EditorMode.PLAY && keyCode === 27) {
+      this.switchMode(EditorMode.WORLD);
+      event.preventDefault();
+      return;
+    }
+
+    // F5
+    if (mode !== EditorMode.PLAY && keyCode === 116) {
+      this.switchMode(EditorMode.PLAY);
+      event.preventDefault();
+      return;
+    }
+
+    // Ctrl+F should focus on the step.
+    if (mode !== EditorMode.PLAY && ctrlKey && keyCode === 70) {
+      if (this.intersectedStep && mode !== EditorMode.LOCAL) {
+        const id = this.presentation.getStepId(this.intersectedStep);
+        this.presentation.goTo(id, 60);
+      } else {
+        this.presentation.current(60);
+      }
       event.preventDefault();
       return;
     }
@@ -376,7 +434,39 @@ export class Editor extends Component<EditorProps, EditorState> {
       return;
     }
 
-    console.log("U", event);
+    if (mode === EditorMode.PLAY) {
+      switch (event.keyCode) {
+        case 33: // pg up
+        case 37: // left
+        case 38: // up
+          this.presentation.prev();
+          event.preventDefault();
+          break;
+        case 9: // tab
+        case 32: // space
+        case 34: // pg down
+        case 39: // right
+        case 40: // down
+          this.presentation.next();
+          event.preventDefault();
+          break;
+      }
+    }
+  };
+
+  onTouchStart = (event: TouchEvent): void => {
+    const { mode } = this.state;
+    if (mode === EditorMode.PLAY) {
+      if (event.touches.length === 1) {
+        const x = event.touches[0].clientX;
+        const width = innerWidth * 0.3;
+        if (x < width) {
+          this.presentation.prev();
+        } else if (x > innerWidth - width) {
+          this.presentation.next();
+        }
+      }
+    }
   };
 
   render() {
@@ -385,6 +475,10 @@ export class Editor extends Component<EditorProps, EditorState> {
     if (selectedComponent) {
       this.disableTransformControl();
       this.orbitControl.enabled = false;
+    }
+
+    if (mode === EditorMode.PLAY) {
+      return <Fragment>{this.canvasWrapper}</Fragment>;
     }
 
     return (
