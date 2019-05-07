@@ -12,6 +12,8 @@ import React, { Component } from "react";
 import * as THREE from "three";
 import * as slye from "@slye/core";
 
+const transformControls: Map<string, THREE.TransformControls[]> = new Map();
+
 export interface TransformControlProps {
   presentation: slye.Presentation;
   object?: THREE.Object3D;
@@ -27,12 +29,8 @@ export class TransformControl extends Component<TransformControlProps> {
     if (!props.presentation)
       throw new Error("TransformControl: `presentation` prop is required.");
 
-    this.transformControl = new THREE.TransformControls(
-      props.presentation.camera,
-      props.presentation.domElement
-    );
-
-    console.info("TransformControl: New Instance.");
+    const { id } = props.presentation;
+    if (!transformControls.has(id)) transformControls.set(id, []);
   }
 
   componentWillReceiveProps(nextProps: TransformControlProps) {
@@ -41,7 +39,20 @@ export class TransformControl extends Component<TransformControlProps> {
   }
 
   componentWillMount() {
-    this.props.presentation.scene.add(this.transformControl);
+    const { presentation } = this.props;
+    const stack = transformControls.get(presentation.id);
+
+    if (stack.length) {
+      this.transformControl = stack.pop();
+    } else {
+      console.info("TransformControl: New Instance.");
+      this.transformControl = new THREE.TransformControls(
+        presentation.camera,
+        presentation.domElement
+      );
+    }
+
+    presentation.scene.add(this.transformControl);
     document.addEventListener("keypress", this.onKeypress);
   }
 
@@ -50,14 +61,17 @@ export class TransformControl extends Component<TransformControlProps> {
     this.props.presentation.scene.remove(this.transformControl);
     this.transformControl.enabled = false;
     document.removeEventListener("keypress", this.onKeypress);
+    const stack = transformControls.get(this.props.presentation.id);
+    stack.push(this.transformControl);
     // When should we call dispose?
   }
 
   onKeypress = (event: KeyboardEvent): void => {
     if (!this.transformControl.enabled) return;
+    const { keyCode: c } = event;
     // [R]otate - [S]cale - [T]ranslate
     // Key Codes: { R: 82, S: 83, T: 84 }
-    const mode = ["rotate", "scale", "translate"][event.keyCode - 82];
+    const mode = ["rotate", "scale", "translate"][c - (c >= 114 ? 114 : 82)];
     if (mode) {
       this.transformControl.mode = mode as any;
       event.preventDefault();

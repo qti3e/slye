@@ -9,9 +9,10 @@
  */
 
 import React, { Component, Fragment } from "react";
+import Screenfull from "screenfull";
 import * as slye from "@slye/core";
 
-import { Editor } from "./editor2";
+import { Editor } from "./editor";
 import { Player } from "./player";
 import { sleep } from "./util";
 
@@ -69,26 +70,49 @@ export class App extends Component<AppProps, AppState> {
     // For debugging.
     (window as any).p = this.presentation;
 
-    // Events.
-    window.addEventListener("resize", this.onResize, false);
-
     // Render and then finish loading.
     render();
     this.setState({ isLoading: false });
   }
-
-  onResize = () => {
-    this.presentation.resize(innerWidth, innerHeight - 56);
-  };
 
   componentWillReceiveProps(nextProps: AppProps) {
     if (nextProps.presentationDescriptor !== this.props.presentationDescriptor)
       throw new Error("App: `presentationDescriptor` can not be changed.");
   }
 
+  componentWillMount() {
+    // Events.
+    const { domElement } = this.presentation;
+    window.addEventListener("resize", this.onResize, false);
+    domElement.addEventListener("mousemove", this.onMouseMove);
+  }
+
+  componentWillUnmount() {
+    const { domElement } = this.presentation;
+    window.removeEventListener("resize", this.onResize);
+    domElement.removeEventListener("mousemove", this.onMouseMove);
+  }
+
   handleContainerRef = (element: HTMLDivElement): void => {
     const { domElement } = this.presentation;
     element.appendChild(domElement);
+  };
+
+  onMouseMove = (event: MouseEvent): void => {
+    const { width, height, offsetTop } = this.presentation.domElement;
+    const x = event.offsetX;
+    const y = event.offsetY - offsetTop;
+    const webglX = (x / width) * 2 - 1;
+    const webglY = -(y / height) * 2 + 1;
+    let intersected = false;
+
+    this.presentation.updateMouse(webglX, webglY);
+  };
+
+  onResize = () => {
+    const { isPlaying } = this.state;
+    let height = isPlaying ? innerHeight : innerHeight - 56;
+    this.presentation.resize(innerWidth, height);
   };
 
   render() {

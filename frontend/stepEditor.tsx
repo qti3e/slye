@@ -17,4 +17,8 @@ export interface StepEditorProps {
   back: () => void;
 }
 
-export class StepEditor extends Component<StepEditorProps> {}
+export class StepEditor extends Component<StepEditorProps> {
+  render() {
+    return null;
+  }
+}

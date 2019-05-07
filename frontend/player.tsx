@@ -27,9 +27,20 @@ export class Player extends Component<PlayerProps> {
     document.addEventListener("keydown", this.onKeydown);
     document.addEventListener("keyup", this.onKeyUp);
     document.addEventListener("touchstart", this.onTouchStart);
-    if (Screenfull) Screenfull.request(this.props.presentation.domElement);
     this.props.presentation.current();
+    if (Screenfull) {
+      Screenfull.request(this.props.presentation.domElement);
+      Screenfull.on("change", this.handleScreenfull);
+      this.props.presentation.resize(innerWidth, innerHeight);
+    }
   }
+
+  handleScreenfull = () => {
+    if (Screenfull && !Screenfull.isFullscreen) {
+      this.props.onExit();
+      Screenfull.off("change", this.handleScreenfull);
+    }
+  };
 
   componentWillUnmount() {
     document.removeEventListener("keydown", this.onKeydown);

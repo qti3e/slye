@@ -17,4 +17,8 @@ export interface ThumbnailsProps {
   onSelect: (step: slye.Step) => void;
 }
 
-export class Thumbnails extends Component<ThumbnailsProps> {}
+export class Thumbnails extends Component<ThumbnailsProps> {
+  render() {
+    return null;
+  }
+}
