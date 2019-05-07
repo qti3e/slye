@@ -12,11 +12,11 @@ import React, { Component } from "react";
 import { Dashboard } from "./dashboard";
 import { Editor } from "./editor";
 
-interface AppState {
+interface MainState {
   presentationDescriptor?: string;
 }
 
-export class App extends Component<{}, AppState> {
+export class Main extends Component<{}, MainState> {
   constructor(props: {}) {
     super(props);
     this.state = {};

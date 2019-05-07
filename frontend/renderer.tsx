@@ -11,7 +11,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import { bind } from "./frame";
-import { App } from "./app";
+import { Main } from "./main";
 
 import * as Slye from "@slye/core";
 import * as Three from "three";
@@ -58,7 +58,7 @@ Slye.setServer({
 async function init() {
   const root = document.getElementById("page");
   bind();
-  ReactDOM.render(<App />, root);
+  ReactDOM.render(<Main />, root);
 }
 
 document.addEventListener("readystatechange", () => {
