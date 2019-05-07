@@ -10,6 +10,7 @@
 
 import * as THREE from "three";
 import React, { Component, Fragment } from "react";
+import Screenfull from "screenfull";
 import {
   sly,
   Presentation,
@@ -71,7 +72,7 @@ export class Editor extends Component<EditorProps, EditorState> {
   /**
    * Div element that wraps the canvas.
    */
-  private canvasWrapper: Element;
+  private canvasWrapper: React.ReactElement;
 
   /**
    * The step that users mouse in currently pointing to.
@@ -143,7 +144,7 @@ export class Editor extends Component<EditorProps, EditorState> {
         style={{ position: "fixed", top: 32, left: 0, zIndex: -5 }}
         ref={this.handleCanvasWrapper}
       />
-    ) as any;
+    );
 
     // Set it into the Map.
     Editor.presentations.set(presentationDescriptor, this.presentation);
@@ -162,8 +163,6 @@ export class Editor extends Component<EditorProps, EditorState> {
     };
     window.requestAnimationFrame(render);
 
-    (window as any).p = this.presentation;
-
     // Events.
     const dom = this.presentation.domElement;
     dom.addEventListener("mousemove", this.onMouseMove);
@@ -173,21 +172,10 @@ export class Editor extends Component<EditorProps, EditorState> {
     document.addEventListener("keydown", this.onKeydown);
     document.addEventListener("keyup", this.onKeyup);
     document.addEventListener("touchstart", this.onTouchStart);
-  }
 
-  handleChange = (event: any, mode: number) => {
-    switch (mode) {
-      case 0:
-        this.switchMode(EditorMode.WORLD);
-        break;
-      case 1:
-        this.switchMode(EditorMode.LOCAL);
-        break;
-      case 2:
-        this.switchMode(EditorMode.PLAY);
-        break;
-    }
-  };
+    // For debugging.
+    (window as any).p = this.presentation;
+  }
 
   enableTransformControl(): void {
     this.orbitControl.enabled = false;
@@ -229,10 +217,10 @@ export class Editor extends Component<EditorProps, EditorState> {
       this.orbitControl.enabled = false;
       this.transformControl.enabled = false;
       this.transformControl.detach();
-      (this.presentation.domElement as any).webkitRequestFullScreen();
+      if (Screenfull) Screenfull.request(this.presentation.domElement);
       this.presentation.resize(window.innerWidth, window.innerHeight);
     } else if (this.state.mode === EditorMode.PLAY) {
-      (document as any).webkitExitFullscreen();
+      if (Screenfull) Screenfull.exit();
     }
 
     this.setState({
@@ -469,6 +457,20 @@ export class Editor extends Component<EditorProps, EditorState> {
     }
   };
 
+  handleChange = (event: any, mode: number) => {
+    switch (mode) {
+      case 0:
+        this.switchMode(EditorMode.WORLD);
+        break;
+      case 1:
+        this.switchMode(EditorMode.LOCAL);
+        break;
+      case 2:
+        this.switchMode(EditorMode.PLAY);
+        break;
+    }
+  };
+
   render() {
     const { mode, selectedComponent, x, y } = this.state;
 
@@ -478,12 +480,13 @@ export class Editor extends Component<EditorProps, EditorState> {
     }
 
     if (mode === EditorMode.PLAY) {
-      return <Fragment>{this.canvasWrapper}</Fragment>;
+      return this.canvasWrapper;
     }
 
     return (
       <Fragment>
         {this.canvasWrapper}
+
         <BottomNavigation
           style={styles.buttonGroup}
           value={mode}
