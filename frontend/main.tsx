@@ -8,9 +8,11 @@
  *       Copyright 2019 Parsa Ghadimi. All Rights Reserved.
  */
 
+// If you're looking for the entry file you should go and check renderer.tsx.
+
 import React, { Component } from "react";
 import { Dashboard } from "./dashboard";
-import { Editor } from "./editor";
+import { App } from "./app";
 
 interface MainState {
   presentationDescriptor?: string;
@@ -31,9 +33,8 @@ export class Main extends Component<{}, MainState> {
 
   render() {
     const { presentationDescriptor } = this.state;
-    if (presentationDescriptor) {
-      return <Editor presentationDescriptor={presentationDescriptor} />;
-    }
+    if (presentationDescriptor)
+      return <App presentationDescriptor={presentationDescriptor} />;
     return <Dashboard onCreate={this.create} />;
   }
 }

@@ -14,6 +14,7 @@ import * as slye from "@slye/core";
 
 export interface PlayerProps {
   presentation: slye.Presentation;
+  onExit: () => void;
 }
 
 export class Player extends Component<PlayerProps> {
@@ -27,6 +28,7 @@ export class Player extends Component<PlayerProps> {
     document.addEventListener("keyup", this.onKeyUp);
     document.addEventListener("touchstart", this.onTouchStart);
     if (Screenfull) Screenfull.request(this.props.presentation.domElement);
+    this.props.presentation.current();
   }
 
   componentWillUnmount() {
@@ -76,11 +78,6 @@ export class Player extends Component<PlayerProps> {
         this.props.presentation.next();
       }
     }
-  };
-
-  handleContainerRef = (element: HTMLDivElement): void => {
-    const { domElement } = this.props.presentation;
-    element.appendChild(domElement);
   };
 
   render(): null {

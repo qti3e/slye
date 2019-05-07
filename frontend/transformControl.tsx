@@ -42,14 +42,27 @@ export class TransformControl extends Component<TransformControlProps> {
 
   componentWillMount() {
     this.props.presentation.scene.add(this.transformControl);
+    document.addEventListener("keypress", this.onKeypress);
   }
 
   componentWillUnmount() {
     this.transformControl.detach();
     this.props.presentation.scene.remove(this.transformControl);
     this.transformControl.enabled = false;
+    document.removeEventListener("keypress", this.onKeypress);
     // When should we call dispose?
   }
+
+  onKeypress = (event: KeyboardEvent): void => {
+    if (!this.transformControl.enabled) return;
+    // [R]otate - [S]cale - [T]ranslate
+    // Key Codes: { R: 82, S: 83, T: 84 }
+    const mode = ["rotate", "scale", "translate"][event.keyCode - 82];
+    if (mode) {
+      this.transformControl.mode = mode as any;
+      event.preventDefault();
+    }
+  };
 
   render() {
     if (this.props.object) this.transformControl.attach(this.props.object);

@@ -348,25 +348,6 @@ export class Editor extends Component<EditorProps, EditorState> {
     const { mode } = this.state;
     const { keyCode, ctrlKey } = event;
 
-    // For keys: "S", "R" and "T"
-    if (this.transformControl.enabled && (keyCode >= 82 && keyCode <= 84)) {
-      const mode = ["rotate", "scale", "translate"][keyCode - 82];
-      this.transformControl.mode = mode as any;
-      event.preventDefault();
-      return;
-    }
-
-    // Escape.
-    if (
-      mode !== EditorMode.PLAY &&
-      this.transformControl.enabled &&
-      keyCode === 27
-    ) {
-      this.disableTransformControl();
-      event.preventDefault();
-      return;
-    }
-
     // Escape.
     if (
       mode === EditorMode.LOCAL &&
@@ -500,27 +481,6 @@ export class Editor extends Component<EditorProps, EditorState> {
         {selectedComponent ? (
           <ComponentUI component={selectedComponent} x={x} y={y} />
         ) : null}
-
-        <div style={styles.transformControlButtons}>
-          <Fab
-            style={transformControlButton(0)}
-            onClick={() => this.transformControl.setMode("translate")}
-          >
-            <MoveIcon />
-          </Fab>
-          <Fab
-            style={transformControlButton(1)}
-            onClick={() => this.transformControl.setMode("rotate")}
-          >
-            <RotateIcon />
-          </Fab>
-          <Fab
-            style={transformControlButton(2)}
-            onClick={() => this.transformControl.setMode("scale")}
-          >
-            <ScaleIcon />
-          </Fab>
-        </div>
       </Fragment>
     );
   }
