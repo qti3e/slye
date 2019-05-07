@@ -21,10 +21,12 @@ export const FONT: unique symbol = g.swF || (g.swF = Symbol());
 // Types
 export type OnUpdate<T> = (value: T) => void;
 
-type Widget<T, R> = (value: T, onUpdate: OnUpdate<T>) => R;
-type ValueType<T> = T extends (v: infer R, u: OnUpdate<infer R>) => void
-  ? R
-  : never;
+export interface WidgetProps<T> {
+  value: T;
+  onUpdate: OnUpdate<T>;
+}
+
+type Widget<T, R> = (props: WidgetProps<T>) => R;
 
 export interface Binding<T = unknown> {
   [TEXT]: Widget<string, T>;
@@ -45,58 +47,3 @@ export type Widgets<Props> = {
 } & {
   _order?: (keyof Props)[];
 };
-
-// Exposed API.
-export function render<T, S extends keyof Binding>(
-  binding: Binding<T>,
-  sym: S,
-  init: ValueType<Binding[S]>,
-  onUpdate: OnUpdate<ValueType<Binding[S]>>
-): T {
-  return (binding[sym] as any)(init, onUpdate);
-}
-
-interface RenderComponentResult<T> {
-  reset: () => void;
-  elements: T[];
-}
-
-export function renderComponentProps<T, P>(
-  binding: Binding<T>,
-  component: Component<P>
-): RenderComponentResult<T> {
-  const ui = component.ui;
-  if (!ui) return null;
-
-  const elements: T[] = [];
-  const propKeys: (keyof P)[] = ui._order
-    ? [...ui._order]
-    : (Object.keys(ui) as any);
-
-  const initValues: Partial<P> = {};
-
-  for (const key of propKeys) {
-    initValues[key] = component.getProp(key);
-
-    const onUpdate: OnUpdate<P[typeof key]> = (value: P[typeof key]) => {
-      component.setProp(key, value);
-    };
-
-    const element = render(
-      binding,
-      ui[key],
-      initValues[key] as any,
-      onUpdate as any
-    );
-
-    elements.push(element);
-  }
-
-  // Reset props.
-  const reset = (): void => void component.patchProps(initValues);
-
-  return {
-    elements,
-    reset
-  };
-}

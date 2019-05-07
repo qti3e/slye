@@ -45,6 +45,7 @@ export class WorldEditor extends Component<WorldEditorProps, WorldEditorState> {
 
   componentWillUnmount() {
     const { domElement } = this.props.presentation;
+    domElement.style.cursor = "auto";
     domElement.removeEventListener("mousemove", this.onMouseMove);
     domElement.removeEventListener("click", this.onClick);
     domElement.removeEventListener("dblclick", this.onDblClick);
@@ -58,7 +59,9 @@ export class WorldEditor extends Component<WorldEditorProps, WorldEditorState> {
   };
 
   onClick = (event: MouseEvent): void => {
-    if (this.state.focusedStep) return;
+    if (this.state.focusedStep && !this.hoverdStep) return;
+    if (this.state.focusedStep === this.hoverdStep) return;
+
     this.setState({ focusedStep: this.hoverdStep });
     this.props.presentation.domElement.style.cursor = "auto";
     if (this.hoverdStep) this.props.onSelect(this.hoverdStep);

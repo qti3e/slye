@@ -18,4 +18,3 @@ export * from "./math";
 export * from "./font";
 export * from "./draw";
 export * from "./asset";
-export { render as renderComponent, renderComponentProps } from "./ui";

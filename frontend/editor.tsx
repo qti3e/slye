@@ -79,6 +79,20 @@ export class Editor extends Component<EditorProps, EditorState> {
       event.preventDefault();
       return;
     }
+
+    // Ctrl+N & Ctrl+[Right Arrow]: Go to the next step.
+    if (ctrlKey && (keyCode === 78 || keyCode === 39)) {
+      this.props.presentation.next();
+      event.preventDefault();
+      return;
+    }
+
+    // Ctrl+P & Ctrl+[Left Arrow]: Go to the previous step.
+    if (ctrlKey && (keyCode === 80 || keyCode === 37)) {
+      this.props.presentation.prev();
+      event.preventDefault();
+      return;
+    }
   };
 
   handleNavClick = (event: object, value: number): void => {
@@ -136,7 +150,7 @@ export class Editor extends Component<EditorProps, EditorState> {
           <StepEditor
             presentation={presentation}
             step={selectedStep}
-            back={() => this.setState({ mode: EditorMode.WORLD })}
+            exit={() => this.setState({ mode: EditorMode.WORLD })}
           />
         )}
       </Fragment>

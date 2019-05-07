@@ -20,7 +20,7 @@ import MenuItem from "@material-ui/core/MenuItem";
  * Slye UI Elements bindings for React.
  */
 export const ui: UI.Binding<React.ReactElement> = {
-  [UI.TEXT](value: string, onUpdate: UI.OnUpdate<string>) {
+  [UI.TEXT]({ onUpdate, value }: UI.WidgetProps<string>) {
     const handleChange = (event: any): void => {
       onUpdate(event.target.value);
     };
@@ -29,7 +29,7 @@ export const ui: UI.Binding<React.ReactElement> = {
     );
   },
 
-  [UI.SIZE](value: number, onUpdate: UI.OnUpdate<number>) {
+  [UI.SIZE]({ onUpdate, value }: UI.WidgetProps<number>) {
     const handleChange = (event: any): void => {
       onUpdate(Number(event.target.value));
     };
@@ -44,7 +44,7 @@ export const ui: UI.Binding<React.ReactElement> = {
     );
   },
 
-  [UI.FONT](font: slye.Font, onUpdate: UI.OnUpdate<slye.Font>) {
+  [UI.FONT]({ onUpdate, value: font }: UI.WidgetProps<slye.Font>) {
     const fonts = slye.getFonts();
     const value = fonts.indexOf(font);
 
@@ -55,7 +55,9 @@ export const ui: UI.Binding<React.ReactElement> = {
     return (
       <Select style={{ minWidth: 160 }} value={value} onChange={handleChange}>
         {fonts.map((font, id) => (
-          <MenuItem value={id}>{font.name}</MenuItem>
+          <MenuItem value={id} key={"font-" + id}>
+            {font.name}
+          </MenuItem>
         ))}
       </Select>
     );

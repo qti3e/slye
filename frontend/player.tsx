@@ -28,6 +28,7 @@ export class Player extends Component<PlayerProps> {
     document.addEventListener("keyup", this.onKeyUp);
     document.addEventListener("touchstart", this.onTouchStart);
     this.props.presentation.current();
+    this.props.presentation.play();
     if (Screenfull) {
       Screenfull.request(this.props.presentation.domElement);
       Screenfull.on("change", this.handleScreenfull);
@@ -35,18 +36,12 @@ export class Player extends Component<PlayerProps> {
     }
   }
 
-  handleScreenfull = () => {
-    if (Screenfull && !Screenfull.isFullscreen) {
-      this.props.onExit();
-      Screenfull.off("change", this.handleScreenfull);
-    }
-  };
-
   componentWillUnmount() {
     document.removeEventListener("keydown", this.onKeydown);
     document.removeEventListener("keyup", this.onKeyUp);
     document.removeEventListener("touchstart", this.onTouchStart);
     if (Screenfull) Screenfull.exit();
+    this.props.presentation.pause();
   }
 
   // Events.
@@ -88,6 +83,13 @@ export class Player extends Component<PlayerProps> {
       } else if (x > innerWidth - width) {
         this.props.presentation.next();
       }
+    }
+  };
+
+  handleScreenfull = () => {
+    if (Screenfull && !Screenfull.isFullscreen) {
+      this.props.onExit();
+      Screenfull.off("change", this.handleScreenfull);
     }
   };
 

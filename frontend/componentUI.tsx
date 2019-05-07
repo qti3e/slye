@@ -9,7 +9,7 @@
  */
 
 import React, { Component, Fragment } from "react";
-import { Component as SlyeComponent, renderComponent } from "@slye/core";
+import { Component as SlyeComponent } from "@slye/core";
 import { ui } from "./ui.binding";
 
 import Paper from "@material-ui/core/Paper";
@@ -80,16 +80,21 @@ export class ComponentUI extends Component<ComponentUIProps, ComponentUIState> {
   render() {
     const { order, values } = this.state;
     const { x, y, component } = this.props;
+    const left = Math.min(x, innerWidth - 500);
+
     return (
-      <Paper style={{ top: y, left: x, ...styles.container }} elevation={1}>
+      <Paper style={{ top: y, left, ...styles.container }} elevation={1}>
         {order.map(key => {
-          return renderComponent(
-            ui,
-            component.ui[key],
-            values[key],
-            this.onUpdate(key)
+          const C = ui[component.ui[key]];
+          return (
+            <C
+              value={values[key]}
+              onUpdate={this.onUpdate(key)}
+              key={"ce-" + key}
+            />
           );
         })}
+
         <Divider style={styles.divider} />
         <IconButton color="primary" onClick={this.done} style={styles.icon}>
           <DoneIcon />

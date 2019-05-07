@@ -112,7 +112,7 @@ export class Presentation {
    * @param far Camera's far.
    */
   constructor(
-    private readonly id: string,
+    readonly id: string,
     private width: number,
     private height: number,
     private readonly fov: number = 75,
