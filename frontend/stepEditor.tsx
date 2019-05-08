@@ -15,6 +15,14 @@ import { ComponentUI } from "./componentUI";
 import { TransformControl } from "./transformControl";
 import { OrbitControl } from "./orbitControl";
 
+import Fade from "@material-ui/core/Fade";
+import List from "@material-ui/core/List";
+import ListItem from "@material-ui/core/ListItem";
+import ListItemIcon from "@material-ui/core/ListItemIcon";
+import Tooltip from "@material-ui/core/Tooltip";
+
+import TextFieldsIcon from "@material-ui/icons/TextFields";
+
 export interface StepEditorProps {
   presentation: slye.Presentation;
   step: slye.Step;
@@ -133,27 +141,63 @@ export class StepEditor extends Component<StepEditorProps, StepEditorState> {
     });
   };
 
+  addComponent = async (
+    moduleName: string,
+    component: string
+  ): Promise<void> => {
+    const c = await slye.component(moduleName, component, {
+      size: 10,
+      font: await slye.font("slye", "Homa"),
+      text: "Write..."
+    });
+
+    this.props.step.add(c);
+  };
+
   render() {
     const { presentation, step } = this.props;
     const { isAltDown, edit, x, y, selectedComponent, transform } = this.state;
 
-    if (edit) {
-      return <ComponentUI component={selectedComponent} x={x} y={y} />;
-    }
-
     return (
       <Fragment>
-        {transform && (
+        {!edit && transform && (
           <TransformControl
             presentation={presentation}
             object={selectedComponent && selectedComponent.group}
             disabled={isAltDown}
           />
         )}
-        {isAltDown || !transform ? (
+        {!edit && (isAltDown || !transform) ? (
           <OrbitControl presentation={presentation} center={step.group} />
         ) : null}
+
+        {edit ? (
+          <ComponentUI component={selectedComponent} x={x} y={y} />
+        ) : null}
+
+        <Fade in={true}>
+          <List component="nav" style={styles.list}>
+            <ListItem button onClick={() => this.addComponent("slye", "text")}>
+              <Tooltip title="Text" placement="left">
+                <ListItemIcon>
+                  <TextFieldsIcon />
+                </ListItemIcon>
+              </Tooltip>
+            </ListItem>
+          </List>
+        </Fade>
       </Fragment>
     );
   }
 }
+
+const styles: Record<string, React.CSSProperties> = {
+  list: {
+    width: 60,
+    position: "fixed",
+    right: 0,
+    bottom: 0,
+    top: 32,
+    background: "#fff"
+  }
+};

@@ -11,6 +11,7 @@
 import React from "react";
 import * as slye from "@slye/core";
 import * as UI from "../core/ui";
+import { RTLify } from "persian-utils";
 
 import InputBase from "@material-ui/core/InputBase";
 import Select from "@material-ui/core/Select";
@@ -25,7 +26,12 @@ export const ui: UI.Binding<React.ReactElement> = {
       onUpdate(event.target.value);
     };
     return (
-      <InputBase placeholder="Text..." value={value} onChange={handleChange} />
+      <InputBase
+        inputRef={RTLify}
+        placeholder="Text..."
+        value={value}
+        onChange={handleChange}
+      />
     );
   },
 

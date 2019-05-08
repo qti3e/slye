@@ -80,7 +80,7 @@ export class ComponentUI extends Component<ComponentUIProps, ComponentUIState> {
   render() {
     const { order, values } = this.state;
     const { x, y, component } = this.props;
-    const left = Math.min(x, innerWidth - 500);
+    const left = Math.min(x, innerWidth - 560);
 
     return (
       <Paper style={{ top: y, left, ...styles.container }} elevation={1}>

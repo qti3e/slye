@@ -10,6 +10,7 @@
     "material-components-web": "^1.1.1",
     "material-design-icons": "^3.0.1",
     "mktemp": "^0.4.0",
+    "persian-utils": "^0.3.2",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "screenfull": "^4.2.0",
