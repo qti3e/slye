@@ -114,6 +114,19 @@ export class StepEditor extends Component<StepEditorProps, StepEditorState> {
       event.preventDefault();
       return;
     }
+
+    // Delete
+    if (keyCode === 46) {
+      const component = this.state.selectedComponent;
+      if (component) {
+        this.props.presentation.actions.deleteComponent(component);
+        this.setState({
+          selectedComponent: undefined,
+          edit: false,
+          transform: false
+        });
+      }
+    }
   };
 
   onClick = (event: MouseEvent): void => {

@@ -34,7 +34,7 @@ export abstract class Component<Props = Record<string, PropValue>> {
   }
 
   setOwner(s: Step): void {
-    if (this.owner) {
+    if (this.owner && this.owner !== s) {
       this.owner.del(this);
     }
     this.owner = s;
