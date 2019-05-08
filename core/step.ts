@@ -39,7 +39,7 @@ export class Step {
    */
   group: Group;
 
-  constructor(private readonly uuid: string) {
+  constructor(readonly uuid: string) {
     this.group = new Group();
     this.group.userData.step = this;
 
@@ -59,7 +59,7 @@ export class Step {
   }
 
   /**
-   * Set the owner - it can only be called one.
+   * Set the owner - it can only be called once.
    */
   use(p: Presentation): void | never {
     if (this.owner) throw new Error("Can not reuse a step.");

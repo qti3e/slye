@@ -37,6 +37,7 @@ export interface JSONPresentationComponent {
   position: [number, number, number];
   rotation: [number, number, number];
   scale: [number, number, number];
+  id: string;
   props: Record<string, ComponentPropValue>;
 }
 
@@ -94,7 +95,12 @@ export async function sly(
         }
       }
 
-      const com = await component(jcom.moduleName, jcom.component, props);
+      const com = await component(
+        jcom.moduleName,
+        jcom.component,
+        props,
+        jcom.id
+      );
       com.setPosition(jcom.position[0], jcom.position[1], jcom.position[2]);
       com.setRotation(jcom.rotation[0], jcom.rotation[1], jcom.rotation[2]);
       com.setScale(jcom.scale[0], jcom.scale[1], jcom.scale[2]);

@@ -13,6 +13,7 @@ import { Font, FontImpl } from "./font";
 import { Asset } from "./asset";
 import { fetchModuleAsset, requestModule } from "./server";
 import { Component, PropValue } from "./component";
+import { shortId, useId } from "./util";
 
 const modulesTable: Map<string, ModuleInterface> = (window.slyeModulesTable =
   window.slyeModulesTable || new Map());
@@ -39,7 +40,11 @@ export interface ModuleInterface {
    * @param {Record<string, PropValue>} props Properties.
    * @returns {Component}
    */
-  component(name: string, props: Record<string, PropValue>): Component<any>;
+  component(
+    name: string,
+    props: Record<string, PropValue>,
+    id?: string
+  ): Component<any>;
 
   /**
    * Returns name of the registered fonts.
@@ -57,7 +62,7 @@ export interface ModuleInterface {
 }
 
 type ComponentClass<P> = {
-  new (props: P, module: ModuleInterface): Component<P>;
+  new (uuid: string, props: P): Component<P>;
 };
 
 type ModuleClass = {
@@ -89,12 +94,16 @@ export abstract class Module implements ModuleInterface {
     this.fonts.set(name, font);
   }
 
-  component(name: string, props: Record<string, PropValue>): Component<any> {
+  component(
+    name: string,
+    props: Record<string, PropValue>,
+    id = shortId()
+  ): Component<any> {
     const c = this.components.get(name);
-    if (!c) {
+    if (!c)
       throw new Error(`Component ${name} is not registered by ${this.name}.`);
-    }
-    return new c(props, this);
+    useId(id);
+    return new c(id, props);
   }
 
   getFonts(): string[] {
@@ -138,10 +147,11 @@ export async function loadModule(name: string): Promise<ModuleInterface> {
 export async function component(
   moduleName: string,
   componentName: string,
-  props: Record<string, PropValue> = {}
+  props: Record<string, PropValue> = {},
+  id = shortId()
 ): Promise<Component<any>> {
   const m = await loadModule(moduleName);
-  return m.component(componentName, props);
+  return m.component(componentName, props, id);
 }
 
 /**

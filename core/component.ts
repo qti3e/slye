@@ -26,7 +26,7 @@ export abstract class Component<Props = Record<string, PropValue>> {
   isClickable: boolean;
   owner: Step;
 
-  constructor(props: Props) {
+  constructor(readonly id: string, props: Props) {
     this.group = new Group();
     this.group.userData.component = this;
     this.updateProps(props);
