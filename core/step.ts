@@ -27,7 +27,7 @@ export class Step {
   /**
    * Owner.
    */
-  readonly owner: Presentation;
+  owner: Presentation;
 
   /**
    * Components.
@@ -63,7 +63,11 @@ export class Step {
    */
   use(p: Presentation): void | never {
     if (this.owner) throw new Error("Can not reuse a step.");
-    (this as any).owner = p;
+    this.owner = p;
+  }
+
+  unuse(): void {
+    this.owner = undefined;
   }
 
   /**

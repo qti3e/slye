@@ -72,9 +72,21 @@ export class WorldEditor extends Component<WorldEditorProps, WorldEditorState> {
   };
 
   onKeyup = (event: KeyboardEvent): void => {
+    const { keyCode } = event;
+
     // Escape.
-    if (this.state.focusedStep && event.keyCode === 27) {
+    if (this.state.focusedStep && keyCode === 27) {
       this.setState({ focusedStep: undefined });
+    }
+
+    // Delete
+    if (keyCode === 46) {
+      const step = this.state.focusedStep;
+      if (step) {
+        this.props.presentation.actions.deleteStep(step);
+        this.setState({ focusedStep: undefined });
+        this.props.onSelect(undefined);
+      }
     }
   };
 

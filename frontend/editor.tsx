@@ -93,6 +93,20 @@ export class Editor extends Component<EditorProps, EditorState> {
       event.preventDefault();
       return;
     }
+
+    // Ctrl+Z: Undo
+    if (ctrlKey && keyCode === 90) {
+      this.props.presentation.actions.undo();
+      event.preventDefault();
+      return;
+    }
+
+    // Ctrl+Y: Redo
+    if (ctrlKey && keyCode === 89) {
+      this.props.presentation.actions.redo();
+      event.preventDefault();
+      return;
+    }
   };
 
   handleNavClick = (event: object, value: number): void => {

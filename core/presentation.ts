@@ -13,6 +13,7 @@ import { Ease } from "./ease";
 import { Component } from "./component";
 import { fetchAsset } from "./server";
 import { Step } from "./step";
+import { ActionStack } from "./actionStack";
 
 export type AnimationFrameCb = (frame: number) => void;
 
@@ -45,7 +46,15 @@ export class Presentation {
   /**
    * HTML5 Canvas Element which is used by renderer.
    */
-  readonly domElement: HTMLCanvasElement;
+  public readonly domElement: HTMLCanvasElement;
+
+  /**
+   * Action stack.
+   * Do modifications on the presentation using provided methods
+   * from an action stack, so that you can can undo them and emit
+   * delta changes.
+   */
+  public readonly actions: ActionStack = new ActionStack();
 
   /**
    * Current step.
@@ -373,10 +382,23 @@ export class Presentation {
    *
    * @param {Step} s step we want to add.
    */
-  add(s: Step): void {
+  add(s: Step, index?: number): void {
     s.use(this);
-    this.steps.push(s);
     this.scene.add(s.group);
+    this.updateRaycastCache(s);
+    if (index) {
+      this.steps.splice(index, 0, s);
+    } else {
+      this.steps.push(s);
+    }
+  }
+
+  del(s: Step): void {
+    if (s.owner !== this) return;
+    const index = this.steps.indexOf(s);
+    s.unuse();
+    this.scene.remove(s.group);
+    this.steps.splice(index, 1);
     this.updateRaycastCache(s);
   }
 
@@ -392,9 +414,11 @@ export class Presentation {
       }
     }
 
-    for (const c of s.components) {
-      if (c.isClickable) {
-        newArray.push(c.group);
+    if (s.owner === this) {
+      for (const c of s.components) {
+        if (c.isClickable) {
+          newArray.push(c.group);
+        }
       }
     }
 
