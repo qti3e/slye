@@ -93,15 +93,16 @@ export class Thumbnails extends Component<ThumbnailsProps> {
     }
 
     // 5px: Margin of the list. (In CSS file)
-    let left = 5 - this.scrollLeft;
-    // Each thumbnail takes (WIDTH + 15)px of space. (15px is for the margin)
+    // 7px: Margin-left of  the first thumbnail.
+    let left = 5 - this.scrollLeft + 7;
+    // Each thumbnail takes (WIDTH + 14)px of space. (15px is for the margin)
     // and we're simply computing the step at the beginning of the list.
-    let i = Math.floor(this.scrollLeft / (WIDTH + 15));
+    let i = Math.floor(this.scrollLeft / (WIDTH + 14));
     // 600px is width of the list defined in the CSS file.
     // +1: ceil(...) returns number of the elements in the list, so we add one
     // to the result to make `i < end` in the for statement work.
     // min is to ensure that we're only trying to render existing steps.
-    const end = Math.min(i + Math.ceil(600 / (WIDTH + 15)) + 1, steps.length);
+    const end = Math.min(i + Math.ceil(600 / (WIDTH + 14)) + 1, steps.length);
 
     for (; i < end; ++i) {
       const step = steps[i];
@@ -111,8 +112,8 @@ export class Thumbnails extends Component<ThumbnailsProps> {
       camera.position.set(position.x, position.y, position.z);
       camera.rotation.set(rotation.x, rotation.y, rotation.z);
 
-      renderer.setViewport(left + WIDTH * i + 7.5 + i * 15, 0, WIDTH, HEIGHT);
-      renderer.setScissor(left + WIDTH * i + 7.5 + i * 15, 0, WIDTH, HEIGHT);
+      renderer.setViewport(left + i * (WIDTH + 14), 0, WIDTH, HEIGHT);
+      renderer.setScissor(left + i * (WIDTH + 14), 0, WIDTH, HEIGHT);
 
       renderer.render(scene, camera);
 

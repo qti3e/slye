@@ -57,18 +57,22 @@ export class Player extends Component<PlayerProps> {
 
   onKeyUp = (event: KeyboardEvent): void => {
     switch (event.keyCode) {
-      case 33: // pg up
-      case 37: // left
-      case 38: // up
+      case 33: // Pg up
+      case 37: // Left
+      case 38: // Up
         this.props.presentation.prev();
         event.preventDefault();
         break;
-      case 9: // tab
-      case 32: // space
+      case 9: // Tab
+      case 32: // Space
       case 34: // pg down
-      case 39: // right
-      case 40: // down
+      case 39: // Right
+      case 40: // Down
         this.props.presentation.next();
+        event.preventDefault();
+        break;
+      case 27: // Escape
+        this.props.onExit();
         event.preventDefault();
         break;
     }
