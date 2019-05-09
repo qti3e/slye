@@ -9,71 +9,15 @@
  */
 
 import * as fontkit from "fontkit";
-import { Module } from "./module";
+import { FontBase, Glyph, PathUnit, PathCommand } from "./base";
 
-export enum PathCommand {
-  MOVE_TO,
-  LINE_TO,
-  QUADRATIC_CURVE_TO,
-  BEZIER_CURVE_TO
-}
+const fonts: FontBase[] = [];
 
-export interface MoveToCommand {
-  command: PathCommand.MOVE_TO;
-  x: number;
-  y: number;
-}
-
-export interface LineToCommand {
-  command: PathCommand.LINE_TO;
-  x: number;
-  y: number;
-}
-
-export interface QuadraticCurveToCommand {
-  command: PathCommand.QUADRATIC_CURVE_TO;
-  x: number;
-  y: number;
-  cpx: number;
-  cpy: number;
-}
-
-export interface BezierCurveTo {
-  command: PathCommand.BEZIER_CURVE_TO;
-  x: number;
-  y: number;
-  cpx1: number;
-  cpy1: number;
-  cpx2: number;
-  cpy2: number;
-}
-
-export type PathUnit =
-  | MoveToCommand
-  | LineToCommand
-  | QuadraticCurveToCommand
-  | BezierCurveTo;
-
-export type Path = PathUnit[];
-
-export interface Glyph {
-  path: Path;
-  advanceWidth: number;
-}
-
-export interface Font {
-  readonly moduleName: string;
-  readonly name: string;
-  layout(text: string): Promise<Glyph[]>;
-}
-
-const fonts: Font[] = [];
-
-export function getFonts(): Font[] {
+export function getFonts(): FontBase[] {
   return [...fonts];
 }
 
-export class FontImpl implements Font {
+export class FontImpl implements FontBase {
   private font: fontkit.Font;
 
   constructor(

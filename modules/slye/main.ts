@@ -13,7 +13,7 @@ import * as UI from "@slye/core/ui";
 import * as THREE from "three";
 
 type TextProps = {
-  font: slye.Font;
+  font: slye.FontBase;
   size: number;
   text: string;
 }

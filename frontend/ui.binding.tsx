@@ -50,7 +50,7 @@ export const ui: UI.Binding<React.ReactElement> = {
     );
   },
 
-  [UI.FONT]({ onUpdate, value: font }: UI.WidgetProps<slye.Font>) {
+  [UI.FONT]({ onUpdate, value: font }: UI.WidgetProps<slye.FontBase>) {
     const fonts = slye.getFonts();
     const value = fonts.indexOf(font);
 

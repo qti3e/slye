@@ -117,7 +117,7 @@ export class Presentation implements PresentationBase {
    * @param far Camera's far.
    */
   constructor(
-    readonly id: string,
+    readonly uuid: string,
     private width: number,
     private height: number,
     private readonly fov: number = 75,
@@ -444,7 +444,7 @@ export class Presentation implements PresentationBase {
    * @return {Promise<ArrayBuffer>}
    */
   asset(key: string): Promise<ArrayBuffer> {
-    return fetchAsset(this.id, key);
+    return fetchAsset(this.uuid, key);
   }
 
   getStepId(step: Step): number {

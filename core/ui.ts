@@ -8,7 +8,7 @@
  *       Copyright 2019 Parsa Ghadimi. All Rights Reserved.
  */
 
-import { Font } from "./font";
+import { FontBase } from "./base";
 import { Component, PropValue } from "./component";
 
 // UI widgets
@@ -31,14 +31,14 @@ type Widget<T, R> = (props: WidgetProps<T>) => R;
 export interface Binding<T = unknown> {
   [TEXT]: Widget<string, T>;
   [SIZE]: Widget<number, T>;
-  [FONT]: Widget<Font, T>;
+  [FONT]: Widget<FontBase, T>;
 }
 
 type BindingTypeMap<T> = T extends string
   ? (typeof TEXT)
   : T extends number
   ? (typeof SIZE)
-  : T extends Font
+  : T extends FontBase
   ? (typeof FONT)
   : never;
 

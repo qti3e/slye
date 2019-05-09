@@ -9,13 +9,12 @@
  */
 
 import { Group } from "three";
-import { Font } from "./font";
 import { Step } from "./step";
 import { Vec3 } from "./math";
 import { Widgets } from "./ui";
-import { ComponentBase } from "./base";
+import { ComponentBase, FontBase } from "./base";
 
-export type PropValue = string | number | undefined | Font | ArrayBuffer;
+export type PropValue = string | number | undefined | FontBase | ArrayBuffer;
 
 export abstract class Component<
   Props extends Record<any, PropValue> = Record<string, PropValue>
@@ -29,7 +28,7 @@ export abstract class Component<
   isClickable: boolean;
   owner: Step;
 
-  constructor(readonly id: string, props: Props) {
+  constructor(readonly uuid: string, props: Props) {
     this.group = new Group();
     this.group.userData.component = this;
     this.updateProps(props);

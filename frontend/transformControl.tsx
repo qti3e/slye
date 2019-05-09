@@ -12,7 +12,10 @@ import React, { Component } from "react";
 import * as THREE from "three";
 import * as slye from "@slye/core";
 
-const transformControls: Map<string, THREE.TransformControls[]> = new Map();
+const transformControls: WeakMap<
+  slye.Presentation,
+  THREE.TransformControls[]
+> = new WeakMap();
 
 export interface TransformControlProps {
   presentation: slye.Presentation;
@@ -42,8 +45,8 @@ export class TransformControl extends Component<
     if (!props.presentation)
       throw new Error("TransformControl: `presentation` prop is required.");
 
-    const { id } = props.presentation;
-    if (!transformControls.has(id)) transformControls.set(id, []);
+    if (!transformControls.has(props.presentation))
+      transformControls.set(props.presentation, []);
   }
 
   componentWillReceiveProps(nextProps: TransformControlProps) {
@@ -57,7 +60,7 @@ export class TransformControl extends Component<
 
   componentWillMount() {
     const { presentation } = this.props;
-    const stack = transformControls.get(presentation.id);
+    const stack = transformControls.get(presentation);
 
     if (stack.length) {
       this.transformControl = stack.pop();
@@ -89,7 +92,7 @@ export class TransformControl extends Component<
     document.removeEventListener("keypress", this.onKeypress);
     presentation.domElement.removeEventListener("mouseup", this.onMouseup);
     // Release the transform control.
-    const stack = transformControls.get(presentation.id);
+    const stack = transformControls.get(presentation);
     stack.push(this.transformControl);
     // When should we call dispose?
   }

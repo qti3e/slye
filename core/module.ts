@@ -9,7 +9,8 @@
  */
 
 import { generateShapes } from "./draw";
-import { Font, FontImpl } from "./font";
+import { FontImpl } from "./font";
+import { FontBase } from "./base";
 import { Asset } from "./asset";
 import { fetchModuleAsset, requestModule } from "./server";
 import { Component, PropValue } from "./component";
@@ -56,9 +57,9 @@ export interface ModuleInterface {
   /**
    * Returns a font instance which is associated with the given name.
    * @param {string} name Name of the font.
-   * @returns {Font}
+   * @returns {FontBase}
    */
-  font(name: string): Font;
+  font(name: string): FontBase;
 }
 
 type ComponentClass<P extends Record<any, PropValue>> = {
@@ -71,7 +72,7 @@ type ModuleClass = {
 
 export abstract class Module implements ModuleInterface {
   private readonly components: Map<string, ComponentClass<any>> = new Map();
-  private readonly fonts: Map<string, Font> = new Map();
+  private readonly fonts: Map<string, FontBase> = new Map();
   readonly assets: Asset<string>;
   readonly name: string;
 
@@ -110,7 +111,7 @@ export abstract class Module implements ModuleInterface {
     return [...this.fonts.keys()];
   }
 
-  font(name: string): Font {
+  font(name: string): FontBase {
     return this.fonts.get(name);
   }
 
@@ -159,12 +160,12 @@ export async function component(
  *
  * @param {string} moduleName Module which owns the font.
  * @param {string} fontName Name of the font.
- * @returns {Promise<Font>}
+ * @returns {Promise<FontBase>}
  */
 export async function font(
   moduleName: string,
   fontName: string
-): Promise<Font> {
+): Promise<FontBase> {
   const m = await loadModule(moduleName);
   return m.font(fontName);
 }

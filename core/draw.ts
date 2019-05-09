@@ -9,7 +9,7 @@
  */
 
 import { Shape, ShapePath } from "three";
-import { Glyph, PathCommand } from "./font";
+import { Glyph, PathCommand } from "./base";
 
 /**
  * Create a Three.js Shape from the given text layout.

@@ -12,7 +12,10 @@ import React, { Component } from "react";
 import * as THREE from "three";
 import * as slye from "@slye/core";
 
-const orbitControls: Map<string, THREE.OrbitControls[]> = new Map();
+const orbitControls: WeakMap<
+  slye.Presentation,
+  THREE.OrbitControls[]
+> = new WeakMap();
 
 export interface OrbitControlProps {
   presentation: slye.Presentation;
@@ -29,8 +32,8 @@ export class OrbitControl extends Component<OrbitControlProps> {
     if (!props.presentation)
       throw new Error("OrbitControl: `presentation` prop is required.");
 
-    const { id } = props.presentation;
-    if (!orbitControls.has(id)) orbitControls.set(id, []);
+    if (!orbitControls.has(props.presentation))
+      orbitControls.set(props.presentation, []);
   }
 
   componentWillReceiveProps(nextProps: OrbitControlProps) {
@@ -40,7 +43,7 @@ export class OrbitControl extends Component<OrbitControlProps> {
 
   componentWillMount() {
     const { presentation } = this.props;
-    const stack = orbitControls.get(presentation.id);
+    const stack = orbitControls.get(presentation);
 
     if (stack.length) {
       this.orbitControl = stack.pop();
@@ -55,7 +58,7 @@ export class OrbitControl extends Component<OrbitControlProps> {
 
   componentWillUnmount() {
     this.orbitControl.enabled = false;
-    const stack = orbitControls.get(this.props.presentation.id);
+    const stack = orbitControls.get(this.props.presentation);
     stack.push(this.orbitControl);
   }
 
