@@ -3,6 +3,7 @@
   "dependencies": {
     "@material-ui/core": "^3.9.3",
     "@material-ui/icons": "^3.0.2",
+    "@types/react-custom-scrollbars": "^4.0.5",
     "@types/tmp": "^0.1.0",
     "@types/uuid": "^3.4.4",
     "@types/yauzl": "^2.9.1",
@@ -12,6 +13,7 @@
     "mktemp": "^0.4.0",
     "persian-utils": "^0.3.2",
     "react": "^16.8.6",
+    "react-custom-scrollbars": "^4.2.1",
     "react-dom": "^16.8.6",
     "screenfull": "^4.2.0",
     "stats.js": "^0.17.0",

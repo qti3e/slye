@@ -139,7 +139,10 @@ export class Editor extends Component<EditorProps, EditorState> {
           onChange={this.handleNavClick}
         >
           <BottomNavigationAction icon={<WorldIcon />} />
-          <BottomNavigationAction icon={<LocalIcon />} />
+          <BottomNavigationAction
+            disabled={!selectedStep}
+            icon={<LocalIcon />}
+          />
           <BottomNavigationAction icon={<PlayIcon />} />
         </BottomNavigation>
 
