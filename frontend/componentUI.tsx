@@ -9,7 +9,7 @@
  */
 
 import React, { Component, Fragment } from "react";
-import { Component as SlyeComponent } from "@slye/core";
+import * as slye from "@slye/core";
 import { ui } from "./ui.binding";
 
 import Paper from "@material-ui/core/Paper";
@@ -18,7 +18,8 @@ import IconButton from "@material-ui/core/IconButton";
 import DoneIcon from "@material-ui/icons/Done";
 
 export interface ComponentUIProps {
-  component: SlyeComponent;
+  presentation: slye.Presentation;
+  component: slye.Component;
   x: number;
   y: number;
 }
@@ -39,7 +40,7 @@ export class ComponentUI extends Component<ComponentUIProps, ComponentUIState> {
     this.setup(props.component, false);
   }
 
-  setup(component: SlyeComponent, m: boolean): void {
+  setup(component: slye.Component, m: boolean): void {
     const { ui } = component;
     const propKeys = ui._order ? [...ui._order] : (Object.keys(ui) as any);
 
@@ -74,7 +75,8 @@ export class ComponentUI extends Component<ComponentUIProps, ComponentUIState> {
   };
 
   done = () => {
-    this.props.component.patchProps(this.state.values);
+    const { presentation, component } = this.props;
+    presentation.actions.updateProps(component, this.state.values);
   };
 
   render() {

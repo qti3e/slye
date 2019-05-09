@@ -26,15 +26,10 @@ interface AppState {
 }
 
 export class App extends Component<AppProps, AppState> {
-  private readonly canvasContainer: React.ReactElement;
   private readonly presentation: slye.Presentation;
 
   constructor(props: AppProps) {
     super(props);
-
-    this.canvasContainer = (
-      <div style={styles.canvasContainer} ref={this.handleContainerRef} />
-    );
 
     this.state = {
       isPlaying: false,
@@ -47,6 +42,7 @@ export class App extends Component<AppProps, AppState> {
       innerWidth,
       innerHeight - 56
     );
+    this.presentation.domElement.classList.add("slye-presentation");
 
     // Read the presentation data.
     this.open();
@@ -120,9 +116,15 @@ export class App extends Component<AppProps, AppState> {
 
     if (isLoading) return null;
 
+    const { background } = this.presentation.scene;
+    let backgroundColor =
+      background instanceof THREE.Color ? background.getStyle() : "#fff";
     return (
       <Fragment>
-        {this.canvasContainer}
+        <div
+          style={{ ...styles.canvasContainer, background: backgroundColor }}
+          ref={this.handleContainerRef}
+        />
         {isPlaying ? (
           <Player
             presentation={this.presentation}

@@ -24,6 +24,8 @@ import "three/examples/js/controls/TransformControls";
 import "three/examples/js/controls/OrbitControls";
 import "three/examples/js/controls/TrackballControls";
 
+import "./app.scss";
+
 Slye.setServer({
   requestModule(moduleName: string): Promise<boolean> {
     console.log("req module", moduleName);

@@ -9,7 +9,7 @@
  */
 
 import { Step } from "./step";
-import { Component } from "./component";
+import { Component, PropValue } from "./component";
 import { Presentation } from "./presentation";
 
 interface Action<P, T> {
@@ -40,16 +40,22 @@ export interface ActionTypes {
     { step: Step; presentation: Presentation; index: number }
   >;
   DELETE_COMPONENT: Action<
-    { component: Component },
-    { component: Component; step: Step }
+    { component: Component<any> },
+    { component: Component<any>; step: Step }
   >;
   UPDATE_POSITION: Action<TransformForwardData, TransformBackwardData>;
   UPDATE_ROTATION: Action<TransformForwardData, TransformBackwardData>;
   UPDATE_SCALE: Action<TransformForwardData, TransformBackwardData>;
+  UPDATE_PROPS: Action<
+    { component: Component<any>; patch: Record<string, PropValue> },
+    { component: Component<any>; patch: Record<string, PropValue> }
+  >;
+  INSERT_COMPONENT: Action<
+    { step: Step; component: Component<any> },
+    { component: Component<any> }
+  >;
   // TODO(qti3e)
   // NEW_STEP: Creates a new step
-  // INSERT_COMPONENT: Add a new component to the step.
-  // UPDATE_PROPS: Update component props.
 }
 
 export type ForwardData<
@@ -115,6 +121,32 @@ export const actions: ActionsMap = {
     },
     backward({ object, prevX, prevY, prevZ }) {
       object.setScale(prevX, prevY, prevZ);
+    }
+  },
+  UPDATE_PROPS: {
+    forward({ component, patch }) {
+      const undoPatch: Record<string, PropValue> = {};
+      for (const key in patch) {
+        const value = component.getProp(key);
+        if (value !== patch[key]) {
+          undoPatch[key] = value;
+        }
+      }
+      component.patchProps(patch);
+      return { component, patch: undoPatch };
+    },
+    backward({ component, patch }) {
+      component.patchProps(patch);
+    }
+  },
+  INSERT_COMPONENT: {
+    forward({ step, component }) {
+      step.add(component);
+      return { component };
+    },
+    backward({ component }) {
+      const step = component.owner;
+      step.del(component);
     }
   }
 };

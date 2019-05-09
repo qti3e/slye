@@ -9,6 +9,7 @@
  */
 
 import React, { Component, Fragment } from "react";
+import * as THREE from "three";
 import * as slye from "@slye/core";
 
 import { ComponentUI } from "./componentUI";
@@ -61,6 +62,13 @@ export class StepEditor extends Component<StepEditorProps, StepEditorState> {
     domElement.addEventListener("dblclick", this.onDblClick);
     document.addEventListener("keydown", this.onKeydown);
     document.addEventListener("keyup", this.onKeyup);
+    domElement.classList.add("step-editor");
+    const background = this.props.presentation.scene.background;
+    if (background instanceof THREE.Color) {
+      domElement.parentElement.style.background = background.getStyle();
+    } else {
+      domElement.parentElement.style.background = "auto";
+    }
   }
 
   componentWillUnmount() {
@@ -72,6 +80,7 @@ export class StepEditor extends Component<StepEditorProps, StepEditorState> {
     domElement.removeEventListener("dblclick", this.onDblClick);
     document.removeEventListener("keydown", this.onKeydown);
     document.removeEventListener("keyup", this.onKeyup);
+    domElement.classList.remove("step-editor");
   }
 
   onMouseMove = (event: MouseEvent): void => {
@@ -154,6 +163,7 @@ export class StepEditor extends Component<StepEditorProps, StepEditorState> {
     });
   };
 
+  // TODO(qti3e)
   addComponent = async (
     moduleName: string,
     component: string
@@ -164,7 +174,8 @@ export class StepEditor extends Component<StepEditorProps, StepEditorState> {
       text: "Write..."
     });
 
-    this.props.step.add(c);
+    const { presentation, step } = this.props;
+    presentation.actions.insertComponent(step, c);
   };
 
   render() {
@@ -185,7 +196,12 @@ export class StepEditor extends Component<StepEditorProps, StepEditorState> {
         ) : null}
 
         {edit ? (
-          <ComponentUI component={selectedComponent} x={x} y={y} />
+          <ComponentUI
+            presentation={presentation}
+            component={selectedComponent}
+            x={x}
+            y={y}
+          />
         ) : null}
 
         <Fade in={true}>

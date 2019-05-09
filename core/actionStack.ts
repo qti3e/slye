@@ -9,9 +9,11 @@
  */
 
 import { Step } from "./step";
-import { Component } from "./component";
+import { Component, PropValue } from "./component";
 import { actions, ActionTypes, TakenAction, ForwardData } from "./actions";
 import { Vec3 } from "./math";
+
+const LIMIT = 17;
 
 export class ActionStack {
   private readonly actions: TakenAction<keyof ActionTypes>[] = [];
@@ -31,6 +33,11 @@ export class ActionStack {
     // Now push the action to the stack.
     this.cursor += 1;
     this.actions.splice(this.cursor, Infinity, action);
+    if (this.actions.length > LIMIT) {
+      const count = this.actions.length - LIMIT;
+      this.actions.splice(0, count);
+      this.cursor -= count;
+    }
     // Debug.
     console.log(name, { forwardData, backwardData });
   }
@@ -84,6 +91,23 @@ export class ActionStack {
       prevX,
       prevY,
       prevZ
+    });
+  }
+
+  updateProps<T extends Record<any, PropValue>>(
+    component: Component<T>,
+    patch: Partial<T>
+  ): void {
+    this.action("UPDATE_PROPS", {
+      component,
+      patch
+    });
+  }
+
+  insertComponent(step: Step, component: Component<any>): void {
+    this.action("INSERT_COMPONENT", {
+      step,
+      component
     });
   }
 }
