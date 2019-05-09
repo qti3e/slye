@@ -28,7 +28,12 @@ export abstract class Component<
   isClickable: boolean;
   owner: Step;
 
-  constructor(readonly uuid: string, props: Props) {
+  constructor(
+    readonly uuid: string,
+    readonly moduleName: string,
+    readonly componentName: string,
+    props: Props
+  ) {
     this.group = new Group();
     this.group.userData.component = this;
     this.updateProps(props);

@@ -72,7 +72,7 @@ export class PresentationFile {
           scale: [1, 1, 1] as any,
           components: [
             {
-              id: shortId(),
+              uuid: shortId(),
               moduleName: "slye",
               component: "text",
               position: [-30, 10, 0] as any,
@@ -89,7 +89,7 @@ export class PresentationFile {
               }
             },
             {
-              id: shortId(),
+              uuid: shortId(),
               moduleName: "slye",
               component: "text",
               position: [0, -5, 0] as any,
@@ -106,7 +106,7 @@ export class PresentationFile {
               }
             },
             {
-              id: shortId(),
+              uuid: shortId(),
               moduleName: "slye",
               component: "text",
               position: [29, -15, 0] as any,
@@ -130,7 +130,7 @@ export class PresentationFile {
           scale: [1, 1, 1] as any,
           components: [
             {
-              id: shortId(),
+              uuid: shortId(),
               moduleName: "slye",
               component: "text",
               position: [-30, 10, 0] as any,
@@ -147,7 +147,7 @@ export class PresentationFile {
               }
             },
             {
-              id: shortId(),
+              uuid: shortId(),
               moduleName: "slye",
               component: "text",
               position: [0, -5, 0] as any,
@@ -164,7 +164,7 @@ export class PresentationFile {
               }
             },
             {
-              id: shortId(),
+              uuid: shortId(),
               moduleName: "slye",
               component: "text",
               position: [29, -15, 0] as any,

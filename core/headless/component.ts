@@ -18,7 +18,7 @@ export class HeadlessComponent extends TransformableImpl
   owner: HeadlessStep;
   props: Record<any, PropValue>;
 
-  constructor(readonly uuid: string, props: Record<any, PropValue>) {
+  constructor(readonly uuid: string, readonly moduleName: string, readonly componentName: string, props: Record<any, PropValue>) {
     super();
     this.props = props;
   }

@@ -8,53 +8,11 @@
  *       Copyright 2019 Parsa Ghadimi. All Rights Reserved.
  */
 
-import { Presentation } from "./presentation";
-import { component, font } from "./module";
-import { Step } from "./step";
-import { Component, PropValue } from "./component";
-
-export enum RefKind {
-  ASSET,
-  FONT
-}
-
-export interface AssetRef {
-  kind: RefKind.ASSET;
-  key: string;
-}
-
-export interface FontRef {
-  kind: RefKind.FONT;
-  moduleName: string;
-  font: string;
-}
-
-export type ComponentPropValue = AssetRef | FontRef | string | number;
-
-export interface JSONPresentationComponent {
-  moduleName: string;
-  component: string;
-  position: [number, number, number];
-  rotation: [number, number, number];
-  scale: [number, number, number];
-  id: string;
-  props: Record<string, ComponentPropValue>;
-}
-
-export interface JSONPresentationStep {
-  position: [number, number, number];
-  rotation: [number, number, number];
-  scale: [number, number, number];
-  components: JSONPresentationComponent[];
-}
-
-export interface JSONPresentation {
-  template?: {
-    moduleName: string;
-    component: string;
-  };
-  steps: Record<string, JSONPresentationStep>;
-}
+import { Presentation } from "../presentation";
+import { component, font } from "../module";
+import { Step } from "../step";
+import { Component, PropValue } from "../component";
+import { RefKind, JSONPresentation } from "./types";
 
 /**
  * Read a Slye presentation from a raw-object.
@@ -99,7 +57,7 @@ export async function sly(
         jcom.moduleName,
         jcom.component,
         props,
-        jcom.id
+        jcom.uuid
       );
       com.setPosition(jcom.position[0], jcom.position[1], jcom.position[2]);
       com.setRotation(jcom.rotation[0], jcom.rotation[1], jcom.rotation[2]);

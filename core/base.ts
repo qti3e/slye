@@ -42,6 +42,8 @@ export interface StepBase extends Transformable {
 
 export interface ComponentBase extends Transformable {
   readonly uuid: string;
+  readonly moduleName: string;
+  readonly componentName: string;
   owner: StepBase;
   props: Record<any, PropValue>;
   getProp(key: any): PropValue;

@@ -63,7 +63,12 @@ export interface ModuleInterface {
 }
 
 type ComponentClass<P extends Record<any, PropValue>> = {
-  new (uuid: string, props: P): Component<P>;
+  new (
+    uuid: string,
+    moduleName: string,
+    componentName: string,
+    props: P
+  ): Component<P>;
 };
 
 type ModuleClass = {
@@ -104,7 +109,7 @@ export abstract class Module implements ModuleInterface {
     if (!c)
       throw new Error(`Component ${name} is not registered by ${this.name}.`);
     useId(id);
-    return new c(id, props);
+    return new c(id, this.name, name, props);
   }
 
   getFonts(): string[] {
