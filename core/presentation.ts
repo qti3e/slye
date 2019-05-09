@@ -15,6 +15,7 @@ import { fetchAsset } from "./server";
 import { Step } from "./step";
 import { ActionStack } from "./actionStack";
 import { Vec3, getCameraPosRotForStep } from "./math";
+import { PresentationBase } from "./base";
 
 export type AnimationFrameCb = (frame: number) => void;
 
@@ -23,7 +24,7 @@ export type AnimationFrameCb = (frame: number) => void;
  * a presentation - most of the time there is only one instance
  * of it in user's workspace.
  */
-export class Presentation {
+export class Presentation implements PresentationBase {
   /**
    * Active steps in the current presentation.
    */

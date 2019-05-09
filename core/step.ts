@@ -18,12 +18,13 @@ import {
 import { Presentation } from "./presentation";
 import { Component } from "./component";
 import { Vec3 } from "./math";
+import { StepBase } from "./base";
 
 /**
  * An step is a slie, it is part of a presentation and has a few
  * different components in it.
  */
-export class Step {
+export class Step implements StepBase {
   /**
    * Owner.
    */

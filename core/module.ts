@@ -61,7 +61,7 @@ export interface ModuleInterface {
   font(name: string): Font;
 }
 
-type ComponentClass<P> = {
+type ComponentClass<P extends Record<any, PropValue>> = {
   new (uuid: string, props: P): Component<P>;
 };
 

@@ -8,8 +8,13 @@
  *       Copyright 2019 Parsa Ghadimi. All Rights Reserved.
  */
 
-import { Step } from "./step";
-import { Component, PropValue } from "./component";
+import {
+  ComponentBase,
+  PresentationBase,
+  StepBase,
+  Transformable
+} from "./base";
+import { PropValue } from "./component";
 import { actions, ActionTypes, TakenAction, ForwardData } from "./actions";
 import { Vec3 } from "./math";
 
@@ -58,13 +63,13 @@ export class ActionStack {
     action.forward(takenAction.forwardData as any);
   }
 
-  deleteStep(step: Step): void {
+  deleteStep(step: StepBase): void {
     this.action("DELETE_STEP", {
       step
     });
   }
 
-  deleteComponent(component: Component): void {
+  deleteComponent(component: ComponentBase): void {
     this.action("DELETE_COMPONENT", {
       component
     });
@@ -72,7 +77,7 @@ export class ActionStack {
 
   transform(
     mode: "translate" | "rotate" | "scale",
-    object: Component | Step,
+    object: Transformable,
     { x: prevX, y: prevY, z: prevZ }: Vec3,
     { x, y, z }: Vec3
   ): void {
@@ -95,7 +100,7 @@ export class ActionStack {
   }
 
   updateProps<T extends Record<any, PropValue>>(
-    component: Component<T>,
+    component: ComponentBase,
     patch: Partial<T>
   ): void {
     this.action("UPDATE_PROPS", {
@@ -104,7 +109,7 @@ export class ActionStack {
     });
   }
 
-  insertComponent(step: Step, component: Component<any>): void {
+  insertComponent(step: StepBase, component: ComponentBase): void {
     this.action("INSERT_COMPONENT", {
       step,
       component

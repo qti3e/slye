@@ -12,7 +12,7 @@ import * as slye from "@slye/core";
 import * as UI from "@slye/core/ui";
 import * as THREE from "three";
 
-interface TextProps {
+type TextProps = {
   font: slye.Font;
   size: number;
   text: string;

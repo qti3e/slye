@@ -13,15 +13,18 @@ import { Font } from "./font";
 import { Step } from "./step";
 import { Vec3 } from "./math";
 import { Widgets } from "./ui";
+import { ComponentBase } from "./base";
 
 export type PropValue = string | number | undefined | Font | ArrayBuffer;
 
-export abstract class Component<Props = Record<string, PropValue>> {
+export abstract class Component<
+  Props extends Record<any, PropValue> = Record<string, PropValue>
+> implements ComponentBase {
   private isUpdating = false;
   private nextProps: Props;
   public abstract readonly ui: Widgets<Props>;
 
-  protected props: Props;
+  props: Props;
   readonly group: Group;
   isClickable: boolean;
   owner: Step;

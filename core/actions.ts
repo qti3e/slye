@@ -8,9 +8,13 @@
  *       Copyright 2019 Parsa Ghadimi. All Rights Reserved.
  */
 
-import { Step } from "./step";
-import { Component, PropValue } from "./component";
-import { Presentation } from "./presentation";
+import {
+  ComponentBase,
+  PresentationBase,
+  StepBase,
+  Transformable
+} from "./base";
+import { PropValue } from "./component";
 
 interface Action<P, T> {
   readonly forward: (data: P) => T;
@@ -18,7 +22,7 @@ interface Action<P, T> {
 }
 
 type TransformForwardData = {
-  object: Step | Component;
+  object: Transformable;
   prevX: number;
   prevY: number;
   prevZ: number;
@@ -28,7 +32,7 @@ type TransformForwardData = {
 };
 
 type TransformBackwardData = {
-  object: Step | Component;
+  object: Transformable;
   prevX: number;
   prevY: number;
   prevZ: number;
@@ -36,23 +40,23 @@ type TransformBackwardData = {
 
 export interface ActionTypes {
   DELETE_STEP: Action<
-    { step: Step },
-    { step: Step; presentation: Presentation; index: number }
+    { step: StepBase },
+    { step: StepBase; presentation: PresentationBase; index: number }
   >;
   DELETE_COMPONENT: Action<
-    { component: Component<any> },
-    { component: Component<any>; step: Step }
+    { component: ComponentBase },
+    { component: ComponentBase; step: StepBase }
   >;
   UPDATE_POSITION: Action<TransformForwardData, TransformBackwardData>;
   UPDATE_ROTATION: Action<TransformForwardData, TransformBackwardData>;
   UPDATE_SCALE: Action<TransformForwardData, TransformBackwardData>;
   UPDATE_PROPS: Action<
-    { component: Component<any>; patch: Record<string, PropValue> },
-    { component: Component<any>; patch: Record<string, PropValue> }
+    { component: ComponentBase; patch: Record<any, PropValue> },
+    { component: ComponentBase; patch: Record<any, PropValue> }
   >;
   INSERT_COMPONENT: Action<
-    { step: Step; component: Component<any> },
-    { component: Component<any> }
+    { step: StepBase; component: ComponentBase },
+    { component: ComponentBase }
   >;
   // TODO(qti3e)
   // NEW_STEP: Creates a new step
