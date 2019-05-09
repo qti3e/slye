@@ -151,12 +151,35 @@ export interface FetchSlyResponseData {
 }
 
 // ACTION DATA
+
+export type SerializedComponent = {
+  component: string; // UUID
+  data?: {
+    moduleName: string;
+    componentName: string;
+    props: ActionData;
+    position: [number, number, number];
+    rotation: [number, number, number];
+    scale: [number, number, number];
+  };
+};
+
+type SerializedStep = {
+  step: string; // UUID
+  data?: {
+    components: SerializedComponent[];
+    position: [number, number, number];
+    rotation: [number, number, number];
+    scale: [number, number, number];
+  };
+};
+
 type SerializedActionData =
   | string
   | number
   | boolean
-  | { component: string } // UUID
-  | { step: string } // UUID
+  | SerializedComponent
+  | SerializedStep
   | { font: { moduleName: string; name: string } }
   | { _: ActionData }; // For nested data.
 

@@ -150,7 +150,7 @@ export class Thumbnails extends Component<ThumbnailsProps> {
           thumbMinSize={30}
         >
           {new Array(20).fill(null).map((step, id) => (
-            <div className="thumbnail" onClick={() => null}>
+            <div key={`t${id}`} className="thumbnail" onClick={() => null}>
               <span>{id + 1}</span>
             </div>
           ))}

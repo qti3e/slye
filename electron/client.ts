@@ -12,6 +12,8 @@ import { ipcRenderer, IpcMessageEvent } from "electron";
 import { JSONPresentationStep } from "@slye/core/sly";
 import * as types from "../frontend/ipc";
 
+const sentToServer: Map<string, true> = new Map();
+
 export class Client implements types.Client {
   private readonly resolves: Map<number, any> = new Map();
   private lastReqId: number = 0;
@@ -88,13 +90,28 @@ export class Client implements types.Client {
     });
   }
 
-  fetchSly(
+  async fetchSly(
     presentationDescriptor: string
   ): Promise<types.FetchSlyResponseData> {
-    return this.sendRequest<types.FetchSlyRequest, types.FetchSlyResponseData>({
+    const res = await this.sendRequest<
+      types.FetchSlyRequest,
+      types.FetchSlyResponseData
+    >({
       kind: types.MsgKind.FETCH_SLY,
       presentationDescriptor
     });
+
+    const { presentation } = res;
+    console.log(presentation);
+    for (const stepUUID in presentation.steps) {
+      const step = presentation.steps[stepUUID];
+      sentToServer.set(stepUUID, true);
+      for (const component of step.components) {
+        sentToServer.set(component.uuid, true);
+      }
+    }
+
+    return res;
   }
 
   forwardAction(
@@ -142,21 +159,55 @@ export class Client implements types.Client {
   }
 }
 
+function serializeComponent(val: any): types.SerializedComponent {
+  if (sentToServer.has(val.uuid)) {
+    return { component: val.uuid };
+  } else {
+    sentToServer.set(val.uuid, true);
+    const { x: px, y: py, z: pz } = val.getPosition();
+    const { x: rx, y: ry, z: rz } = val.getRotation();
+    const { x: sx, y: sy, z: sz } = val.getScale();
+    return {
+      component: val.uuid,
+      data: {
+        moduleName: val.moduleName,
+        componentName: val.componentName,
+        props: serializeActionData(val.props),
+        position: [px.toFixed(3), py.toFixed(3), pz.toFixed(3)],
+        rotation: [rx.toFixed(3), ry.toFixed(3), rz.toFixed(3)],
+        scale: [sx.toFixed(3), sy.toFixed(3), sz.toFixed(3)]
+      }
+    };
+  }
+}
+
 function serializeActionData(data: object): types.ActionData {
   const ret: types.ActionData = {};
 
   for (const key in data) {
     const val = (data as any)[key];
-    if (
-      typeof val === "string" ||
-      typeof val === "number" ||
-      typeof val === "boolean"
-    ) {
+    if (typeof val === "string" || typeof val === "boolean") {
       ret[key] = val;
     } else if (val.isSlyeComponent) {
-      ret[key] = { component: val.uuid };
+      ret[key] = serializeComponent(val);
     } else if (val.isSlyeStep) {
-      ret[key] = { step: val.uuid };
+      if (sentToServer.has(val.uuid)) {
+        ret[key] = { step: val.uuid };
+      } else {
+        sentToServer.set(val.uuid, true);
+        const { x: px, y: py, z: pz } = val.getPosition();
+        const { x: rx, y: ry, z: rz } = val.getRotation();
+        const { x: sx, y: sy, z: sz } = val.getScale();
+        ret[key] = {
+          step: val.uuid,
+          data: {
+            components: val.components.map(serializeComponent),
+            position: [px.toFixed(3), py.toFixed(3), pz.toFixed(3)],
+            rotation: [rx.toFixed(3), ry.toFixed(3), rz.toFixed(3)],
+            scale: [sx.toFixed(3), sy.toFixed(3), sz.toFixed(3)]
+          }
+        };
+      }
     } else if (val.isSlyeFont) {
       ret[key] = { font: { moduleName: val.moduleName, name: val.name } };
     } else {

@@ -12,7 +12,6 @@ import { promises as fs } from "fs";
 import uuidv1 from "uuid/v1";
 import * as path from "path";
 import { JSONPresentation, JSONPresentationStep } from "../core/sly";
-import { shortId } from "../core/util";
 
 type Meta = Record<string, string | number>;
 
@@ -72,7 +71,7 @@ export class PresentationFile {
           scale: [1, 1, 1] as any,
           components: [
             {
-              uuid: shortId(),
+              uuid: uuidv1(),
               moduleName: "slye",
               component: "text",
               position: [-30, 10, 0] as any,
@@ -89,7 +88,7 @@ export class PresentationFile {
               }
             },
             {
-              uuid: shortId(),
+              uuid: uuidv1(),
               moduleName: "slye",
               component: "text",
               position: [0, -5, 0] as any,
@@ -106,7 +105,7 @@ export class PresentationFile {
               }
             },
             {
-              uuid: shortId(),
+              uuid: uuidv1(),
               moduleName: "slye",
               component: "text",
               position: [29, -15, 0] as any,
@@ -130,7 +129,7 @@ export class PresentationFile {
           scale: [1, 1, 1] as any,
           components: [
             {
-              uuid: shortId(),
+              uuid: uuidv1(),
               moduleName: "slye",
               component: "text",
               position: [-30, 10, 0] as any,
@@ -147,7 +146,7 @@ export class PresentationFile {
               }
             },
             {
-              uuid: shortId(),
+              uuid: uuidv1(),
               moduleName: "slye",
               component: "text",
               position: [0, -5, 0] as any,
@@ -164,7 +163,7 @@ export class PresentationFile {
               }
             },
             {
-              uuid: shortId(),
+              uuid: uuidv1(),
               moduleName: "slye",
               component: "text",
               position: [29, -15, 0] as any,

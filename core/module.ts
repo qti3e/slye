@@ -14,7 +14,7 @@ import { FontBase } from "./base";
 import { Asset } from "./asset";
 import { fetchModuleAsset, requestModule } from "./server";
 import { Component, PropValue } from "./component";
-import { shortId, useId } from "./util";
+import uuidv1 from "uuid/v1";
 
 const modulesTable: Map<string, ModuleInterface> = (window.slyeModulesTable =
   window.slyeModulesTable || new Map());
@@ -103,13 +103,11 @@ export abstract class Module implements ModuleInterface {
   component(
     name: string,
     props: Record<string, PropValue>,
-    id = shortId()
+    id = uuidv1()
   ): Component<any> {
     const c = this.components.get(name);
     if (!c)
       throw new Error(`Component ${name} is not registered by ${this.name}.`);
-    console.log(id);
-    useId(id);
     return new c(id, this.name, name, props);
   }
 
@@ -155,7 +153,7 @@ export async function component(
   moduleName: string,
   componentName: string,
   props: Record<string, PropValue> = {},
-  id = shortId()
+  id = uuidv1()
 ): Promise<Component<any>> {
   const m = await loadModule(moduleName);
   return m.component(componentName, props, id);
