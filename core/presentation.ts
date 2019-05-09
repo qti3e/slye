@@ -14,6 +14,7 @@ import { Component } from "./component";
 import { fetchAsset } from "./server";
 import { Step } from "./step";
 import { ActionStack } from "./actionStack";
+import { Vec3, getCameraPosRotForStep } from "./math";
 
 export type AnimationFrameCb = (frame: number) => void;
 
@@ -26,7 +27,7 @@ export class Presentation {
   /**
    * Active steps in the current presentation.
    */
-  private readonly steps: Step[] = [];
+  readonly steps: Step[] = [];
 
   /**
    * Three.js scene.
@@ -106,12 +107,6 @@ export class Presentation {
   };
 
   private animationFrameHandlers: AnimationFrameCb[] = [];
-
-  // Some variables, just to reuse the objects - these are used in goTo method.
-  private readonly tmpVec: THREE.Vector3 = new THREE.Vector3();
-  private readonly box3: THREE.Box3 = new THREE.Box3();
-  private readonly targetVec: THREE.Vector3 = new THREE.Vector3();
-  private readonly euler: THREE.Euler = new THREE.Euler(0, 0, 0, "XYZ");
 
   /**
    * @param width Width of view port.
@@ -451,31 +446,15 @@ export class Presentation {
     return fetchAsset(this.id, key);
   }
 
-  private updateCamera(
-    frames: number,
-    x: number,
-    y: number,
-    z: number,
-    rx: number,
-    ry: number,
-    rz: number
-  ): void {
-    this.cameraEase = {
-      position: new Ease(this.frame, frames, this.camera.position, {
-        x,
-        y,
-        z
-      }),
-      rotation: new Ease(this.frame, frames, this.camera.rotation, {
-        x: rx,
-        y: ry,
-        z: rz
-      })
-    };
-  }
-
   getStepId(step: Step): number {
     return this.steps.indexOf(step);
+  }
+
+  private updateCamera(frames: number, position: Vec3, rotation: Vec3): void {
+    this.cameraEase = {
+      position: new Ease(this.frame, frames, this.camera.position, position),
+      rotation: new Ease(this.frame, frames, this.camera.rotation, rotation)
+    };
   }
 
   goTo(index: number, duration = 120): void {
@@ -488,36 +467,9 @@ export class Presentation {
 
     // In case there is no step.
     if (!step) return;
-    const { x: rx, y: ry, z: rz } = step.getRotation();
 
-    // Find the distance.
-    // Set the rotation to zero so we get the right results.
-    step.group.rotation.set(0, 0, 0);
-    const stepSize = this.box3.setFromObject(step.group).getSize(this.tmpVec);
-    const stepWidth = stepSize.x;
-    const stepHeight = stepSize.y;
-    // Set it to what it used to be.
-    step.group.rotation.set(rx, ry, rz);
-
-    const vFov = THREE.Math.degToRad(this.fov);
-    const farHeight = 2 * Math.tan(vFov / 2) * this.far;
-    const farWidth = farHeight * this.camera.aspect;
-    let distance = (this.far * stepWidth) / farWidth / (2 / 3);
-    const presentiveHeight = (stepHeight * this.far) / distance;
-    if (presentiveHeight > (3 / 4) * farHeight) {
-      distance = (this.far * stepHeight) / farHeight / (3 / 4);
-    }
-
-    // Find camera's position.
-    const center = this.box3.setFromObject(step.group).getCenter(this.tmpVec);
-    this.euler.set(rx, ry, rz);
-    this.targetVec.set(0, 0, distance);
-    this.targetVec.applyEuler(this.euler);
-    this.targetVec.add(center);
-
-    // Update the camera.
-    const { x, y, z } = this.targetVec;
-    this.updateCamera(duration, x, y, z, rx, ry, rz);
+    const { position, rotation } = getCameraPosRotForStep(step, this.camera);
+    this.updateCamera(duration, position, rotation);
 
     if (this.isFocused) this.focus();
   }

@@ -1,0 +1,56 @@
+.thumbnails-container {
+  position: fixed;
+  height: 100px;
+  bottom: -66px;
+  transition: bottom 0.5s ease-in 0s;
+  border-radius: 25px 25px 0 0 !important;
+  width: 600px;
+  left: calc(50vw - 300px);
+  &:hover {
+    bottom: 24px;
+  }
+  // For now
+  bottom: 24px;
+
+  .thumbnails-list {
+    margin: 5px;
+    margin-top: 25px;
+    overflow-x: auto;
+    white-space: nowrap;
+    height: 80px;
+  }
+
+  .thumbnail {
+    display: inline-block;
+    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
+    width: 105px;
+    height: 60px;
+    margin-right: 7.5px;
+    margin-left: 7.5px;
+    cursor: pointer;
+
+    span {
+      position: relative;
+      display: inline-block;
+      text-align: center;
+      width: 40px;
+      height: 20px;
+      border-radius: 6px;
+      left: calc(105px / 2 - 20px);
+      top: 35px;
+      background-color: rgba(0, 0, 0, 0.54);
+      color: #fff;
+    }
+  }
+
+  .add-btn {
+    margin: -15px;
+    top: 21px;
+    left: 15px;
+  }
+
+  canvas {
+    position: absolute;
+    top: 30px;
+  }
+}
