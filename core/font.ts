@@ -18,6 +18,7 @@ export function getFonts(): FontBase[] {
 }
 
 export class FontImpl implements FontBase {
+  readonly isSlyeFont = true;
   private font: fontkit.Font;
 
   constructor(

@@ -20,9 +20,12 @@ import { Vec3 } from "./math";
 
 const LIMIT = 17;
 
+type Listener = (forward: boolean, action: string, data: any) => void;
+
 export class ActionStack {
   private readonly actions: TakenAction<keyof ActionTypes>[] = [];
   private cursor = -1;
+  listener: Listener;
 
   private action<T extends keyof ActionTypes>(
     name: T,
@@ -30,6 +33,7 @@ export class ActionStack {
   ): void {
     // TS is stupid.
     const backwardData = actions[name].forward(forwardData as any);
+    if (this.listener) this.listener(true, name, forwardData);
     const action: TakenAction<T> = {
       name,
       forwardData,
@@ -53,6 +57,9 @@ export class ActionStack {
     const action = actions[takenAction.name];
     action.backward(takenAction.backwardData as any);
     this.cursor -= 1;
+    if (this.listener) {
+      this.listener(false, takenAction.name, takenAction.backwardData);
+    }
   }
 
   redo(): void {
@@ -61,6 +68,9 @@ export class ActionStack {
     const takenAction = this.actions[this.cursor];
     const action = actions[takenAction.name];
     action.forward(takenAction.forwardData as any);
+    if (this.listener) {
+      this.listener(true, takenAction.name, takenAction.forwardData);
+    }
   }
 
   deleteStep(step: StepBase): void {

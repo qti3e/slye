@@ -108,6 +108,7 @@ export abstract class Module implements ModuleInterface {
     const c = this.components.get(name);
     if (!c)
       throw new Error(`Component ${name} is not registered by ${this.name}.`);
+    console.log(id);
     useId(id);
     return new c(id, this.name, name, props);
   }

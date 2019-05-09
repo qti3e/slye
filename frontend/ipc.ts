@@ -19,15 +19,12 @@ export interface Client {
   close(pd: string): Promise<CloseResponseData>;
   patchMeta(pd: string, meta: Meta): Promise<PatchMetaResponseData>;
   getMeta(pd: string): Promise<GetMetaResponseData>;
-  patchStep(
-    pd: string,
-    uuid: string,
-    step: Partial<sly.JSONPresentationStep>
-  ): Promise<PatchStepResponseData>;
   fetchSly(pd: string): Promise<FetchSlyResponseData>;
   getModuleMainURL(moduleName: string): Promise<string>;
   getModuleAssetURL(moduleName: string, asset: string): Promise<string>;
   getAssetURL(pd: string, asset: string): Promise<string>;
+  forwardAction(pd: string, action: string, data: object): void;
+  backwardAction(pd: string, action: string, data: object): void;
 }
 
 export enum MsgKind {
@@ -35,8 +32,9 @@ export enum MsgKind {
   CLOSE,
   PATCH_META,
   GET_META,
-  PATCH_STEP,
-  FETCH_SLY
+  FETCH_SLY,
+  FORWARD_ACTION,
+  BACKWARD_ACTION
 }
 
 export type Request =
@@ -44,24 +42,27 @@ export type Request =
   | CloseRequest
   | PatchMetaRequest
   | GetMetaRequest
-  | PatchStepRequest
-  | FetchSlyRequest;
+  | FetchSlyRequest
+  | ForwardActionRequest
+  | BackwardActionRequest;
 
 export type Response =
   | CreateResponse
   | CloseResponse
   | PatchMetaResponse
   | GetMetaResponse
-  | PatchStepResponse
-  | FetchSlyResponse;
+  | FetchSlyResponse
+  | ForwardActionResponse
+  | BackwardActionResponse;
 
 export type ResponseData =
   | CreateResponseData
   | CloseResponseData
   | PatchMetaResponseData
   | GetMetaResponseData
-  | PatchStepResponseData
-  | FetchSlyResponseData;
+  | FetchSlyResponseData
+  | ForwardActionResponseData
+  | BackwardActionResponseData;
 
 export interface RequestBase {
   kind: MsgKind;
@@ -134,23 +135,6 @@ export interface GetMetaResponseData {
   meta: Meta;
 }
 
-// === PATCH_STEP
-export interface PatchStepRequest extends RequestBase {
-  kind: MsgKind.PATCH_STEP;
-  presentationDescriptor: string;
-  uuid: string;
-  step: Partial<sly.JSONPresentationStep>;
-}
-
-export interface PatchStepResponse extends ResponseBase {
-  kind: MsgKind.PATCH_STEP;
-  data: PatchStepResponseData;
-}
-
-export interface PatchStepResponseData {
-  ok: true;
-}
-
 // === FETCH_SLY
 export interface FetchSlyRequest extends RequestBase {
   kind: MsgKind.FETCH_SLY;
@@ -164,4 +148,52 @@ export interface FetchSlyResponse extends ResponseBase {
 
 export interface FetchSlyResponseData {
   presentation: sly.JSONPresentation;
+}
+
+// ACTION DATA
+type SerializedActionData =
+  | string
+  | number
+  | boolean
+  | { component: string } // UUID
+  | { step: string } // UUID
+  | { font: { moduleName: string; name: string } }
+  | { _: ActionData }; // For nested data.
+
+export type ActionData = {
+  [K: string]: SerializedActionData;
+};
+
+// === FORWARD_ACTION
+export interface ForwardActionRequest extends RequestBase {
+  kind: MsgKind.FORWARD_ACTION;
+  presentationDescriptor: string;
+  action: string;
+  data: ActionData;
+}
+
+export interface ForwardActionResponse extends ResponseBase {
+  kind: MsgKind.FORWARD_ACTION;
+  data: ForwardActionResponseData;
+}
+
+export interface ForwardActionResponseData {
+  ok: true;
+}
+
+// === BACKWARD_ACTION
+export interface BackwardActionRequest extends RequestBase {
+  kind: MsgKind.BACKWARD_ACTION;
+  presentationDescriptor: string;
+  action: string;
+  data: ActionData;
+}
+
+export interface BackwardActionResponse extends ResponseBase {
+  kind: MsgKind.BACKWARD_ACTION;
+  data: BackwardActionResponseData;
+}
+
+export interface BackwardActionResponseData {
+  ok: true;
 }

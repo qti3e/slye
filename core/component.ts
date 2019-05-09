@@ -19,6 +19,8 @@ export type PropValue = string | number | undefined | FontBase | ArrayBuffer;
 export abstract class Component<
   Props extends Record<any, PropValue> = Record<string, PropValue>
 > implements ComponentBase {
+  readonly isSlyeComponent = true;
+
   private isUpdating = false;
   private nextProps: Props;
   public abstract readonly ui: Widgets<Props>;

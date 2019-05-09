@@ -34,6 +34,7 @@ export interface Transformable {
 
 export interface StepBase extends Transformable {
   readonly uuid: string;
+  readonly isSlyeStep: true;
   owner: PresentationBase;
   components: ComponentBase[];
   del(component: ComponentBase): void;
@@ -44,6 +45,7 @@ export interface ComponentBase extends Transformable {
   readonly uuid: string;
   readonly moduleName: string;
   readonly componentName: string;
+  readonly isSlyeComponent: true;
   owner: StepBase;
   props: Record<any, PropValue>;
   getProp(key: any): PropValue;
@@ -51,6 +53,7 @@ export interface ComponentBase extends Transformable {
 }
 
 export interface FontBase {
+  readonly isSlyeFont: true;
   readonly moduleName: string;
   readonly name: string;
   layout(text: string): Promise<Glyph[]>;

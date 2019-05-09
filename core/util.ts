@@ -15,15 +15,13 @@ const g = e("this");
 if (!g.SLYE_ID_GEN_LAST_ID) g.SLYE_ID_GEN_LAST_ID = ID_GEN_MAGIC;
 
 export function shortId(): string {
-  const grow = Math.floor(Math.random() * 17) + 1;
-  return (g.SLYE_ID_GEN_LAST_ID += grow).toString(36);
+  return (g.SLYE_ID_GEN_LAST_ID += 1).toString(36);
 }
 
 export function useId(id: string): void {
   const n = parseInt(id, 36);
-  const grow = Math.floor(Math.random() * 17);
   if (n >= g.SLYE_ID_GEN_LAST_ID) {
-    g.SLYE_ID_GEN_LAST_ID = n + grow;
+    g.SLYE_ID_GEN_LAST_ID = n + 1;
   } else {
     // It should never happen.
     throw new Error(

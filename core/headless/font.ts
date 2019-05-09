@@ -11,6 +11,8 @@
 import { FontBase, Glyph } from "../base";
 
 export class HeadlessFont implements FontBase {
+  readonly isSlyeFont = true;
+
   constructor(readonly moduleName: string, readonly name: string) {}
 
   async layout(text: string): Promise<Glyph[]> {

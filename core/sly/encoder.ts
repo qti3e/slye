@@ -8,11 +8,12 @@
  *       Copyright 2019 Parsa Ghadimi. All Rights Reserved.
  */
 
-import { PresentationBase } from "../base";
+import { PresentationBase, FontBase } from "../base";
 import {
   JSONPresentation,
   JSONPresentationStep,
-  JSONPresentationComponent
+  JSONPresentationComponent,
+  RefKind
 } from "./types";
 
 export function encode(presentation: PresentationBase): JSONPresentation {
@@ -48,7 +49,20 @@ export function encode(presentation: PresentationBase): JSONPresentation {
         props: {}
       };
 
-      // TODO(qti3e) Props
+      for (const key in component.props) {
+        const value = component.props[key];
+        if (typeof value === "string" || typeof value === "number") {
+          jcomp.props[key] = value;
+        } else if (isFont(value)) {
+          jcomp.props[key] = {
+            kind: RefKind.FONT,
+            font: value.name,
+            moduleName: value.moduleName
+          };
+        } else {
+          throw new Error(`Encoder for ${value} is not implemented yet.`);
+        }
+      }
 
       jstep.components.push(jcomp);
     }
@@ -57,4 +71,14 @@ export function encode(presentation: PresentationBase): JSONPresentation {
   }
 
   return ret;
+}
+
+function isFont(value: any): value is FontBase {
+  if (typeof value !== "object") return false;
+
+  return (
+    Object.prototype.hasOwnProperty.call(value, "layout") &&
+    typeof value.moduleName === "string" &&
+    typeof value.name === "string"
+  );
 }

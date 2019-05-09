@@ -66,6 +66,8 @@ export class App extends Component<AppProps, AppState> {
     // For debugging.
     (window as any).p = this.presentation;
 
+    this.presentation.actions.listener = this.onChange;
+
     // Render and then finish loading.
     render();
     this.setState({ isLoading: false });
@@ -109,6 +111,15 @@ export class App extends Component<AppProps, AppState> {
     const { isPlaying } = this.state;
     let height = isPlaying ? innerHeight : innerHeight - 56;
     this.presentation.resize(innerWidth, height);
+  };
+
+  onChange = (forward: boolean, action: string, data: any): void => {
+    const { presentationDescriptor } = this.props;
+    if (forward) {
+      client.forwardAction(presentationDescriptor, action, data);
+    } else {
+      client.backwardAction(presentationDescriptor, action, data);
+    }
   };
 
   render() {

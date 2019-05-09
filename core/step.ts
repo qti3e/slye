@@ -25,6 +25,8 @@ import { StepBase } from "./base";
  * different components in it.
  */
 export class Step implements StepBase {
+  readonly isSlyeStep = true;
+
   /**
    * Owner.
    */

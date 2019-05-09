@@ -97,16 +97,6 @@ export class Server implements ServerInterface {
     };
   }
 
-  async [types.MsgKind.PATCH_STEP](
-    req: types.PatchStepRequest
-  ): Promise<types.PatchStepResponseData> {
-    const p = this.presentations.get(req.presentationDescriptor);
-    p.patchStep(req.uuid, req.step);
-    return {
-      ok: true
-    };
-  }
-
   async [types.MsgKind.FETCH_SLY](
     req: types.FetchSlyRequest
   ): Promise<types.FetchSlyResponseData> {
@@ -115,5 +105,19 @@ export class Server implements ServerInterface {
     return {
       presentation
     };
+  }
+
+  async [types.MsgKind.FORWARD_ACTION](
+    req: types.ForwardActionRequest
+  ): Promise<types.ForwardActionResponseData> {
+    console.log("FORWARD", JSON.stringify(req, null, 4));
+    return null;
+  }
+
+  async [types.MsgKind.BACKWARD_ACTION](
+    req: types.BackwardActionRequest
+  ): Promise<types.BackwardActionResponseData> {
+    console.log("BACKWARD", JSON.stringify(req, null, 4));
+    return null;
   }
 }

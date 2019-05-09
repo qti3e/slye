@@ -14,6 +14,7 @@ import { HeadlessComponent } from "./component";
 import { TransformableImpl } from "./transormable";
 
 export class HeadlessStep extends TransformableImpl implements StepBase {
+  readonly isSlyeStep = true;
   owner: HeadlessPresentation;
   components: HeadlessComponent[] = [];
 

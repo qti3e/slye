@@ -203,14 +203,6 @@ export class PresentationFile {
     return this.meta;
   }
 
-  patchStep(uuid: string, step: Partial<JSONPresentationStep>): void {
-    this.sly.steps[uuid] = {
-      ...this.sly.steps[uuid],
-      ...step
-    };
-    this.change();
-  }
-
   getSly(): JSONPresentation {
     return this.sly;
   }

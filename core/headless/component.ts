@@ -15,6 +15,7 @@ import { TransformableImpl } from "./transormable";
 
 export class HeadlessComponent extends TransformableImpl
   implements ComponentBase {
+  readonly isSlyeComponent = true;
   owner: HeadlessStep;
   props: Record<any, PropValue>;
 
