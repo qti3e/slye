@@ -12,10 +12,12 @@ import React, { Component } from "react";
 import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
-import Grid from "@material-ui/core/Grid";
+import Fab from "@material-ui/core/Fab";
+import OpenIcon from "@material-ui/icons/FolderOpenSharp";
 
 export interface DashboardProps {
   onCreate(title: string, description: string): void;
+  onOpen(): void;
 }
 
 export class Dashboard extends Component<DashboardProps> {
@@ -54,6 +56,9 @@ export class Dashboard extends Component<DashboardProps> {
           defaultValue={this.description}
           onChange={e => (this.description = e.currentTarget.value)}
         />
+        <Fab color="primary" style={styles.fab} onClick={this.props.onOpen}>
+          <OpenIcon />
+        </Fab>
       </div>
     );
   }
@@ -64,5 +69,10 @@ const styles: Record<string, React.CSSProperties> = {
     width: "calc(100% - 115px)",
     marginRight: 15,
     display: "inline-flex"
+  },
+  fab: {
+    position: "absolute",
+    right: 25,
+    bottom: 25
   }
 };

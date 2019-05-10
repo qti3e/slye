@@ -31,10 +31,15 @@ export class Main extends Component<{}, MainState> {
     });
   };
 
+  open = async () => {
+    const { ok, presentationDescriptor } = await client.open();
+    if (ok) this.setState({ presentationDescriptor });
+  };
+
   render() {
     const { presentationDescriptor } = this.state;
     if (presentationDescriptor)
       return <App presentationDescriptor={presentationDescriptor} />;
-    return <Dashboard onCreate={this.create} />;
+    return <Dashboard onCreate={this.create} onOpen={this.open} />;
   }
 }

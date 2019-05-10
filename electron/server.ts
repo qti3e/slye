@@ -141,4 +141,34 @@ export class Server implements ServerInterface {
     if (!presentation.localPath) return { ok: false, canceled: true };
     presentation.pack(presentation.localPath);
   }
+
+  async [types.MsgKind.OPEN](
+    req: types.OpenRequest
+  ): Promise<types.OpenResponseData> {
+    const path = dialog.showOpenDialog(this.window, {
+      title: "Slye",
+      filters: [
+        {
+          name: "Slye Presentation",
+          extensions: ["sly"]
+        }
+      ],
+      properties: ["openFile"]
+    });
+
+    if (!path || !path.length) return { ok: false };
+
+    try {
+      const uuid = uuidv1();
+      const dir = tmp.dirSync({ prefix: "slye-" }).name;
+      const presentation = new PresentationFile(dir, uuid);
+      presentation.localPath = path[0];
+      await presentation.unpack(path[0]);
+      this.presentations.set(uuid, presentation);
+      return { ok: true, presentationDescriptor: uuid };
+    } catch (e) {
+      console.error(e);
+      return { ok: false };
+    }
+  }
 }

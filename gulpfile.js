@@ -20,6 +20,8 @@ gulp.task("electron:main", function() {
       "events",
       "crypto",
       "os",
+      // Archive extraction fails silently otherwise.
+      "tar",
       // Don't include three.
       "three"
     ],

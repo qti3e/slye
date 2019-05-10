@@ -152,6 +152,12 @@ export class Client implements types.Client {
     });
   }
 
+  open(): Promise<types.OpenResponseData> {
+    return this.sendRequest<types.OpenRequest, types.OpenResponseData>({
+      kind: types.MsgKind.OPEN
+    });
+  }
+
   async getModuleMainURL(moduleName: string): Promise<string> {
     return `slye://modules/${moduleName}/main.js`;
   }

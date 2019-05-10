@@ -20,12 +20,22 @@ export interface Client {
   patchMeta(pd: string, meta: Meta): Promise<PatchMetaResponseData>;
   getMeta(pd: string): Promise<GetMetaResponseData>;
   fetchSly(pd: string): Promise<FetchSlyResponseData>;
+  forwardAction(
+    pd: string,
+    action: string,
+    data: object
+  ): Promise<ForwardActionResponseData>;
+  backwardAction(
+    pd: string,
+    action: string,
+    data: object
+  ): Promise<BackwardActionResponseData>;
+  save(pd: string): Promise<SaveResponseData>;
+  open(): Promise<OpenResponseData>;
+
   getModuleMainURL(moduleName: string): Promise<string>;
   getModuleAssetURL(moduleName: string, asset: string): Promise<string>;
   getAssetURL(pd: string, asset: string): Promise<string>;
-  forwardAction(pd: string, action: string, data: object): void;
-  backwardAction(pd: string, action: string, data: object): void;
-  save(pd: string): void;
 }
 
 export enum MsgKind {
@@ -36,7 +46,8 @@ export enum MsgKind {
   FETCH_SLY,
   FORWARD_ACTION,
   BACKWARD_ACTION,
-  SAVE
+  SAVE,
+  OPEN
 }
 
 export type Request =
@@ -47,7 +58,8 @@ export type Request =
   | FetchSlyRequest
   | ForwardActionRequest
   | BackwardActionRequest
-  | SaveRequest;
+  | SaveRequest
+  | OpenRequest;
 
 export type Response =
   | CreateResponse
@@ -57,7 +69,8 @@ export type Response =
   | FetchSlyResponse
   | ForwardActionResponse
   | BackwardActionResponse
-  | SaveResponse;
+  | SaveResponse
+  | OpenResponse;
 
 export type ResponseData =
   | CreateResponseData
@@ -67,7 +80,8 @@ export type ResponseData =
   | FetchSlyResponseData
   | ForwardActionResponseData
   | BackwardActionResponseData
-  | SaveResponseData;
+  | SaveResponseData
+  | OpenResponseData;
 
 export interface RequestBase {
   kind: MsgKind;
@@ -240,4 +254,19 @@ export interface SaveResponse extends ResponseBase {
 export interface SaveResponseData {
   ok: boolean;
   canceled?: boolean;
+}
+
+// === OPEN
+export interface OpenRequest extends RequestBase {
+  kind: MsgKind.OPEN;
+}
+
+export interface OpenResponse extends ResponseBase {
+  kind: MsgKind.OPEN;
+  data: OpenResponseData;
+}
+
+export interface OpenResponseData {
+  ok: boolean;
+  presentationDescriptor?: string;
 }

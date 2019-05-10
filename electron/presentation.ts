@@ -138,7 +138,7 @@ export class PresentationFile {
       }
     };
 
-    this.presentation = new headless.HeadlessPresentation(uuidv1());
+    this.presentation = new headless.HeadlessPresentation(this.uuid);
     headlessDecode(this.presentation, sly, {
       onComponent: (component: headless.HeadlessComponent): void => {
         this.components.set(component.uuid, component);
@@ -260,5 +260,28 @@ export class PresentationFile {
         ["assets", "sly.json", "meta.json"]
       )
       .pipe(dest);
+  }
+
+  async unpack(path: string): Promise<void> {
+    await tar.x({
+      file: path,
+      cwd: this.dir,
+      sync: true
+    });
+
+    const sly = JSON.parse(await fs.readFile(this.join("sly.json"), "utf-8"));
+    const meta = JSON.parse(await fs.readFile(this.join("meta.json"), "utf-8"));
+
+    this.meta = meta;
+
+    this.presentation = new headless.HeadlessPresentation(this.uuid);
+    headlessDecode(this.presentation, sly, {
+      onComponent: (component: headless.HeadlessComponent): void => {
+        this.components.set(component.uuid, component);
+      },
+      onStep: (step: headless.HeadlessStep): void => {
+        this.steps.set(step.uuid, step);
+      }
+    });
   }
 }
