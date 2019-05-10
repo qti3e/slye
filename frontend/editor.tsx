@@ -141,7 +141,7 @@ export class Editor extends Component<EditorProps, EditorState> {
     const step = new slye.Step(uuidv1());
     if (selectedStep) {
       const { x, y, z } = selectedStep.getPosition();
-      step.setPosition(x + 30, y, z);
+      step.setPosition(x + 5 * 19.2 + 5, y, z);
     }
     const component = await slye.component("slye", "text", {
       size: 10,

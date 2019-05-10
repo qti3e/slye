@@ -25,6 +25,14 @@ import { StepBase } from "./base";
  * different components in it.
  */
 export class Step implements StepBase {
+  static readonly placeholderGeo = new PlaneGeometry(5 * 19.2, 5 * 10.8, 2);
+  static readonly placeholderMatt = new MeshBasicMaterial({
+    color: 0xe0e0e0,
+    opacity: 0.5,
+    transparent: true,
+    side: DoubleSide
+  });
+
   readonly isSlyeStep = true;
 
   /**
@@ -42,23 +50,17 @@ export class Step implements StepBase {
    */
   group: Group;
 
+  readonly plane: Mesh;
+
   constructor(readonly uuid: string) {
     this.group = new Group();
     this.group.userData.step = this;
 
-    // TODO(qti3e) Reuse these.
-    const geometry = new PlaneGeometry(2 * 19.2, 2 * 10.8, 2);
-    const material = new MeshBasicMaterial({
-      color: 0xffff00,
-      side: DoubleSide
-    });
-    material.visible = false;
-
     // We add an invisible plane to each step, so in this case we can still
     // have a non-zero width and height for the step when it has no component
     // in it.
-    const plane = new Mesh(geometry, material);
-    this.group.add(plane);
+    this.plane = new Mesh(Step.placeholderGeo, Step.placeholderMatt);
+    this.group.add(this.plane);
   }
 
   /**
@@ -92,6 +94,7 @@ export class Step implements StepBase {
     if (this.owner && c.isClickable) {
       this.owner.updateRaycastCache(this);
     }
+    //this.plane.visible = !this.components.length;
   }
 
   /**
@@ -106,6 +109,7 @@ export class Step implements StepBase {
         this.owner.updateRaycastCache(this);
       }
     }
+    //this.plane.visible = !this.components.length;
   }
 
   setPosition(x: number, y: number, z: number): void {

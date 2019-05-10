@@ -77,66 +77,32 @@ export class PresentationFile {
       created: Date.now()
     };
 
-    const sly = {
+    const sly: any = {
       template: {
         moduleName: "slye",
         component: "template"
       },
       steps: {
         [uuidv1()]: {
-          position: [-110, 0, 0] as any,
-          rotation: [0, 0, 0] as any,
-          scale: [1, 1, 1] as any,
+          position: [-110, 0, 0],
+          rotation: [0, 0, 0],
+          scale: [1, 1, 1],
           components: [
             {
               uuid: uuidv1(),
               moduleName: "slye",
               component: "text",
-              position: [-30, 10, 0] as any,
-              rotation: [0, 0, 0] as any,
-              scale: [1, 1, 1] as any,
-              props: {
-                text: "What is",
-                size: 10,
-                font: {
-                  kind: 1,
-                  moduleName: "slye",
-                  font: "Sahel"
-                }
-              }
-            },
-            {
-              uuid: uuidv1(),
-              moduleName: "slye",
-              component: "text",
-              position: [0, -5, 0] as any,
-              rotation: [0, 0, 0] as any,
-              scale: [1, 1, 1] as any,
+              position: [
+                -15.20454158717898,
+                0.4664170368873606,
+                17.052472519411943
+              ],
+              rotation: [-0.9999961802122638, 0, 0],
+              scale: [1, 1, 0.15397232016921775],
               props: {
                 text: "Slye",
                 size: 20,
-                font: {
-                  kind: 1,
-                  moduleName: "slye",
-                  font: "Shellia"
-                }
-              }
-            },
-            {
-              uuid: uuidv1(),
-              moduleName: "slye",
-              component: "text",
-              position: [29, -15, 0] as any,
-              rotation: [0, 0, 0] as any,
-              scale: [1, 1, 1] as any,
-              props: {
-                text: "!!!",
-                size: 10,
-                font: {
-                  kind: 1,
-                  moduleName: "slye",
-                  font: "Sahel"
-                }
+                font: { kind: 1, font: "Shellia", moduleName: "slye" }
               }
             }
           ]

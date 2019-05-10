@@ -336,6 +336,7 @@ export class Presentation implements PresentationBase {
    * Set isPlaying to true.
    */
   play(): void {
+    Step.placeholderMatt.visible = false;
     this.isPlaying = true;
   }
 
@@ -343,6 +344,7 @@ export class Presentation implements PresentationBase {
    * Set isPlaying to false, it will pause all child (Steps) animations.
    */
   pause(): void {
+    Step.placeholderMatt.visible = true;
     this.isPlaying = false;
     // See render function - to understand this line.
     this.domElement.style.cursor = "auto";
@@ -464,6 +466,7 @@ export class Presentation implements PresentationBase {
     // Normalize index.
     if (index > 0 && index >= this.steps.length) index %= this.steps.length;
     else while (index < 0) index = this.steps.length + index;
+    if (this.isFocused && index !== this.currentStep) duration = 0;
 
     this.currentStep = index;
     const step = this.steps[index];

@@ -36,27 +36,21 @@ export function getCameraPosRotForStep(
 
   const { fov, far, aspect } = camrea;
   const { x: rx, y: ry, z: rz } = step.getRotation();
-
-  // Find the distance.
-  // Set the rotation to zero so we get the right results.
-  step.group.rotation.set(0, 0, 0);
-  const stepSize = box3.setFromObject(step.group).getSize(tmpVec);
-  const stepWidth = stepSize.x;
-  const stepHeight = stepSize.y;
-  // Set it to what it used to be.
-  step.group.rotation.set(rx, ry, rz);
+  const stepWidth = 5 * 19.2;
+  const stepHeight = 5 * 10.8;
 
   const vFov = THREE.Math.degToRad(fov);
   const farHeight = 2 * Math.tan(vFov / 2) * far;
   const farWidth = farHeight * aspect;
-  let distance = (far * stepWidth) / farWidth / (2 / 3);
+  let distance = (far * stepWidth) / farWidth;
   const presentiveHeight = (stepHeight * far) / distance;
-  if (presentiveHeight > (3 / 4) * farHeight) {
-    distance = (far * stepHeight) / farHeight / (3 / 4);
+  if (presentiveHeight > farHeight) {
+    distance = (far * stepHeight) / farHeight;
   }
 
   // Find camera's position.
   const center = box3.setFromObject(step.group).getCenter(tmpVec);
+  center.z = step.group.position.z;
   euler.set(rx, ry, rz);
   targetVec.set(0, 0, distance);
   targetVec.applyEuler(euler);

@@ -62,7 +62,6 @@ export class StepEditor extends Component<StepEditorProps, StepEditorState> {
     domElement.addEventListener("dblclick", this.onDblClick);
     document.addEventListener("keydown", this.onKeydown);
     document.addEventListener("keyup", this.onKeyup);
-    domElement.classList.add("step-editor");
     const background = this.props.presentation.scene.background;
     if (background instanceof THREE.Color) {
       domElement.parentElement.style.background = background.getStyle();
@@ -80,7 +79,6 @@ export class StepEditor extends Component<StepEditorProps, StepEditorState> {
     domElement.removeEventListener("dblclick", this.onDblClick);
     document.removeEventListener("keydown", this.onKeydown);
     document.removeEventListener("keyup", this.onKeyup);
-    domElement.classList.remove("step-editor");
   }
 
   onMouseMove = (event: MouseEvent): void => {
