@@ -4,10 +4,32 @@ const path = require("path");
 const Bundler = require("parcel-bundler");
 const rollup = require("gulp-better-rollup");
 const rename = require("gulp-rename");
+const packager = require("electron-packager");
+const mergeStream = require("merge-stream");
 
 const typescript = require("rollup-plugin-typescript");
 const commonjs = require("rollup-plugin-commonjs");
 const resolve = require("rollup-plugin-node-resolve");
+
+const electronPackagerOptions = {
+  name: "Slye",
+  dir: __dirname,
+  out: "release",
+  version: "0.0.1",
+  overwrite: true,
+  ignore: (file) => {
+    if (!file) return false;
+    if (file.startsWith("/dist")) return false;
+    if (file.startsWith("/node_modules/@slye")) return true;
+    if (file.startsWith("/node_modules")) return false;
+    if (file === "/package.json") return false;
+    return true;
+  }
+};
+
+const uglifyes = require("uglify-es");
+const composer = require("gulp-uglify/composer");
+const minify = composer(uglifyes, console);
 
 gulp.task("electron:main", function() {
   const rollupOptions = {
@@ -22,7 +44,7 @@ gulp.task("electron:main", function() {
       "os",
       // Archive extraction fails silently otherwise.
       "tar",
-      // Don't include three.
+      // Never include three.
       "three"
     ],
     plugins: [
@@ -37,11 +59,18 @@ gulp.task("electron:main", function() {
     ]
   };
 
-  return gulp
+  const main = gulp
     .src("electron/main.ts")
     .pipe(rollup(rollupOptions, "cjs"))
+    .pipe(minify())
     .pipe(rename("main.js"))
     .pipe(gulp.dest("./dist"));
+
+  const icons = gulp
+    .src("icons/*")
+    .pipe(gulp.dest("./dist/icons"));
+
+  return mergeStream(main, icons);
 });
 
 gulp.task("electron:preload", function() {
@@ -62,6 +91,7 @@ gulp.task("electron:preload", function() {
   return gulp
     .src("electron/preload.ts")
     .pipe(rollup(rollupOptions, "cjs"))
+    .pipe(minify())
     .pipe(rename("preload.js"))
     .pipe(gulp.dest("./dist"));
 });
@@ -92,38 +122,64 @@ gulp.task(
   gulp.parallel("electron:preload", "electron:main", "electron:renderer")
 );
 
-gulp.task(
-  "modules:slye",
-  gulp.parallel(function SlyeModuleMain() {
-    const rollupOptions = {
-      external: ["@slye/core", "three"],
-      plugins: [
-        typescript({
-          target: "esnext",
-          module: "ESNext"
-        })
-      ]
-    };
+gulp.task("modules:slye", function () {
+  const rollupOptions = {
+    external: ["@slye/core", "three"],
+    plugins: [
+      typescript({
+        target: "esnext",
+        module: "ESNext"
+      })
+    ]
+  };
 
-    const outputOptions = {
-      format: "iife",
-      name: "SlyeModule",
-      globals: {
-        "@slye/core": "slye"
-      }
-    };
+  const outputOptions = {
+    format: "iife",
+    name: "SlyeModule",
+    globals: {
+      "@slye/core": "slye",
+      "three": "THREE"
+    }
+  };
 
-    return gulp
-      .src("modules/slye/main.ts")
-      .pipe(rollup(rollupOptions, outputOptions))
-      .pipe(rename("main.js"))
-      .pipe(gulp.dest("./dist/modules/slye"));
-  }, function SlyeModuleAssets() {
-    return gulp.src('modules/slye/assets/**')
-      .pipe(gulp.dest('./dist/modules/slye/assets'));
-  })
+  const jsStream = gulp
+    .src("modules/slye/main.ts")
+    .pipe(rollup(rollupOptions, outputOptions))
+    .pipe(minify())
+    .pipe(rename("main.js"))
+    .pipe(gulp.dest("./dist/modules/slye"));
+
+  const assets = gulp.src('modules/slye/assets/**')
+    .pipe(gulp.dest('./dist/modules/slye/assets'));
+
+  return mergeStream(jsStream, assets);
+}
 );
 
 gulp.task("modules", gulp.parallel("modules:slye"));
+
+gulp.task("release:linux64", function (cb) {
+  packager({
+    ...electronPackagerOptions,
+    platform: "linux",
+    arch: "x64",
+  }).then(data => {
+    console.log("Wrote Linux X64 app to " + data[0]);
+    cb();
+  });
+});
+
+gulp.task("release:win32", function (cb) {
+  packager({
+    ...electronPackagerOptions,
+    platform: "win32",
+    arch: "ia32",
+  }).then(data => {
+    console.log("Wrote Win X64 app to " + data[0]);
+    cb();
+  });
+});
+
+gulp.task("release:all", gulp.series("release:linux64", "release:win32"));
 
 exports.default = gulp.parallel("electron", "modules");

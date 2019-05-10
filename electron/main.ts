@@ -22,6 +22,7 @@ function createWindow() {
     width: 1024,
     height: 728,
     frame: false,
+    icon: __dirname + "/icons/favicon.png",
     webPreferences: {
       // We don't want Node in the renderer thread.
       // Every file access should be done in the main thread.
@@ -29,6 +30,9 @@ function createWindow() {
       preload: path.join(__dirname, "preload.js")
     }
   });
+
+  // Disable default menu bar.
+  mainWindow.setMenu(null);
 
   mainWindow.webContents.on("did-finish-load", () => {
     if (!mainWindow) {
