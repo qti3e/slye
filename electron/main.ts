@@ -42,7 +42,7 @@ function createWindow() {
     mainWindow = null;
   });
 
-  const server = new Server();
+  const server = new Server(mainWindow);
   registerSlyeProtocol(server);
 
   if (process.env.SLYE_DEV) {

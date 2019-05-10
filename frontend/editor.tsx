@@ -107,6 +107,13 @@ export class Editor extends Component<EditorProps, EditorState> {
       event.preventDefault();
       return;
     }
+
+    // Ctrl+S: Save
+    if (ctrlKey && keyCode === 83) {
+      client.save(this.props.presentation.uuid);
+      event.preventDefault();
+      return;
+    }
   };
 
   handleNavClick = (event: object, value: number): void => {

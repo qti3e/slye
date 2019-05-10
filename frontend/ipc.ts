@@ -25,6 +25,7 @@ export interface Client {
   getAssetURL(pd: string, asset: string): Promise<string>;
   forwardAction(pd: string, action: string, data: object): void;
   backwardAction(pd: string, action: string, data: object): void;
+  save(pd: string): void;
 }
 
 export enum MsgKind {
@@ -34,7 +35,8 @@ export enum MsgKind {
   GET_META,
   FETCH_SLY,
   FORWARD_ACTION,
-  BACKWARD_ACTION
+  BACKWARD_ACTION,
+  SAVE
 }
 
 export type Request =
@@ -44,7 +46,8 @@ export type Request =
   | GetMetaRequest
   | FetchSlyRequest
   | ForwardActionRequest
-  | BackwardActionRequest;
+  | BackwardActionRequest
+  | SaveRequest;
 
 export type Response =
   | CreateResponse
@@ -53,7 +56,8 @@ export type Response =
   | GetMetaResponse
   | FetchSlyResponse
   | ForwardActionResponse
-  | BackwardActionResponse;
+  | BackwardActionResponse
+  | SaveResponse;
 
 export type ResponseData =
   | CreateResponseData
@@ -62,7 +66,8 @@ export type ResponseData =
   | GetMetaResponseData
   | FetchSlyResponseData
   | ForwardActionResponseData
-  | BackwardActionResponseData;
+  | BackwardActionResponseData
+  | SaveResponseData;
 
 export interface RequestBase {
   kind: MsgKind;
@@ -219,4 +224,20 @@ export interface BackwardActionResponse extends ResponseBase {
 
 export interface BackwardActionResponseData {
   ok: true;
+}
+
+// === SAVE
+export interface SaveRequest extends RequestBase {
+  kind: MsgKind.SAVE;
+  presentationDescriptor: string;
+}
+
+export interface SaveResponse extends ResponseBase {
+  kind: MsgKind.SAVE;
+  data: SaveResponseData;
+}
+
+export interface SaveResponseData {
+  ok: boolean;
+  canceled?: boolean;
 }

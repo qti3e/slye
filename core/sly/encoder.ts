@@ -75,10 +75,5 @@ export function encode(presentation: PresentationBase): JSONPresentation {
 
 function isFont(value: any): value is FontBase {
   if (typeof value !== "object") return false;
-
-  return (
-    Object.prototype.hasOwnProperty.call(value, "layout") &&
-    typeof value.moduleName === "string" &&
-    typeof value.name === "string"
-  );
+  return !!value.isSlyeFont;
 }

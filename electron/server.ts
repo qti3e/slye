@@ -9,7 +9,7 @@
  */
 
 import { promises as fs } from "fs";
-import { ipcMain, IpcMessageEvent, BrowserWindow } from "electron";
+import { dialog, ipcMain, IpcMessageEvent, BrowserWindow } from "electron";
 import { PresentationFile } from "./presentation";
 import uuidv1 from "uuid/v1";
 import * as tmp from "tmp";
@@ -23,7 +23,7 @@ type ServerInterface = {
 export class Server implements ServerInterface {
   private readonly presentations: Map<string, PresentationFile> = new Map();
 
-  constructor() {
+  constructor(private window: BrowserWindow) {
     ipcMain.on(
       "asynchronous-message",
       (event: IpcMessageEvent, req: types.Request) => {
@@ -119,5 +119,24 @@ export class Server implements ServerInterface {
   ): Promise<types.BackwardActionResponseData> {
     console.log("BACKWARD", JSON.stringify(req, null, 4));
     return null;
+  }
+
+  async [types.MsgKind.SAVE](
+    req: types.SaveRequest
+  ): Promise<types.SaveResponseData> {
+    const presentation = this.presentations.get(req.presentationDescriptor);
+    if (!presentation.localPath) {
+      presentation.localPath = dialog.showSaveDialog(this.window, {
+        title: "Slye",
+        filters: [
+          {
+            name: "Slye Presentation",
+            extensions: ["sly"]
+          }
+        ]
+      });
+    }
+    if (!presentation.localPath) return { ok: false, canceled: true };
+    presentation.pack(presentation.localPath);
   }
 }

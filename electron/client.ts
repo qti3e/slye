@@ -145,6 +145,13 @@ export class Client implements types.Client {
     });
   }
 
+  save(presentationDescriptor: string): Promise<types.SaveResponseData> {
+    return this.sendRequest<types.SaveRequest, types.SaveResponseData>({
+      kind: types.MsgKind.SAVE,
+      presentationDescriptor
+    });
+  }
+
   async getModuleMainURL(moduleName: string): Promise<string> {
     return `slye://modules/${moduleName}/main.js`;
   }
@@ -185,7 +192,11 @@ function serializeActionData(data: object): types.ActionData {
 
   for (const key in data) {
     const val = (data as any)[key];
-    if (typeof val === "string" || typeof val === "boolean") {
+    if (
+      typeof val === "string" ||
+      typeof val === "number" ||
+      typeof val === "boolean"
+    ) {
       ret[key] = val;
     } else if (val.isSlyeComponent) {
       ret[key] = serializeComponent(val);
