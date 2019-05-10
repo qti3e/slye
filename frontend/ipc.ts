@@ -169,7 +169,7 @@ export type SerializedComponent = {
   };
 };
 
-type SerializedStep = {
+export type SerializedStep = {
   step: string; // UUID
   data?: {
     components: SerializedComponent[];
@@ -179,7 +179,7 @@ type SerializedStep = {
   };
 };
 
-type SerializedActionData =
+export type SerializedActionData =
   | string
   | number
   | boolean

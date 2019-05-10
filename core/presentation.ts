@@ -354,7 +354,7 @@ export class Presentation implements PresentationBase {
     const step = this.steps[this.currentStep];
     if (!step) return;
 
-    this.template.group.visible = false;
+    if (this.template) this.template.group.visible = false;
     for (let i = 0; i < this.steps.length; ++i) {
       this.steps[i].group.visible = false;
     }
@@ -367,7 +367,7 @@ export class Presentation implements PresentationBase {
    */
   blur(): void {
     this.isFocused = false;
-    this.template.group.visible = true;
+    if (this.template) this.template.group.visible = true;
     for (let i = 0; i < this.steps.length; ++i) {
       this.steps[i].group.visible = true;
     }

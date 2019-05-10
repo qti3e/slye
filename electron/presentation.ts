@@ -14,6 +14,8 @@ import tar from "tar";
 import { JSONPresentation, JSONPresentationStep } from "../core/sly";
 import { headlessDecode } from "../core/sly/headlessDecoder";
 import { encode } from "../core/sly/encoder";
+import { actions, Action } from "../core/actions";
+import * as IPC from "../frontend/ipc";
 import * as path from "path";
 import * as headless from "../core/headless";
 
@@ -26,6 +28,10 @@ export class PresentationFile {
   changes = 0;
   timer: NodeJS.Timeout;
   presentation: headless.HeadlessPresentation;
+
+  components: Map<string, headless.HeadlessComponent> = new Map();
+  steps: Map<string, headless.HeadlessStep> = new Map();
+  fonts: headless.HeadlessFont[] = [];
 
   constructor(public readonly dir: string, private readonly uuid: string) {}
 
@@ -133,7 +139,14 @@ export class PresentationFile {
     };
 
     this.presentation = new headless.HeadlessPresentation(uuidv1());
-    headlessDecode(this.presentation, sly);
+    headlessDecode(this.presentation, sly, {
+      onComponent: (component: headless.HeadlessComponent): void => {
+        this.components.set(component.uuid, component);
+      },
+      onStep: (step: headless.HeadlessStep): void => {
+        this.steps.set(step.uuid, step);
+      }
+    });
 
     await Promise.all([
       fs.mkdir(this.join("assets")),
@@ -156,6 +169,83 @@ export class PresentationFile {
 
   getSly(): JSONPresentation {
     return encode(this.presentation);
+  }
+
+  decodeComponent(c: IPC.SerializedComponent): headless.HeadlessComponent {
+    const { data, component: uuid } = c;
+    if (!data) return this.components.get(uuid);
+
+    const component = new headless.HeadlessComponent(
+      uuid,
+      data.moduleName,
+      data.componentName,
+      this.decodeActionData(data.props)
+    );
+    component.setPosition(...data.position);
+    component.setRotation(...data.rotation);
+    component.setScale(...data.scale);
+    this.components.set(uuid, component);
+
+    return component;
+  }
+
+  decodeStep(c: IPC.SerializedStep): headless.HeadlessStep {
+    const { data, step: uuid } = c;
+    if (!data) return this.steps.get(uuid);
+
+    const step = new headless.HeadlessStep(uuid);
+    step.setPosition(...data.position);
+    step.setRotation(...data.rotation);
+    step.setScale(...data.scale);
+    data.components.map(this.decodeComponent).map(step.add);
+    this.steps.set(uuid, step);
+
+    return step;
+  }
+
+  decodeActionData(data: IPC.ActionData): any {
+    const ret: Record<string, any> = {};
+
+    for (const key in data) {
+      const val = data[key] as any;
+
+      if (
+        typeof val === "string" ||
+        typeof val === "number" ||
+        typeof val === "boolean"
+      ) {
+        ret[key] = val;
+      } else if (val.component) {
+        ret[key] = this.decodeComponent(val);
+      } else if (val.step) {
+        ret[key] = this.decodeStep(val);
+      } else if (val.font) {
+        const { moduleName, name } = val.font;
+        const font = this.fonts.find(
+          f => f.moduleName === moduleName && f.name === name
+        );
+        if (font) {
+          ret[key] = font;
+        } else {
+          ret[key] = new headless.HeadlessFont(moduleName, name);
+          this.fonts.push(ret[key]);
+        }
+      } else if (val._) {
+        ret[key] = this.decodeActionData(val._);
+      }
+    }
+
+    return ret;
+  }
+
+  forwardAction(name: string, data: IPC.ActionData): void {
+    const action = (actions as any)[name] as Action<any, any>;
+    action.forward(this.decodeActionData(data));
+  }
+
+  backwardAction(name: string, data: IPC.ActionData): void {
+    const action = (actions as any)[name] as Action<any, any>;
+    action.backward(this.decodeActionData(data));
   }
 
   async pack(path: string): Promise<void> {

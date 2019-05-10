@@ -16,7 +16,7 @@ import {
 } from "./base";
 import { PropValue } from "./component";
 
-interface Action<P, T> {
+export interface Action<P, T> {
   readonly forward: (data: P) => T;
   readonly backward: (data: T) => void;
 }

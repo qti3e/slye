@@ -17,9 +17,15 @@ import {
 import { RefKind, JSONPresentation } from "./types";
 import { PropValue } from "../component";
 
+interface HeadlessDecodeOptions {
+  onComponent?(component: HeadlessComponent): void;
+  onStep?(step: HeadlessStep): void;
+}
+
 export function headlessDecode(
   presentation: HeadlessPresentation,
-  o: JSONPresentation
+  o: JSONPresentation,
+  options: HeadlessDecodeOptions = {}
 ): void {
   for (let uuid in o.steps) {
     const jstep = o.steps[uuid];
@@ -54,8 +60,10 @@ export function headlessDecode(
       com.setScale(jcom.scale[0], jcom.scale[1], jcom.scale[2]);
 
       step.add(com);
+      if (options.onComponent) options.onComponent(com);
     }
 
     presentation.add(step);
+    if (options.onStep) options.onStep(step);
   }
 }
