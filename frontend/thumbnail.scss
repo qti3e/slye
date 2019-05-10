@@ -9,8 +9,6 @@
   &:hover {
     bottom: 24px;
   }
-  // For now
-  bottom: 24px;
 
   .thumbnails-list {
     margin: 5px;
@@ -54,5 +52,14 @@
   canvas {
     position: absolute;
     top: 30px;
+  }
+
+  .toggle {
+    width: calc(100% - 60px);
+    height: 20px;
+    position: absolute;
+    top: 0;
+    left: 30px;
+    cursor: pointer;
   }
 }

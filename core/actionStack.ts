@@ -123,4 +123,11 @@ export class ActionStack {
       component
     });
   }
+
+  insertStep(step: StepBase, presentation: PresentationBase): void {
+    this.action("INSERT_STEP", {
+      step,
+      presentation
+    });
+  }
 }

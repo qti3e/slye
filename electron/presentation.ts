@@ -33,7 +33,13 @@ export class PresentationFile {
   steps: Map<string, headless.HeadlessStep> = new Map();
   fonts: headless.HeadlessFont[] = [];
 
-  constructor(public readonly dir: string, private readonly uuid: string) {}
+  constructor(public readonly dir: string, private readonly uuid: string) {
+    this.backwardAction = this.backwardAction.bind(this);
+    this.forwardAction = this.forwardAction.bind(this);
+    this.decodeActionData = this.decodeActionData.bind(this);
+    this.decodeComponent = this.decodeComponent.bind(this);
+    this.decodeStep = this.decodeStep.bind(this);
+  }
 
   private join(f: string): string {
     return path.join(this.dir, f);
@@ -197,7 +203,7 @@ export class PresentationFile {
     step.setPosition(...data.position);
     step.setRotation(...data.rotation);
     step.setScale(...data.scale);
-    data.components.map(this.decodeComponent).map(step.add);
+    data.components.map(this.decodeComponent).map(c => step.add(c));
     this.steps.set(uuid, step);
 
     return step;
@@ -230,6 +236,9 @@ export class PresentationFile {
           ret[key] = new headless.HeadlessFont(moduleName, name);
           this.fonts.push(ret[key]);
         }
+      } else if (val.presentation) {
+        if (val.presentation !== this.uuid) throw new Error("Invalid Action.");
+        ret[key] = this.presentation;
       } else if (val._) {
         ret[key] = this.decodeActionData(val._);
       }

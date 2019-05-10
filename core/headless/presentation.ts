@@ -12,6 +12,8 @@ import { PresentationBase } from "../base";
 import { HeadlessStep } from "./step";
 
 export class HeadlessPresentation implements PresentationBase {
+  readonly isSlyePresentation = true;
+
   steps: HeadlessStep[] = [];
 
   constructor(readonly uuid: string) {}

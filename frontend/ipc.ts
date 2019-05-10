@@ -199,6 +199,7 @@ export type SerializedActionData =
   | boolean
   | SerializedComponent
   | SerializedStep
+  | { presentation: string }
   | { font: { moduleName: string; name: string } }
   | { _: ActionData }; // For nested data.
 

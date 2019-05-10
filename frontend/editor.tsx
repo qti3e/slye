@@ -9,6 +9,7 @@
  */
 
 import React, { Component, Fragment } from "react";
+import uuidv1 from "uuid/v1";
 import * as slye from "@slye/core";
 
 import { WorldEditor } from "./worldEditor";
@@ -134,6 +135,27 @@ export class Editor extends Component<EditorProps, EditorState> {
     this.setState({ selectedStep: step });
   };
 
+  handleAdd = async (): Promise<void> => {
+    const { presentation } = this.props;
+    const { selectedStep } = this.state;
+    const step = new slye.Step(uuidv1());
+    if (selectedStep) {
+      const { x, y, z } = selectedStep.getPosition();
+      step.setPosition(x + 30, y, z);
+    }
+    const component = await slye.component("slye", "text", {
+      size: 10,
+      font: await slye.font("slye", "Homa"),
+      text: "Write..."
+    });
+    step.add(component);
+
+    presentation.actions.insertStep(step, presentation);
+    const id = this.props.presentation.getStepId(step);
+    presentation.goTo(id, 60);
+    this.setState({ selectedStep: step });
+  };
+
   render() {
     const { selectedStep, mode } = this.state;
     const { presentation } = this.props;
@@ -156,6 +178,7 @@ export class Editor extends Component<EditorProps, EditorState> {
         <Thumbnails
           presentation={presentation}
           onSelect={this.handleSelect}
+          onAdd={this.handleAdd}
           selected={selectedStep}
         />
 

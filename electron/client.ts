@@ -185,9 +185,9 @@ function serializeComponent(val: any): types.SerializedComponent {
         moduleName: val.moduleName,
         componentName: val.componentName,
         props: serializeActionData(val.props),
-        position: [px.toFixed(3), py.toFixed(3), pz.toFixed(3)],
-        rotation: [rx.toFixed(3), ry.toFixed(3), rz.toFixed(3)],
-        scale: [sx.toFixed(3), sy.toFixed(3), sz.toFixed(3)]
+        position: [px, py, pz],
+        rotation: [rx, ry, rz],
+        scale: [sx, sy, sz]
       }
     };
   }
@@ -218,14 +218,16 @@ function serializeActionData(data: object): types.ActionData {
           step: val.uuid,
           data: {
             components: val.components.map(serializeComponent),
-            position: [px.toFixed(3), py.toFixed(3), pz.toFixed(3)],
-            rotation: [rx.toFixed(3), ry.toFixed(3), rz.toFixed(3)],
-            scale: [sx.toFixed(3), sy.toFixed(3), sz.toFixed(3)]
+            position: [px, py, pz],
+            rotation: [rx, ry, rz],
+            scale: [sx, sy, sz]
           }
         };
       }
     } else if (val.isSlyeFont) {
       ret[key] = { font: { moduleName: val.moduleName, name: val.name } };
+    } else if (val.isSlyePresentation) {
+      ret[key] = { presentation: val.uuid };
     } else {
       ret[key] = { _: serializeActionData(val) };
     }

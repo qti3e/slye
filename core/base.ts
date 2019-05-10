@@ -17,6 +17,7 @@ import { PropValue } from "./component";
 
 export interface PresentationBase {
   readonly uuid: string;
+  readonly isSlyePresentation: true;
   steps: StepBase[];
   del(step: StepBase): void;
   add(step: StepBase, index?: number): void;

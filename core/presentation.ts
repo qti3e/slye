@@ -25,6 +25,8 @@ export type AnimationFrameCb = (frame: number) => void;
  * of it in user's workspace.
  */
 export class Presentation implements PresentationBase {
+  readonly isSlyePresentation = true;
+
   /**
    * Active steps in the current presentation.
    */

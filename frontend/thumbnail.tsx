@@ -14,12 +14,13 @@ import * as THREE from "three";
 import * as slye from "@slye/core";
 
 import Paper from "@material-ui/core/Paper";
+import Tooltip from "@material-ui/core/Tooltip";
 import IconButton from "@material-ui/core/IconButton";
 import AddIcon from "@material-ui/icons/AddBoxRounded";
 
 import "./thumbnail.scss";
 
-const WIDTH = 106.6;
+const WIDTH = 105;
 const HEIGHT = 60;
 
 interface PresentationData {
@@ -30,14 +31,24 @@ interface PresentationData {
 export interface ThumbnailsProps {
   presentation: slye.Presentation;
   selected: slye.Step;
-  onSelect: (step: slye.Step) => void;
+  onSelect(step: slye.Step): void;
+  onAdd(): void;
 }
 
-export class Thumbnails extends Component<ThumbnailsProps> {
+interface ThumbnailsState {
+  open: boolean;
+}
+
+export class Thumbnails extends Component<ThumbnailsProps, ThumbnailsState> {
   static readonly data = new WeakMap<slye.Presentation, PresentationData>();
+
+  state = {
+    open: false
+  };
 
   private scrollLeft: number = 0;
   private mounted: boolean;
+  private hovered: boolean;
   private renderer: THREE.WebGLRenderer;
   private camera: THREE.PerspectiveCamera;
   private timer: number;
@@ -60,15 +71,18 @@ export class Thumbnails extends Component<ThumbnailsProps> {
 
   componentWillMount() {
     this.mounted = true;
-    this.webGLRender();
+    this.webGLRender(true);
   }
 
   componentWillUnmount() {
     this.mounted = false;
   }
 
-  webGLRender = () => {
-    if (!this.mounted) return;
+  webGLRender = (forced?: boolean) => {
+    if (!forced) {
+      if (!this.mounted) return;
+      if (!this.hovered && !this.state.open) return;
+    }
 
     const { steps, scene } = this.props.presentation;
     const { renderer, camera } = this;
@@ -77,7 +91,7 @@ export class Thumbnails extends Component<ThumbnailsProps> {
     renderer.setScissorTest(false);
     renderer.clear();
 
-    renderer.setClearColor(0x000, 0);
+    renderer.setClearColor(0xffffff);
     renderer.setScissorTest(true);
 
     const madeInvisible = [];
@@ -99,10 +113,7 @@ export class Thumbnails extends Component<ThumbnailsProps> {
     // and we're simply computing the step at the beginning of the list.
     let i = Math.floor(this.scrollLeft / (WIDTH + 14));
     // 600px is width of the list defined in the CSS file.
-    // +1: ceil(...) returns number of the elements in the list, so we add one
-    // to the result to make `i < end` in the for statement work.
-    // min is to ensure that we're only trying to render existing steps.
-    const end = Math.min(i + Math.ceil(600 / (WIDTH + 14)) + 1, steps.length);
+    const end = Math.min(i + Math.ceil(600 / (WIDTH + 14)) + 2, steps.length);
 
     for (; i < end; ++i) {
       const step = steps[i];
@@ -135,11 +146,42 @@ export class Thumbnails extends Component<ThumbnailsProps> {
     this.webGLRender();
   };
 
+  handleToggle = (): void => {
+    this.setState(state => ({
+      open: !state.open
+    }));
+  };
+
+  handleSelect = (step: slye.Step): void => {
+    const { presentation, onSelect } = this.props;
+    const id = presentation.getStepId(step);
+    presentation.goTo(id, 60);
+    onSelect(step);
+  };
+
+  handleAdd = () => {
+    this.props.onAdd();
+  };
+
   render() {
-    const { presentation, onSelect, selected } = this.props;
+    const { presentation, selected } = this.props;
+    const { open } = this.state;
+    const style = {
+      bottom: open ? 24 : undefined
+    };
+    this.webGLRender(true);
 
     return (
-      <Paper className="thumbnails-container" elevation={1}>
+      <Paper
+        className="thumbnails-container"
+        style={style}
+        elevation={1}
+        onMouseEnter={() => ((this.hovered = true), this.webGLRender(true))}
+        onMouseLeave={() => (this.hovered = false)}
+      >
+        <Tooltip title="Click To Toggle Preview" placement="top">
+          <div className="toggle" onClick={this.handleToggle} />
+        </Tooltip>
         <div ref={div => div && div.appendChild(this.renderer.domElement)} />
         <Scrollbars
           className="thumbnails-list"
@@ -149,12 +191,20 @@ export class Thumbnails extends Component<ThumbnailsProps> {
           autoHideDuration={200}
           thumbMinSize={30}
         >
-          {new Array(20).fill(null).map((step, id) => (
-            <div key={`t${id}`} className="thumbnail" onClick={() => null}>
+          {presentation.steps.map((step, id) => (
+            <div
+              key={`t${id}`}
+              className="thumbnail"
+              onClick={() => this.handleSelect(step)}
+            >
               <span>{id + 1}</span>
             </div>
           ))}
-          <IconButton aria-label="New" className="add-btn">
+          <IconButton
+            aria-label="New Step"
+            className="add-btn"
+            onClick={this.handleAdd}
+          >
             <AddIcon fontSize="large" />
           </IconButton>
         </Scrollbars>

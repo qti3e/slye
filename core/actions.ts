@@ -58,8 +58,10 @@ export interface ActionTypes {
     { step: StepBase; component: ComponentBase },
     { component: ComponentBase }
   >;
-  // TODO(qti3e)
-  // NEW_STEP: Creates a new step
+  INSERT_STEP: Action<
+    { step: StepBase; presentation: PresentationBase },
+    { step: StepBase }
+  >;
 }
 
 export type ForwardData<
@@ -151,6 +153,16 @@ export const actions: ActionsMap = {
     backward({ component }) {
       const step = component.owner;
       step.del(component);
+    }
+  },
+  INSERT_STEP: {
+    forward({ presentation, step }) {
+      presentation.add(step);
+      return { step };
+    },
+    backward({ step }) {
+      const presentation = step.owner;
+      presentation.del(step);
     }
   }
 };
