@@ -152,19 +152,12 @@ export class Thumbnails extends Component<ThumbnailsProps, ThumbnailsState> {
     }));
   };
 
-  handleSelect = (step: slye.Step): void => {
-    const { presentation, onSelect } = this.props;
-    const id = presentation.getStepId(step);
-    presentation.goTo(id, 60);
-    onSelect(step);
-  };
-
   handleAdd = () => {
     this.props.onAdd();
   };
 
   render() {
-    const { presentation, selected } = this.props;
+    const { presentation, onSelect, selected } = this.props;
     const { open } = this.state;
     const style = {
       bottom: open ? 24 : undefined
@@ -195,7 +188,7 @@ export class Thumbnails extends Component<ThumbnailsProps, ThumbnailsState> {
             <div
               key={`t${id}`}
               className="thumbnail"
-              onClick={() => this.handleSelect(step)}
+              onClick={() => onSelect(step)}
             >
               <span>{id + 1}</span>
             </div>

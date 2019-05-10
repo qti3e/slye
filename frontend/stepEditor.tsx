@@ -51,6 +51,13 @@ export class StepEditor extends Component<StepEditorProps, StepEditorState> {
 
   private hoverdComponent: slye.Component;
 
+  componentWillReceiveProps(nextProps: StepEditorProps) {
+    if (nextProps.step !== this.props.step) {
+      const id = this.props.presentation.getStepId(nextProps.step);
+      this.props.presentation.goTo(id, 60);
+    }
+  }
+
   componentWillMount() {
     this.props.presentation.focus();
     const id = this.props.presentation.getStepId(this.props.step);
@@ -100,7 +107,29 @@ export class StepEditor extends Component<StepEditorProps, StepEditorState> {
   };
 
   onKeyup = (event: KeyboardEvent): void => {
-    const { keyCode } = event;
+    const { keyCode, ctrlKey } = event;
+
+    // Ctrl+F should focus on the step.
+    if (ctrlKey && keyCode === 70) {
+      const id = this.props.presentation.getStepId(this.props.step);
+      this.props.presentation.goTo(id, 60);
+      event.preventDefault();
+      return;
+    }
+
+    // Ctrl+N & Ctrl+[Right Arrow]: Go to the next step.
+    if (ctrlKey && (keyCode === 78 || keyCode === 39)) {
+      this.props.presentation.next();
+      event.preventDefault();
+      return;
+    }
+
+    // Ctrl+P & Ctrl+[Left Arrow]: Go to the previous step.
+    if (ctrlKey && (keyCode === 80 || keyCode === 37)) {
+      this.props.presentation.prev();
+      event.preventDefault();
+      return;
+    }
 
     // Alt
     if (keyCode === 18) {

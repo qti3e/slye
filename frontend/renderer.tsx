@@ -22,7 +22,7 @@ window.THREE = Three;
 
 import "three/examples/js/controls/TransformControls";
 import "three/examples/js/controls/OrbitControls";
-import "three/examples/js/controls/TrackballControls";
+import "three/examples/js/controls/MapControls";
 
 Slye.setServer({
   requestModule(moduleName: string): Promise<boolean> {

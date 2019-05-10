@@ -29,21 +29,18 @@ declare namespace THREE {
     constructor(camera: THREE.Camera, dom?: HTMLElement);
   }
 
-  export class TrackballControls {
-    public rotateSpeed: number;
-    public zoomSpeed: number;
-    public panSpeed: number;
-    public dynamicDampingFactor: number;
-
-    public noZoom: boolean;
-    public noPan: boolean;
-    public staticMoving: boolean;
-
-    public keys: number[];
+  export class MapControls {
+    public enabled: boolean;
+    public enableDamping: boolean;
+    public dampingFactor: number;
+    public screenSpacePanning: boolean;
+    public minDistance: number;
+    public maxDistance: number;
+    public maxPolarAngle: number;
 
     constructor(camera: THREE.Camera, dom?: HTMLElement);
 
-    handleResize(): void;
-    update(): void;
+    saveState(): void;
+    reset(): void;
   }
 }

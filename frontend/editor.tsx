@@ -73,28 +73,6 @@ export class Editor extends Component<EditorProps, EditorState> {
       return;
     }
 
-    // Ctrl+F should focus on the step.
-    if (ctrlKey && keyCode === 70) {
-      const id = this.props.presentation.getStepId(this.state.selectedStep);
-      this.props.presentation.goTo(id, 60);
-      event.preventDefault();
-      return;
-    }
-
-    // Ctrl+N & Ctrl+[Right Arrow]: Go to the next step.
-    if (ctrlKey && (keyCode === 78 || keyCode === 39)) {
-      this.props.presentation.next();
-      event.preventDefault();
-      return;
-    }
-
-    // Ctrl+P & Ctrl+[Left Arrow]: Go to the previous step.
-    if (ctrlKey && (keyCode === 80 || keyCode === 37)) {
-      this.props.presentation.prev();
-      event.preventDefault();
-      return;
-    }
-
     // Ctrl+Z: Undo
     if (ctrlKey && keyCode === 90) {
       this.props.presentation.actions.undo();
@@ -151,8 +129,6 @@ export class Editor extends Component<EditorProps, EditorState> {
     step.add(component);
 
     presentation.actions.insertStep(step, presentation);
-    const id = this.props.presentation.getStepId(step);
-    presentation.goTo(id, 60);
     this.setState({ selectedStep: step });
   };
 

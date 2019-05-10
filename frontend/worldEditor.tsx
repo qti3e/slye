@@ -12,6 +12,7 @@ import React, { Component, Fragment } from "react";
 import * as slye from "@slye/core";
 
 import { TransformControl } from "./transformControl";
+import { MapControl } from "./mapControl";
 
 export interface WorldEditorProps {
   presentation: slye.Presentation;
@@ -21,11 +22,13 @@ export interface WorldEditorProps {
 
 interface WorldEditorState {
   focusedStep: slye.Step;
+  transform: boolean;
 }
 
 export class WorldEditor extends Component<WorldEditorProps, WorldEditorState> {
   state: WorldEditorState = {
-    focusedStep: undefined
+    focusedStep: undefined,
+    transform: false
   };
 
   private hoverdStep: slye.Step;
@@ -62,7 +65,7 @@ export class WorldEditor extends Component<WorldEditorProps, WorldEditorState> {
     if (this.state.focusedStep && !this.hoverdStep) return;
     if (this.state.focusedStep === this.hoverdStep) return;
 
-    this.setState({ focusedStep: this.hoverdStep });
+    this.setState({ focusedStep: this.hoverdStep, transform: true });
     this.props.presentation.domElement.style.cursor = "auto";
     if (this.hoverdStep) this.props.onSelect(this.hoverdStep);
   };
@@ -75,8 +78,8 @@ export class WorldEditor extends Component<WorldEditorProps, WorldEditorState> {
     const { keyCode } = event;
 
     // Escape.
-    if (this.state.focusedStep && keyCode === 27) {
-      this.setState({ focusedStep: undefined });
+    if (this.state.transform && keyCode === 27) {
+      this.setState({ focusedStep: undefined, transform: false });
     }
 
     // Delete
@@ -92,16 +95,17 @@ export class WorldEditor extends Component<WorldEditorProps, WorldEditorState> {
 
   render() {
     const { presentation } = this.props;
-    const { focusedStep } = this.state;
+    const { focusedStep, transform } = this.state;
 
     return (
       <Fragment>
-        {focusedStep && (
+        {transform && focusedStep ? (
           <TransformControl
             presentation={presentation}
             object={focusedStep.group}
           />
-        )}
+        ) : null}
+        {!transform ? <MapControl presentation={presentation} /> : null}
       </Fragment>
     );
   }
