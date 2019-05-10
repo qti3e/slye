@@ -102,7 +102,6 @@ export class Client implements types.Client {
     });
 
     const { presentation } = res;
-    console.log(presentation);
     for (const stepUUID in presentation.steps) {
       const step = presentation.steps[stepUUID];
       sentToServer.set(stepUUID, true);

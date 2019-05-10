@@ -53,11 +53,8 @@ export class App extends Component<AppProps, AppState> {
 
     // Construct the presentation.
     const slyRes = await client.fetchSly(presentationDescriptor);
-    console.log("X");
 
     await slye.sly(this.presentation, slyRes.presentation);
-    console.log("R");
-
     await sleep(500);
     this.presentation.goTo(0, 0);
 

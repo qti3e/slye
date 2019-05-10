@@ -47,8 +47,6 @@ export class ActionStack {
       this.actions.splice(0, count);
       this.cursor -= count;
     }
-    // Debug.
-    console.log(name, { forwardData, backwardData });
   }
 
   undo(): void {

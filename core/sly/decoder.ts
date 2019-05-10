@@ -25,8 +25,6 @@ export async function sly(
   presentation: Presentation,
   o: JSONPresentation
 ): Promise<void> {
-  console.log("O");
-
   if (o.template) {
     const tem = await component(o.template.moduleName, o.template.component);
     presentation.setTemplate(tem);
@@ -42,8 +40,6 @@ export async function sly(
 
     for (let j = 0; j < jstep.components.length; ++j) {
       const jcom = jstep.components[j];
-      console.log(jcom);
-
       const props: Record<string, PropValue> = {};
 
       for (const key in jcom.props) {
