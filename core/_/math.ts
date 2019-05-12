@@ -9,35 +9,35 @@
  */
 
 import * as THREE from "three";
-import { Vec3 } from "./interfaces";
-import { ThreeStep } from "./three/step";
-
-export interface CameraState {
-  position: Vec3;
-  rotation: Vec3;
-}
+import { Step } from "./step";
 
 /**
- * Computes the camera state to look at the given step.
- *
- * @param {ThreeStep} step
- * @param {THREE.PerspectiveCamera} camrea
- * @returns {CameraState}
+ * Vector 3 type.
  */
+export type Vec3 = {
+  x: number;
+  y: number;
+  z: number;
+};
+
+/**
+ * Golden ratio.
+ */
+export const GR = 1.61803398875;
+
 export function getCameraPosRotForStep(
-  step: ThreeStep,
+  step: Step,
   camrea: THREE.PerspectiveCamera
-): CameraState {
-  const center: THREE.Vector3 = new THREE.Vector3();
+): { position: Vec3; rotation: Vec3 } {
+  const tmpVec: THREE.Vector3 = new THREE.Vector3();
   const box3: THREE.Box3 = new THREE.Box3();
   const targetVec: THREE.Vector3 = new THREE.Vector3();
   const euler: THREE.Euler = new THREE.Euler(0, 0, 0, "XYZ");
 
   const { fov, far, aspect } = camrea;
   const { x: rx, y: ry, z: rz } = step.getRotation();
-  const { x: sx, y: sy } = step.getScale();
-  const stepWidth = ThreeStep.width * sx;
-  const stepHeight = ThreeStep.height * sy;
+  const stepWidth = 5 * 19.2;
+  const stepHeight = 5 * 10.8;
 
   const vFov = THREE.Math.degToRad(fov);
   const farHeight = 2 * Math.tan(vFov / 2) * far;
@@ -49,7 +49,7 @@ export function getCameraPosRotForStep(
   }
 
   // Find camera's position.
-  box3.setFromObject(step.group).getCenter(center);
+  const center = box3.setFromObject(step.group).getCenter(tmpVec);
   center.z = step.group.position.z;
   euler.set(rx, ry, rz);
   targetVec.set(0, 0, distance);

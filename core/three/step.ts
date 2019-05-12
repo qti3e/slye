@@ -8,12 +8,30 @@
  *       Copyright 2019 Parsa Ghadimi. All Rights Reserved.
  */
 
+import { DoubleSide, PlaneGeometry, MeshBasicMaterial, Mesh } from "three";
 import { StepBase } from "../interfaces";
 import { ThreePresentation } from "./presentation";
 import { ThreeComponent } from "./component";
 import { Group } from "./group";
 
+/**
+ * A Three.js based implementation for Slye Step.
+ */
 export class ThreeStep extends Group implements StepBase {
+  static readonly width = 5 * 19.2;
+  static readonly height = 5 * 10.8;
+  static readonly placeholderGeo = new PlaneGeometry(
+    ThreeStep.width,
+    ThreeStep.height,
+    2
+  );
+  static readonly placeholderMatt = new MeshBasicMaterial({
+    color: 0xe0e0e0,
+    opacity: 0.5,
+    transparent: true,
+    side: DoubleSide
+  });
+
   /**
    * Used for optimizations, you should never change this.
    */
@@ -36,8 +54,17 @@ export class ThreeStep extends Group implements StepBase {
    */
   constructor(readonly uuid: string) {
     super();
+    this.group.userData.step = this;
+    const plane = new Mesh(ThreeStep.placeholderGeo, ThreeStep.placeholderMatt);
+    this.group.add(plane);
   }
 
+  /**
+   * Removes `component` from this step.
+   *
+   * @param {ThreeComponent} component Component which you want to remove.
+   * @returns {void}
+   */
   del(component: ThreeComponent): void {
     if (component.owner !== this) return;
     const index = this.components.indexOf(component);
@@ -45,6 +72,13 @@ export class ThreeStep extends Group implements StepBase {
     this.group.remove(component.group);
   }
 
+  /**
+   * Adds `component` to this step.
+   *
+   * @param {ThreeComponent} component Component which you want to add into this
+   * step.
+   * @returns {void}
+   */
   add(component: ThreeComponent): void {
     if (component.owner === this) return;
     if (component.owner) component.owner.del(component);

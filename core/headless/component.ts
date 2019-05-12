@@ -8,18 +8,22 @@
  *       Copyright 2019 Parsa Ghadimi. All Rights Reserved.
  */
 
-import { ComponentBase } from "../base";
-import { PropValue } from "../component";
+import { ComponentBase, PropValue, ComponentProps } from "../interfaces";
 import { HeadlessStep } from "./step";
-import { TransformableImpl } from "./transormable";
+import { TransformableImpl } from "./transformable";
 
 export class HeadlessComponent extends TransformableImpl
   implements ComponentBase {
   readonly isSlyeComponent = true;
   owner: HeadlessStep;
-  props: Record<any, PropValue>;
+  props: ComponentProps;
 
-  constructor(readonly uuid: string, readonly moduleName: string, readonly componentName: string, props: Record<any, PropValue>) {
+  constructor(
+    readonly uuid: string,
+    readonly moduleName: string,
+    readonly componentName: string,
+    props: Record<any, PropValue>
+  ) {
     super();
     this.props = props;
   }
@@ -28,7 +32,7 @@ export class HeadlessComponent extends TransformableImpl
     return this.props[key];
   }
 
-  patchProps(patch: Record<any, PropValue>): void {
+  patchProps(patch: ComponentProps): void {
     this.props = {
       ...this.props,
       ...patch

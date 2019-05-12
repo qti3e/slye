@@ -8,10 +8,10 @@
  *       Copyright 2019 Parsa Ghadimi. All Rights Reserved.
  */
 
-import { StepBase } from "../base";
+import { StepBase } from "../interfaces";
 import { HeadlessPresentation } from "./presentation";
 import { HeadlessComponent } from "./component";
-import { TransformableImpl } from "./transormable";
+import { TransformableImpl } from "./transformable";
 
 export class HeadlessStep extends TransformableImpl implements StepBase {
   readonly isSlyeStep = true;

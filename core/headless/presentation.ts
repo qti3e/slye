@@ -8,7 +8,7 @@
  *       Copyright 2019 Parsa Ghadimi. All Rights Reserved.
  */
 
-import { PresentationBase } from "../base";
+import { PresentationBase } from "../interfaces";
 import { HeadlessStep } from "./step";
 
 export class HeadlessPresentation implements PresentationBase {

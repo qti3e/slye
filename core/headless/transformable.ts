@@ -8,8 +8,7 @@
  *       Copyright 2019 Parsa Ghadimi. All Rights Reserved.
  */
 
-import { Transformable } from "../base";
-import { Vec3 } from "../math";
+import { Transformable, Vec3 } from "../interfaces";
 
 export class TransformableImpl implements Transformable {
   private position: Vec3 = { x: 0, y: 0, z: 0 };

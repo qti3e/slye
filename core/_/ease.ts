@@ -47,56 +47,17 @@ type EaseFunction = (f: number) => number;
 
 export type EaseFunctionName = keyof typeof EasingFunctions;
 
-/**
- * Ease provides a simple API for easing functionality.
- */
 export class Ease<T> {
-  /**
-   * Start time of the ease.
-   */
   private start: number;
-
-  /**
-   * End time of the ease.
-   */
   private endFrame: number;
-
-  /**
-   * Easing function.
-   */
+  private finished: boolean;
   private fn: EaseFunction;
-
-  /**
-   * List of resolve functions for `wait` promises.
-   */
-  private resolves: (() => void)[] = [];
-
-  /**
-   * Whatever this ease has finished rendering or not.
-   */
-  public finished: boolean;
-
-  /**
-   * Original properties of the `obj` stored so that can be used in
-   * computations.
-   */
   private readonly original: Partial<T> & Record<string, number> = {};
 
-  /**
-   * Ease Constructor.
-   *
-   * @param {number} currentFrame Current frame number can also be a time.
-   * @param {number} numFrames Number of frames in which we have to complete
-   *  this ease.
-   * @param {T} obj The object which we want to update.
-   * @param {Partial<T> & Record<string, number>} target Target values.
-   * @param {EaseFunctionName} easeFunction Name of easing function used in this
-   * Ease instance.
-   */
   constructor(
     currentFrame: number,
     private readonly numFrames: number,
-    public readonly obj: T,
+    private readonly obj: T,
     private readonly target: Partial<T> & Record<string, number>,
     easeFunction: EaseFunctionName = "easeInOutQuad"
   ) {
@@ -111,12 +72,6 @@ export class Ease<T> {
     }
   }
 
-  /**
-   * Animation frame.
-   *
-   * @param {number} frame Current frame.
-   * @returns {void}
-   */
   update(frame: number): void {
     if (this.finished) return;
 
@@ -134,19 +89,5 @@ export class Ease<T> {
     for (const key in this.target) {
       (this.obj as any)[key] = this.original[key] + this.target[key] * factor;
     }
-
-    if (this.finished) {
-      for (let i = 0; i < this.resolves.length; ++i) this.resolves[i]();
-    }
-  }
-
-  /**
-   * Returns a new promise that will be resolved once the ease is finished.
-   *
-   * @returns {Promise<void>}
-   */
-  wait(): Promise<void> {
-    if (this.finished) return Promise.resolve();
-    return new Promise<void>(resolve => this.resolves.push(resolve));
   }
 }

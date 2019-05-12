@@ -27,7 +27,7 @@ export interface PresentationBase {
   /**
    * List of steps in this presentation.
    */
-  steps: StepBase[];
+  readonly steps: StepBase[];
 
   /**
    * Remove the given step from this presentation.
