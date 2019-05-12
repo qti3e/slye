@@ -26,8 +26,8 @@ interface AppState {
 }
 
 export class App extends Component<AppProps, AppState> {
-  private readonly presentation: slye.ThreePresentation;
-  private readonly renderer: slye.Renderer;
+  static readonly renderers: Map<string, slye.Renderer>;
+  private renderer: slye.Renderer;
 
   constructor(props: AppProps) {
     super(props);
@@ -36,48 +36,32 @@ export class App extends Component<AppProps, AppState> {
       isPlaying: false,
       isLoading: true
     };
+  }
 
-    // status bar (bottom): 24px & top bar: 32px so decrement by 56.
-    this.presentation = new slye.ThreePresentation(
-      props.presentationDescriptor
-    );
+  open() {
+    const { presentationDescriptor } = this.props;
 
-    this.renderer = new slye.Renderer(
-      this.presentation,
+    if (App.renderers.has(presentationDescriptor)) {
+      this.renderer = App.renderers.get(presentationDescriptor);
+      return;
+    }
+
+    const presentation = new slye.ThreePresentation(presentationDescriptor);
+
+    const renderer = new slye.Renderer(
+      presentation,
       innerWidth,
+      // status bar (bottom): 24px & top bar: 32px so decrement by 56.
       innerHeight - 56
     );
 
-    this.renderer.domElement.classList.add("slye-presentation");
+    this.renderer = renderer;
+    App.renderers.set(presentationDescriptor, renderer);
+    renderer.domElement.classList.add("slye-presentation");
 
-    // Read the presentation data.
-    this.open();
-  }
-
-  async open() {
-    const { presentationDescriptor } = this.props;
-
-    // Construct the presentation.
-    const slyRes = await client.fetchSly(presentationDescriptor);
-
-    await slye.sly(this.presentation, slyRes.presentation);
-    await sleep(500);
-    this.renderer.goTo(this.presentation.steps[0], 0);
-
-    // Render the presentation.
-    const render = () => {
-      this.renderer.render();
-      window.requestAnimationFrame(render);
-    };
-
-    // For debugging.
-    (window as any).p = this.presentation;
-
-    this.renderer.actions.listener = this.onChange;
-
-    // Render and then finish loading.
-    render();
-    this.setState({ isLoading: false });
+    // Load the presentation.
+    const sync = new slye.Sync(presentation);
+    sync.bind(renderer.actions);
   }
 
   componentWillReceiveProps(nextProps: AppProps) {
@@ -86,6 +70,8 @@ export class App extends Component<AppProps, AppState> {
   }
 
   componentWillMount() {
+    // Load the presentation.
+    this.open();
     // Events.
     const { domElement } = this.renderer;
     window.addEventListener("resize", this.onResize, false);

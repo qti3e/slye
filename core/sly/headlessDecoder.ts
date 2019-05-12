@@ -14,18 +14,13 @@ import {
   HeadlessComponent,
   HeadlessStep
 } from "../headless";
-import { RefKind, JSONPresentation } from "./types";
+import { RefKind, JSONPresentation, DecoderOptions } from "./types";
 import { PropValue } from "../interfaces";
-
-interface HeadlessDecodeOptions {
-  onComponent?(component: HeadlessComponent): void;
-  onStep?(step: HeadlessStep): void;
-}
 
 export function headlessDecode(
   presentation: HeadlessPresentation,
   o: JSONPresentation,
-  options: HeadlessDecodeOptions = {}
+  options: DecoderOptions<HeadlessStep, HeadlessComponent> = {}
 ): void {
   for (let uuid in o.steps) {
     const jstep = o.steps[uuid];

@@ -9,9 +9,9 @@
  */
 
 import { PropValue } from "../interfaces";
-import { ThreePresentation, ThreeStep } from "../three";
+import { ThreePresentation, ThreeStep, ThreeComponent } from "../three";
 import { font, component } from "../module";
-import { RefKind, JSONPresentation } from "./types";
+import { RefKind, JSONPresentation, DecoderOptions } from "./types";
 
 /**
  * Read a Slye presentation from a raw-object.
@@ -22,7 +22,8 @@ import { RefKind, JSONPresentation } from "./types";
  */
 export async function sly(
   presentation: ThreePresentation,
-  o: JSONPresentation
+  o: JSONPresentation,
+  options: DecoderOptions<ThreeStep, ThreeComponent> = {}
 ): Promise<void> {
   if (o.template) {
     //const tem = await component(o.template.moduleName, o.template.component);
@@ -63,8 +64,10 @@ export async function sly(
       com.setScale(jcom.scale[0], jcom.scale[1], jcom.scale[2]);
 
       step.add(com);
+      if (options.onComponent) options.onComponent(com);
     }
 
     presentation.add(step);
+    if (options.onStep) options.onStep(step);
   }
 }

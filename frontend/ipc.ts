@@ -169,44 +169,6 @@ export interface FetchSlyResponseData {
   presentation: sly.JSONPresentation;
 }
 
-// ACTION DATA
-
-export type SerializedComponent = {
-  component: string; // UUID
-  data?: {
-    moduleName: string;
-    componentName: string;
-    props: ActionData;
-    position: [number, number, number];
-    rotation: [number, number, number];
-    scale: [number, number, number];
-  };
-};
-
-export type SerializedStep = {
-  step: string; // UUID
-  data?: {
-    components: SerializedComponent[];
-    position: [number, number, number];
-    rotation: [number, number, number];
-    scale: [number, number, number];
-  };
-};
-
-export type SerializedActionData =
-  | string
-  | number
-  | boolean
-  | SerializedComponent
-  | SerializedStep
-  | { presentation: string }
-  | { font: { moduleName: string; name: string } }
-  | { _: ActionData }; // For nested data.
-
-export type ActionData = {
-  [K: string]: SerializedActionData;
-};
-
 // === FORWARD_ACTION
 export interface ForwardActionRequest extends RequestBase {
   kind: MsgKind.FORWARD_ACTION;

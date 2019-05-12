@@ -8,6 +8,8 @@
  *       Copyright 2019 Parsa Ghadimi. All Rights Reserved.
  */
 
+import { PresentationBase, StepBase, ComponentBase } from "../interfaces";
+
 export enum RefKind {
   ASSET,
   FONT
@@ -50,3 +52,14 @@ export interface JSONPresentation {
   };
   steps: Record<string, JSONPresentationStep>;
 }
+
+export interface DecoderOptions<S extends StepBase, C extends ComponentBase> {
+  onComponent?(component: C): void;
+  onStep?(step: S): void;
+}
+
+export type SlyDecoder = (
+  presentation: PresentationBase,
+  o: JSONPresentation,
+  options?: DecoderOptions<StepBase, ComponentBase>
+) => void;

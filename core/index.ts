@@ -24,3 +24,4 @@ export * from "./headless";
 export * from "./interfaces";
 export * from "./three";
 export * from "./sly";
+export * from "./sync";
