@@ -16,9 +16,9 @@ type TextProps = {
   font: slye.FontBase;
   size: number;
   text: string;
-}
+};
 
-class Text extends slye.Component<TextProps> {
+class Text extends slye.ThreeComponent<TextProps> {
   // Currently contextual types are not supported in ts - so we need to
   // explicitly use Widgets type here.
   // https://github.com/Microsoft/TypeScript/issues/31242
@@ -58,7 +58,7 @@ class Text extends slye.Component<TextProps> {
   }
 }
 
-class Template extends slye.Component<{}> {
+class Template extends slye.ThreeComponent<{}> {
   ui = {};
   init() {}
   async render() {}

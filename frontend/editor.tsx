@@ -31,12 +31,12 @@ enum EditorMode {
 }
 
 export interface EditorProps {
-  presentation: slye.Presentation;
+  renderer: slye.Renderer;
   requestPlay: () => void;
 }
 
 interface EditorState {
-  selectedStep: slye.Step;
+  selectedStep: slye.ThreeStep;
   mode: EditorMode;
 }
 
@@ -45,14 +45,14 @@ export class Editor extends Component<EditorProps, EditorState> {
     super(props);
 
     this.state = {
-      selectedStep: props.presentation.getCurrentStep(),
+      selectedStep: props.renderer.getCurrentStep(),
       mode: EditorMode.WORLD
     };
   }
 
   componentWillReceiveProps(nextProps: EditorProps) {
-    if (nextProps.presentation !== this.props.presentation)
-      throw new Error("Editor: `presentation` can not be changed.");
+    if (nextProps.renderer !== this.props.renderer)
+      throw new Error("Editor: `renderer` can not be changed.");
   }
 
   componentWillMount() {
@@ -75,21 +75,21 @@ export class Editor extends Component<EditorProps, EditorState> {
 
     // Ctrl+Z: Undo
     if (ctrlKey && keyCode === 90) {
-      this.props.presentation.actions.undo();
+      this.props.renderer.actions.undo();
       event.preventDefault();
       return;
     }
 
     // Ctrl+Y: Redo
     if (ctrlKey && keyCode === 89) {
-      this.props.presentation.actions.redo();
+      this.props.renderer.actions.redo();
       event.preventDefault();
       return;
     }
 
     // Ctrl+S: Save
     if (ctrlKey && keyCode === 83) {
-      client.save(this.props.presentation.uuid);
+      client.save(this.props.renderer.presentation.uuid);
       event.preventDefault();
       return;
     }
@@ -109,14 +109,14 @@ export class Editor extends Component<EditorProps, EditorState> {
     }
   };
 
-  handleSelect = (step: slye.Step): void => {
+  handleSelect = (step: slye.ThreeStep): void => {
     this.setState({ selectedStep: step });
   };
 
   handleAdd = async (): Promise<void> => {
-    const { presentation } = this.props;
+    const { renderer } = this.props;
     const { selectedStep } = this.state;
-    const step = new slye.Step(uuidv1());
+    const step = new slye.ThreeStep(uuidv1());
     if (selectedStep) {
       const { x, y, z } = selectedStep.getPosition();
       step.setPosition(x + 5 * 19.2 + 5, y, z);
@@ -128,13 +128,13 @@ export class Editor extends Component<EditorProps, EditorState> {
     });
     step.add(component);
 
-    presentation.actions.insertStep(step, presentation);
+    renderer.actions.insertStep(step);
     this.setState({ selectedStep: step });
   };
 
   render() {
     const { selectedStep, mode } = this.state;
-    const { presentation } = this.props;
+    const { renderer } = this.props;
 
     return (
       <Fragment>
@@ -152,7 +152,7 @@ export class Editor extends Component<EditorProps, EditorState> {
         </BottomNavigation>
 
         <Thumbnails
-          presentation={presentation}
+          renderer={renderer}
           onSelect={this.handleSelect}
           onAdd={this.handleAdd}
           selected={selectedStep}
@@ -160,9 +160,9 @@ export class Editor extends Component<EditorProps, EditorState> {
 
         {mode === EditorMode.WORLD ? (
           <WorldEditor
-            presentation={presentation}
+            renderer={renderer}
             onSelect={this.handleSelect}
-            editStep={(selectedStep: slye.Step) =>
+            editStep={(selectedStep: slye.ThreeStep) =>
               this.setState({
                 selectedStep,
                 mode: EditorMode.STEP
@@ -171,7 +171,7 @@ export class Editor extends Component<EditorProps, EditorState> {
           />
         ) : (
           <StepEditor
-            presentation={presentation}
+            renderer={renderer}
             step={selectedStep}
             exit={() => this.setState({ mode: EditorMode.WORLD })}
           />

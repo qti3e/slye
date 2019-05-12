@@ -13,12 +13,12 @@ import * as THREE from "three";
 import * as slye from "@slye/core";
 
 const orbitControls: WeakMap<
-  slye.Presentation,
+  slye.Renderer,
   THREE.OrbitControls[]
 > = new WeakMap();
 
 export interface OrbitControlProps {
-  presentation: slye.Presentation;
+  renderer: slye.Renderer;
   center: THREE.Object3D;
   disabled?: boolean;
 }
@@ -29,36 +29,36 @@ export class OrbitControl extends Component<OrbitControlProps> {
   constructor(props: OrbitControlProps) {
     super(props);
 
-    if (!props.presentation)
-      throw new Error("OrbitControl: `presentation` prop is required.");
+    if (!props.renderer)
+      throw new Error("OrbitControl: `renderer` prop is required.");
 
-    if (!orbitControls.has(props.presentation))
-      orbitControls.set(props.presentation, []);
+    if (!orbitControls.has(props.renderer))
+      orbitControls.set(props.renderer, []);
   }
 
   componentWillReceiveProps(nextProps: OrbitControlProps) {
-    if (nextProps.presentation !== this.props.presentation)
-      throw new Error("OrbitControl: `presentation` can not be changed.");
+    if (nextProps.renderer !== this.props.renderer)
+      throw new Error("OrbitControl: `renderer` can not be changed.");
   }
 
   componentWillMount() {
-    const { presentation } = this.props;
-    const stack = orbitControls.get(presentation);
+    const { renderer } = this.props;
+    const stack = orbitControls.get(renderer);
 
     if (stack.length) {
       this.orbitControl = stack.pop();
     } else {
       console.info("OrbitControl: New Instance.");
       this.orbitControl = new THREE.OrbitControls(
-        this.props.presentation.camera,
-        this.props.presentation.domElement
+        this.props.renderer.camera,
+        this.props.renderer.domElement
       );
     }
   }
 
   componentWillUnmount() {
     this.orbitControl.enabled = false;
-    const stack = orbitControls.get(this.props.presentation);
+    const stack = orbitControls.get(this.props.renderer);
     stack.push(this.orbitControl);
   }
 

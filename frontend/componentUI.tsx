@@ -18,8 +18,8 @@ import IconButton from "@material-ui/core/IconButton";
 import DoneIcon from "@material-ui/icons/Done";
 
 export interface ComponentUIProps {
-  presentation: slye.Presentation;
-  component: slye.Component;
+  renderer: slye.Renderer;
+  component: slye.ThreeComponent;
   x: number;
   y: number;
 }
@@ -40,7 +40,7 @@ export class ComponentUI extends Component<ComponentUIProps, ComponentUIState> {
     this.setup(props.component, false);
   }
 
-  setup(component: slye.Component, m: boolean): void {
+  setup(component: slye.ThreeComponent, m: boolean): void {
     const { ui } = component;
     const propKeys = ui._order ? [...ui._order] : (Object.keys(ui) as any);
 
@@ -75,8 +75,8 @@ export class ComponentUI extends Component<ComponentUIProps, ComponentUIState> {
   };
 
   done = () => {
-    const { presentation, component } = this.props;
-    presentation.actions.updateProps(component, this.state.values);
+    const { renderer, component } = this.props;
+    renderer.actions.updateProps(component, this.state.values);
   };
 
   render() {

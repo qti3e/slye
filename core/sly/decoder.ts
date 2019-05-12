@@ -8,32 +8,31 @@
  *       Copyright 2019 Parsa Ghadimi. All Rights Reserved.
  */
 
-import { Presentation } from "../presentation";
-import { component, font } from "../module";
-import { Step } from "../step";
-import { Component, PropValue } from "../component";
+import { PropValue } from "../interfaces";
+import { ThreePresentation, ThreeStep } from "../three";
+import { font, component } from "../module";
 import { RefKind, JSONPresentation } from "./types";
 
 /**
  * Read a Slye presentation from a raw-object.
  *
- * @param {Presentation} presentation An empty presentation instance.
+ * @param {ThreePresentation} presentation An empty presentation instance.
  * @param {JSONPresentation} o
  * @returns {Promise<void>}
  */
 export async function sly(
-  presentation: Presentation,
+  presentation: ThreePresentation,
   o: JSONPresentation
 ): Promise<void> {
   if (o.template) {
-    const tem = await component(o.template.moduleName, o.template.component);
-    presentation.setTemplate(tem);
+    //const tem = await component(o.template.moduleName, o.template.component);
+    //presentation.setTemplate(tem);
   }
 
   for (let uuid in o.steps) {
     const jstep = o.steps[uuid];
 
-    const step = new Step(uuid);
+    const step = new ThreeStep(uuid);
     step.setPosition(jstep.position[0], jstep.position[1], jstep.position[2]);
     step.setRotation(jstep.rotation[0], jstep.rotation[1], jstep.rotation[2]);
     step.setScale(jstep.scale[0], jstep.scale[1], jstep.scale[2]);
@@ -47,7 +46,7 @@ export async function sly(
         if (typeof jvalue === "number" || typeof jvalue === "string") {
           props[key] = jvalue;
         } else if (jvalue.kind === RefKind.ASSET) {
-          props[key] = await presentation.asset(jvalue.key);
+          //props[key] = await presentation.asset(jvalue.key);
         } else if (jvalue.kind === RefKind.FONT) {
           props[key] = await font(jvalue.moduleName, jvalue.font);
         }
@@ -68,6 +67,4 @@ export async function sly(
 
     presentation.add(step);
   }
-
-  setTimeout(() => presentation.goTo(0, 0));
 }

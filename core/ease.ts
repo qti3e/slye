@@ -127,7 +127,7 @@ export class Ease<T> {
 
     // Floating point calculations are so inaccurate.
     // We don't want to mess up because of that.
-    if (factor > 0.99999999 && factor < 1.00000001) factor = 1;
+    if (factor > 0.99999 && factor < 1.00001) factor = 1;
 
     this.finished = factor == 1;
 

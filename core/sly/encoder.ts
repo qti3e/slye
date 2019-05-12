@@ -8,7 +8,7 @@
  *       Copyright 2019 Parsa Ghadimi. All Rights Reserved.
  */
 
-import { PresentationBase, FontBase } from "../base";
+import { PresentationBase, FontBase } from "../interfaces";
 import {
   JSONPresentation,
   JSONPresentationStep,

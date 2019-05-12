@@ -9,12 +9,13 @@
  */
 
 import { Transformable } from "./transformable";
+import { FontBase } from "./font";
 import { StepBase } from "./step";
 
 /**
  * Any type that can be used as a prop value in a component.
  */
-export type PropValue = string | number | boolean;
+export type PropValue = string | number | boolean | FontBase;
 
 /**
  * Properties of a component.

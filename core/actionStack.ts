@@ -139,7 +139,7 @@ export class ActionStack {
     });
   }
 
-  insertStep(step: StepBase, presentation: PresentationBase): void {
+  insertStep(step: StepBase): void {
     this.action("INSERT_STEP", {
       step
     });

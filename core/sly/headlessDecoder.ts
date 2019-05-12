@@ -15,7 +15,7 @@ import {
   HeadlessStep
 } from "../headless";
 import { RefKind, JSONPresentation } from "./types";
-import { PropValue } from "../component";
+import { PropValue } from "../interfaces";
 
 interface HeadlessDecodeOptions {
   onComponent?(component: HeadlessComponent): void;

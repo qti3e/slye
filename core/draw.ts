@@ -9,7 +9,7 @@
  */
 
 import { Shape, ShapePath } from "three";
-import { Glyph, PathCommand } from "./interfaces";
+import { Glyph, PathCommandKind } from "./interfaces";
 
 /**
  * Create a Three.js Shape from the given text layout.
@@ -60,24 +60,24 @@ function createPath(
 
   for (const u of g.path) {
     switch (u.command) {
-      case PathCommand.MOVE_TO:
+      case PathCommandKind.MOVE_TO:
         u.x = u.x * size + offsetX;
         u.y = u.y * size + offsetY;
         path.moveTo(u.x, u.y);
         break;
-      case PathCommand.LINE_TO:
+      case PathCommandKind.LINE_TO:
         u.x = u.x * size + offsetX;
         u.y = u.y * size + offsetY;
         path.lineTo(u.x, u.y);
         break;
-      case PathCommand.QUADRATIC_CURVE_TO:
+      case PathCommandKind.QUADRATIC_CURVE_TO:
         u.cpx = u.cpx * size + offsetX;
         u.cpy = u.cpy * size + offsetY;
         u.x = u.x * size + offsetX;
         u.y = u.y * size + offsetY;
         path.quadraticCurveTo(u.cpx, u.cpy, u.x, u.y);
         break;
-      case PathCommand.BEZIER_CURVE_TO:
+      case PathCommandKind.BEZIER_CURVE_TO:
         u.cpx1 = u.cpx1 * size + offsetX;
         u.cpy1 = u.cpx1 * size + offsetY;
         u.cpx2 = u.cpx2 * size + offsetX;

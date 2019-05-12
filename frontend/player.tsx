@@ -13,27 +13,26 @@ import Screenfull from "screenfull";
 import * as slye from "@slye/core";
 
 export interface PlayerProps {
-  presentation: slye.Presentation;
+  renderer: slye.Renderer;
   onExit: () => void;
 }
 
 export class Player extends Component<PlayerProps> {
   componentWillReceiveProps(nextProps: PlayerProps) {
-    if (nextProps.presentation !== this.props.presentation)
-      throw new Error("Player: `presentation` can not be changed.");
+    if (nextProps.renderer !== this.props.renderer)
+      throw new Error("Player: `renderer` can not be changed.");
   }
 
   componentWillMount() {
     document.addEventListener("keydown", this.onKeydown);
     document.addEventListener("keyup", this.onKeyUp);
     document.addEventListener("touchstart", this.onTouchStart);
-    this.props.presentation.current();
-    this.props.presentation.play();
     if (Screenfull) {
-      Screenfull.request(this.props.presentation.domElement);
+      Screenfull.request(this.props.renderer.domElement);
       Screenfull.on("change", this.handleScreenfull);
-      this.props.presentation.resize(innerWidth, innerHeight);
+      this.props.renderer.resize(innerWidth, innerHeight);
     }
+    this.props.renderer.setState("player");
   }
 
   componentWillUnmount() {
@@ -41,7 +40,6 @@ export class Player extends Component<PlayerProps> {
     document.removeEventListener("keyup", this.onKeyUp);
     document.removeEventListener("touchstart", this.onTouchStart);
     if (Screenfull) Screenfull.exit();
-    this.props.presentation.pause();
   }
 
   // Events.
@@ -60,7 +58,7 @@ export class Player extends Component<PlayerProps> {
       case 33: // Pg up
       case 37: // Left
       case 38: // Up
-        this.props.presentation.prev();
+        this.props.renderer.prev();
         event.preventDefault();
         break;
       case 9: // Tab
@@ -68,7 +66,7 @@ export class Player extends Component<PlayerProps> {
       case 34: // pg down
       case 39: // Right
       case 40: // Down
-        this.props.presentation.next();
+        this.props.renderer.next();
         event.preventDefault();
         break;
       case 27: // Escape
@@ -83,9 +81,9 @@ export class Player extends Component<PlayerProps> {
       const x = event.touches[0].clientX;
       const width = innerWidth * 0.3;
       if (x < width) {
-        this.props.presentation.prev();
+        this.props.renderer.prev();
       } else if (x > innerWidth - width) {
-        this.props.presentation.next();
+        this.props.renderer.next();
       }
     }
   };

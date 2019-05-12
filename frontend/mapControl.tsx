@@ -12,13 +12,10 @@ import React, { Component } from "react";
 import * as THREE from "three";
 import * as slye from "@slye/core";
 
-const mapControls: WeakMap<
-  slye.Presentation,
-  THREE.MapControls[]
-> = new WeakMap();
+const mapControls: WeakMap<slye.Renderer, THREE.MapControls[]> = new WeakMap();
 
 export interface MapControlProps {
-  presentation: slye.Presentation;
+  renderer: slye.Renderer;
   disabled?: boolean;
 }
 
@@ -28,29 +25,28 @@ export class MapControl extends Component<MapControlProps> {
   constructor(props: MapControlProps) {
     super(props);
 
-    if (!props.presentation)
-      throw new Error("MapControl: `presentation` prop is required.");
+    if (!props.renderer)
+      throw new Error("MapControl: `renderer` prop is required.");
 
-    if (!mapControls.has(props.presentation))
-      mapControls.set(props.presentation, []);
+    if (!mapControls.has(props.renderer)) mapControls.set(props.renderer, []);
   }
 
   componentWillReceiveProps(nextProps: MapControlProps) {
-    if (nextProps.presentation !== this.props.presentation)
-      throw new Error("MapControl: `presentation` can not be changed.");
+    if (nextProps.renderer !== this.props.renderer)
+      throw new Error("MapControl: `renderer` can not be changed.");
   }
 
   componentWillMount() {
-    const { presentation } = this.props;
-    const stack = mapControls.get(presentation);
+    const { renderer } = this.props;
+    const stack = mapControls.get(renderer);
 
     if (stack.length) {
       this.mapControl = stack.pop();
     } else {
       console.info("MapControl: New Instance.");
       const controls = new THREE.MapControls(
-        this.props.presentation.camera,
-        this.props.presentation.domElement
+        this.props.renderer.camera,
+        this.props.renderer.domElement
       );
 
       controls.enableDamping = false;
@@ -67,7 +63,7 @@ export class MapControl extends Component<MapControlProps> {
 
   componentWillUnmount() {
     this.mapControl.enabled = false;
-    const stack = mapControls.get(this.props.presentation);
+    const stack = mapControls.get(this.props.renderer);
     stack.push(this.mapControl);
     this.mapControl.saveState();
   }

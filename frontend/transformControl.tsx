@@ -13,12 +13,12 @@ import * as THREE from "three";
 import * as slye from "@slye/core";
 
 const transformControls: WeakMap<
-  slye.Presentation,
+  slye.Renderer,
   THREE.TransformControls[]
 > = new WeakMap();
 
 export interface TransformControlProps {
-  presentation: slye.Presentation;
+  renderer: slye.Renderer;
   object?: THREE.Object3D;
   disabled?: boolean;
 }
@@ -42,16 +42,16 @@ export class TransformControl extends Component<
   constructor(props: TransformControlProps) {
     super(props);
 
-    if (!props.presentation)
-      throw new Error("TransformControl: `presentation` prop is required.");
+    if (!props.renderer)
+      throw new Error("TransformControl: `renderer` prop is required.");
 
-    if (!transformControls.has(props.presentation))
-      transformControls.set(props.presentation, []);
+    if (!transformControls.has(props.renderer))
+      transformControls.set(props.renderer, []);
   }
 
   componentWillReceiveProps(nextProps: TransformControlProps) {
-    if (nextProps.presentation !== this.props.presentation)
-      throw new Error("TransformControl: `presentation` can not be changed.");
+    if (nextProps.renderer !== this.props.renderer)
+      throw new Error("TransformControl: `renderer` can not be changed.");
 
     if (nextProps.object !== this.props.object) this.save();
 
@@ -59,16 +59,16 @@ export class TransformControl extends Component<
   }
 
   componentWillMount() {
-    const { presentation } = this.props;
-    const stack = transformControls.get(presentation);
+    const { renderer } = this.props;
+    const stack = transformControls.get(renderer);
 
     if (stack.length) {
       this.transformControl = stack.pop();
     } else {
       console.info("TransformControl: New Instance.");
       this.transformControl = new THREE.TransformControls(
-        presentation.camera,
-        presentation.domElement
+        renderer.camera,
+        renderer.domElement
       );
     }
 
@@ -77,22 +77,22 @@ export class TransformControl extends Component<
     this.prevMode = this.state.mode;
     this.updatePrevVec3(this.props.object);
 
-    presentation.scene.add(this.transformControl);
+    renderer.scene.add(this.transformControl);
     document.addEventListener("keypress", this.onKeypress);
-    presentation.domElement.addEventListener("mouseup", this.onMouseup);
+    renderer.domElement.addEventListener("mouseup", this.onMouseup);
   }
 
   componentWillUnmount() {
     this.save();
-    const { presentation } = this.props;
-    presentation.scene.remove(this.transformControl);
+    const { renderer } = this.props;
+    renderer.scene.remove(this.transformControl);
     this.transformControl.detach();
     this.transformControl.enabled = false;
     // Unbind events.
     document.removeEventListener("keypress", this.onKeypress);
-    presentation.domElement.removeEventListener("mouseup", this.onMouseup);
+    renderer.domElement.removeEventListener("mouseup", this.onMouseup);
     // Release the transform control.
-    const stack = transformControls.get(presentation);
+    const stack = transformControls.get(renderer);
     stack.push(this.transformControl);
     // When should we call dispose?
   }
@@ -118,7 +118,12 @@ export class TransformControl extends Component<
     const mode = this.prevMode;
     const obj = this.props.object;
     let slyeObj = obj.userData.component || obj.userData.step;
-    if (!(slyeObj instanceof slye.Component || slyeObj instanceof slye.Step))
+    if (
+      !(
+        slyeObj instanceof slye.ThreeComponent ||
+        slyeObj instanceof slye.ThreeStep
+      )
+    )
       return;
 
     const currentVec3 =
@@ -130,7 +135,7 @@ export class TransformControl extends Component<
 
     if (this.prevVec3 && eq(this.prevVec3, currentVec3)) return;
 
-    this.props.presentation.actions.transform(
+    this.props.renderer.actions.transform(
       mode,
       slyeObj,
       this.prevVec3,
@@ -142,7 +147,10 @@ export class TransformControl extends Component<
 
   updatePrevVec3 = (obj: THREE.Object3D) => {
     let slyeObj = obj.userData.component || obj.userData.step;
-    if (slyeObj instanceof slye.Component || slyeObj instanceof slye.Step)
+    if (
+      slyeObj instanceof slye.ThreeComponent ||
+      slyeObj instanceof slye.ThreeStep
+    )
       this.prevVec3 =
         this.prevMode === "rotate"
           ? slyeObj.getRotation()

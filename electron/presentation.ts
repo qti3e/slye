@@ -57,12 +57,7 @@ export class PresentationFile {
 
   private change(): void {
     this.changes++;
-    if (this.changes % 3) {
-      this.write();
-    } else {
-      clearTimeout(this.timer);
-      this.timer = setTimeout(this.write, 2000);
-    }
+    this.write();
   }
 
   // Public Interface.
@@ -215,12 +210,12 @@ export class PresentationFile {
 
   forwardAction(name: string, data: IPC.ActionData): void {
     const action = (actions as any)[name] as Action<any, any>;
-    action.forward(this.decodeActionData(data));
+    action.forward(this.presentation, this.decodeActionData(data));
   }
 
   backwardAction(name: string, data: IPC.ActionData): void {
     const action = (actions as any)[name] as Action<any, any>;
-    action.backward(this.decodeActionData(data));
+    action.backward(this.presentation, this.decodeActionData(data));
   }
 
   async pack(path: string): Promise<void> {

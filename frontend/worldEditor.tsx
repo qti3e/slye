@@ -15,13 +15,13 @@ import { TransformControl } from "./transformControl";
 import { MapControl } from "./mapControl";
 
 export interface WorldEditorProps {
-  presentation: slye.Presentation;
-  onSelect: (step: slye.Step) => void;
-  editStep: (step: slye.Step) => void;
+  renderer: slye.Renderer;
+  onSelect: (step: slye.ThreeStep) => void;
+  editStep: (step: slye.ThreeStep) => void;
 }
 
 interface WorldEditorState {
-  focusedStep: slye.Step;
+  focusedStep: slye.ThreeStep;
   transform: boolean;
 }
 
@@ -31,15 +31,16 @@ export class WorldEditor extends Component<WorldEditorProps, WorldEditorState> {
     transform: false
   };
 
-  private hoverdStep: slye.Step;
+  private hoverdStep: slye.ThreeStep;
 
   componentWillReceiveProps(nextProps: WorldEditorProps) {
-    if (nextProps.presentation !== this.props.presentation)
-      throw new Error("WorldEditor: `presentation` can not be changed.");
+    if (nextProps.renderer !== this.props.renderer)
+      throw new Error("WorldEditor: `renderer` can not be changed.");
   }
 
-  componentWillMount() {
-    const { domElement } = this.props.presentation;
+  async componentWillMount() {
+    const { domElement } = this.props.renderer;
+    await this.props.renderer.setState("map");
     domElement.addEventListener("mousemove", this.onMouseMove);
     domElement.addEventListener("click", this.onClick);
     domElement.addEventListener("dblclick", this.onDblClick);
@@ -47,7 +48,7 @@ export class WorldEditor extends Component<WorldEditorProps, WorldEditorState> {
   }
 
   componentWillUnmount() {
-    const { domElement } = this.props.presentation;
+    const { domElement } = this.props.renderer;
     domElement.style.cursor = "auto";
     domElement.removeEventListener("mousemove", this.onMouseMove);
     domElement.removeEventListener("click", this.onClick);
@@ -56,9 +57,9 @@ export class WorldEditor extends Component<WorldEditorProps, WorldEditorState> {
   }
 
   onMouseMove = (event: MouseEvent): void => {
-    const { presentation } = this.props;
-    this.hoverdStep = presentation.raycastStep();
-    presentation.domElement.style.cursor = this.hoverdStep ? "pointer" : "auto";
+    const { renderer } = this.props;
+    this.hoverdStep = renderer.raycaster.raycastStep();
+    renderer.domElement.style.cursor = this.hoverdStep ? "pointer" : "auto";
   };
 
   onClick = (event: MouseEvent): void => {
@@ -66,7 +67,7 @@ export class WorldEditor extends Component<WorldEditorProps, WorldEditorState> {
     if (this.state.focusedStep === this.hoverdStep) return;
 
     this.setState({ focusedStep: this.hoverdStep, transform: true });
-    this.props.presentation.domElement.style.cursor = "auto";
+    this.props.renderer.domElement.style.cursor = "auto";
     if (this.hoverdStep) this.props.onSelect(this.hoverdStep);
   };
 
@@ -86,7 +87,7 @@ export class WorldEditor extends Component<WorldEditorProps, WorldEditorState> {
     if (keyCode === 46) {
       const step = this.state.focusedStep;
       if (step) {
-        this.props.presentation.actions.deleteStep(step);
+        this.props.renderer.actions.deleteStep(step);
         this.setState({ focusedStep: undefined });
         this.props.onSelect(undefined);
       }
@@ -94,18 +95,15 @@ export class WorldEditor extends Component<WorldEditorProps, WorldEditorState> {
   };
 
   render() {
-    const { presentation } = this.props;
+    const { renderer } = this.props;
     const { focusedStep, transform } = this.state;
 
     return (
       <Fragment>
         {transform && focusedStep ? (
-          <TransformControl
-            presentation={presentation}
-            object={focusedStep.group}
-          />
+          <TransformControl renderer={renderer} object={focusedStep.group} />
         ) : null}
-        {!transform ? <MapControl presentation={presentation} /> : null}
+        {!transform ? <MapControl renderer={renderer} /> : null}
       </Fragment>
     );
   }

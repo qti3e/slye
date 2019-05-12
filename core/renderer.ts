@@ -39,7 +39,7 @@ export class Renderer {
   /**
    * Current rendering state.
    */
-  private state: RendererState = "map";
+  private state: RendererState;
 
   /**
    * An array of eases that we should update on each animation frame.
@@ -69,7 +69,7 @@ export class Renderer {
   /**
    * Current step.
    */
-  public currentStep: ThreeStep;
+  private currentStep: ThreeStep;
 
   /**
    * Raycaster instance.
@@ -114,6 +114,8 @@ export class Renderer {
     this.actions = new ActionStack(presentation);
     this.scene.add(presentation.group);
 
+    this.goTo(presentation.steps[0], 0);
+
     // Just for now.
     this.scene.background = new THREE.Color(0xbfd1e5);
     const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444);
@@ -151,6 +153,16 @@ export class Renderer {
     easePos: EaseFunctionName = "easeInOutCubic",
     easeRot: EaseFunctionName = easePos
   ): Promise<void> {
+    position = {
+      x: position.x,
+      y: position.y,
+      z: position.z
+    };
+    rotation = {
+      x: rotation.x,
+      y: rotation.y,
+      z: rotation.z
+    };
     const { camera } = this;
     if (shortRotation) {
       let { x, y, z } = camera.rotation;
@@ -214,7 +226,13 @@ export class Renderer {
 
     // Restore the camera state.
     if (state === "map") {
-      await this.updateCamera(camera.position, camera.rotation, 1500, true);
+      await this.updateCamera(
+        this.lastCameraPosition,
+        this.lastCameraRotation,
+        1500,
+        true,
+        "linear"
+      );
     }
 
     // Turn off the focus.
@@ -228,13 +246,14 @@ export class Renderer {
     }
 
     // Show the Step's helper plane.
-    if (this.state === "player") {
+    if (this.state === "player" || !this.state) {
       ThreeStep.placeholderMatt.visible = true;
     }
 
     // Hide the Step's helper plane.
     if (state === "player") {
       ThreeStep.placeholderMatt.visible = false;
+      this.goTo(this.currentStep);
     }
 
     this.state = state;
@@ -262,11 +281,11 @@ export class Renderer {
    * @returns {void}
    */
   goTo(step: ThreeStep, duration: number = 1500): void {
-    if (this.state === "map" || !step || step === this.currentStep) return;
+    if (this.state === "map" || !step) return;
     this.currentStep = step;
 
     const { position, rotation } = getCameraPosRotForStep(step, this.camera);
-    this.updateCamera(position, rotation, duration);
+    this.updateCamera(position, rotation, 2000);
 
     if (this.state === "step") this.focus();
   }
@@ -325,7 +344,15 @@ export class Renderer {
     for (let i = 0; i < this.easeList.length; ++i) {
       this.easeList[i].update(time);
     }
-
     this.webGLRenderer.render(this.scene, this.camera);
+  }
+
+  /**
+   * Returns the current step.
+   *
+   * @returns {ThreeStep}
+   */
+  getCurrentStep(): ThreeStep {
+    return this.currentStep;
   }
 }

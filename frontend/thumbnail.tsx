@@ -29,9 +29,9 @@ interface PresentationData {
 }
 
 export interface ThumbnailsProps {
-  presentation: slye.Presentation;
-  selected: slye.Step;
-  onSelect(step: slye.Step): void;
+  renderer: slye.Renderer;
+  selected: slye.ThreeStep;
+  onSelect(step: slye.ThreeStep): void;
   onAdd(): void;
 }
 
@@ -40,7 +40,7 @@ interface ThumbnailsState {
 }
 
 export class Thumbnails extends Component<ThumbnailsProps, ThumbnailsState> {
-  static readonly data = new WeakMap<slye.Presentation, PresentationData>();
+  static readonly data = new WeakMap<slye.Renderer, PresentationData>();
 
   state = {
     open: false
@@ -57,14 +57,14 @@ export class Thumbnails extends Component<ThumbnailsProps, ThumbnailsState> {
   constructor(props: ThumbnailsProps) {
     super(props);
 
-    if (!Thumbnails.data.has(props.presentation)) {
+    if (!Thumbnails.data.has(props.renderer)) {
       const renderer = new THREE.WebGLRenderer({ alpha: true });
       const camera = new THREE.PerspectiveCamera(75, WIDTH / HEIGHT, 0.1, 250);
       renderer.setSize(600, HEIGHT);
-      Thumbnails.data.set(props.presentation, { renderer, camera });
+      Thumbnails.data.set(props.renderer, { renderer, camera });
     }
 
-    const { renderer, camera } = Thumbnails.data.get(props.presentation);
+    const { renderer, camera } = Thumbnails.data.get(props.renderer);
     this.renderer = renderer;
     this.camera = camera;
   }
@@ -84,7 +84,10 @@ export class Thumbnails extends Component<ThumbnailsProps, ThumbnailsState> {
       if (!this.hovered && !this.state.open) return;
     }
 
-    const { steps, scene } = this.props.presentation;
+    const {
+      presentation: { steps, group },
+      scene
+    } = this.props.renderer;
     const { renderer, camera } = this;
 
     renderer.setClearColor(0, 0);
@@ -96,15 +99,17 @@ export class Thumbnails extends Component<ThumbnailsProps, ThumbnailsState> {
 
     const madeInvisible = [];
 
-    for (const obj of scene.children) {
+    for (let i = 0; i < scene.children.length; ++i)
       if (
-        obj.visible &&
-        (obj instanceof THREE.TransformControls || obj.userData.step)
-      ) {
-        obj.visible = false;
-        madeInvisible.push(obj);
-      }
-    }
+        scene.children[i].visible &&
+        scene.children[i] instanceof THREE.TransformControls
+      )
+        madeInvisible.push(scene.children[i]);
+
+    for (let i = 0; i < steps.length; ++i)
+      if (steps[i].group.visible) madeInvisible.push(steps[i].group);
+
+    madeInvisible.map(obj => (obj.visible = false));
 
     // 5px: Margin of the list. (In CSS file)
     // 7px: Margin-left of  the first thumbnail.
@@ -157,7 +162,7 @@ export class Thumbnails extends Component<ThumbnailsProps, ThumbnailsState> {
   };
 
   render() {
-    const { presentation, onSelect, selected } = this.props;
+    const { renderer, onSelect, selected } = this.props;
     const { open } = this.state;
     const style = {
       bottom: open ? 24 : undefined
@@ -184,7 +189,7 @@ export class Thumbnails extends Component<ThumbnailsProps, ThumbnailsState> {
           autoHideDuration={200}
           thumbMinSize={30}
         >
-          {presentation.steps.map((step, id) => (
+          {renderer.presentation.steps.map((step, id) => (
             <div
               key={`t${id}`}
               className="thumbnail"

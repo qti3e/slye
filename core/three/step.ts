@@ -40,7 +40,7 @@ export class ThreeStep extends Group implements StepBase {
   /**
    * List of components that this step owns.
    */
-  readonly components: ThreeComponent[];
+  readonly components: ThreeComponent[] = [];
 
   /**
    * Current owner of this step.

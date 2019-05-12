@@ -25,14 +25,14 @@ import Tooltip from "@material-ui/core/Tooltip";
 import TextFieldsIcon from "@material-ui/icons/TextFields";
 
 export interface StepEditorProps {
-  presentation: slye.Presentation;
-  step: slye.Step;
+  renderer: slye.Renderer;
+  step: slye.ThreeStep;
   exit: () => void;
 }
 
 interface StepEditorState {
   isAltDown: boolean;
-  selectedComponent: slye.Component;
+  selectedComponent: slye.ThreeComponent;
   transform: boolean;
   edit: boolean;
   x: number;
@@ -49,27 +49,25 @@ export class StepEditor extends Component<StepEditorProps, StepEditorState> {
     y: 0
   };
 
-  private hoverdComponent: slye.Component;
+  private hoverdComponent: slye.ThreeComponent;
 
   componentWillReceiveProps(nextProps: StepEditorProps) {
     if (nextProps.step !== this.props.step) {
-      const id = this.props.presentation.getStepId(nextProps.step);
-      this.props.presentation.goTo(id, 60);
+      this.props.renderer.goTo(nextProps.step, 60);
     }
   }
 
   componentWillMount() {
-    this.props.presentation.focus();
-    const id = this.props.presentation.getStepId(this.props.step);
-    this.props.presentation.goTo(id, 60);
+    this.props.renderer.setState("step");
+    this.props.renderer.goTo(this.props.step, 60);
     // Events.
-    const { domElement } = this.props.presentation;
+    const { domElement } = this.props.renderer;
     domElement.addEventListener("mousemove", this.onMouseMove);
     domElement.addEventListener("click", this.onClick);
     domElement.addEventListener("dblclick", this.onDblClick);
     document.addEventListener("keydown", this.onKeydown);
     document.addEventListener("keyup", this.onKeyup);
-    const background = this.props.presentation.scene.background;
+    const background = this.props.renderer.scene.background;
     if (background instanceof THREE.Color) {
       domElement.parentElement.style.background = background.getStyle();
     } else {
@@ -78,8 +76,7 @@ export class StepEditor extends Component<StepEditorProps, StepEditorState> {
   }
 
   componentWillUnmount() {
-    this.props.presentation.blur();
-    const { domElement } = this.props.presentation;
+    const { domElement } = this.props.renderer;
     domElement.style.cursor = "auto";
     domElement.removeEventListener("mousemove", this.onMouseMove);
     domElement.removeEventListener("click", this.onClick);
@@ -89,9 +86,9 @@ export class StepEditor extends Component<StepEditorProps, StepEditorState> {
   }
 
   onMouseMove = (event: MouseEvent): void => {
-    const { presentation } = this.props;
-    const { domElement } = presentation;
-    this.hoverdComponent = presentation.raycastComponent();
+    const { renderer } = this.props;
+    const { domElement } = renderer;
+    this.hoverdComponent = renderer.raycaster.raycastComponent();
     domElement.style.cursor = this.hoverdComponent ? "pointer" : "auto";
   };
 
@@ -111,22 +108,21 @@ export class StepEditor extends Component<StepEditorProps, StepEditorState> {
 
     // Ctrl+F should focus on the step.
     if (ctrlKey && keyCode === 70) {
-      const id = this.props.presentation.getStepId(this.props.step);
-      this.props.presentation.goTo(id, 60);
+      this.props.renderer.goTo(this.props.step, 60);
       event.preventDefault();
       return;
     }
 
     // Ctrl+N & Ctrl+[Right Arrow]: Go to the next step.
     if (ctrlKey && (keyCode === 78 || keyCode === 39)) {
-      this.props.presentation.next();
+      this.props.renderer.next();
       event.preventDefault();
       return;
     }
 
     // Ctrl+P & Ctrl+[Left Arrow]: Go to the previous step.
     if (ctrlKey && (keyCode === 80 || keyCode === 37)) {
-      this.props.presentation.prev();
+      this.props.renderer.prev();
       event.preventDefault();
       return;
     }
@@ -155,7 +151,7 @@ export class StepEditor extends Component<StepEditorProps, StepEditorState> {
     if (keyCode === 46) {
       const component = this.state.selectedComponent;
       if (component) {
-        this.props.presentation.actions.deleteComponent(component);
+        this.props.renderer.actions.deleteComponent(component);
         this.setState({
           selectedComponent: undefined,
           edit: false,
@@ -170,7 +166,7 @@ export class StepEditor extends Component<StepEditorProps, StepEditorState> {
     if (transform && this.hoverdComponent === selectedComponent) return;
     if (transform && !this.hoverdComponent) return;
 
-    this.props.presentation.domElement.style.cursor = "auto";
+    this.props.renderer.domElement.style.cursor = "auto";
     this.setState({
       selectedComponent: this.hoverdComponent,
       transform: !!this.hoverdComponent,
@@ -201,30 +197,30 @@ export class StepEditor extends Component<StepEditorProps, StepEditorState> {
       text: "Write..."
     });
 
-    const { presentation, step } = this.props;
-    presentation.actions.insertComponent(step, c);
+    const { renderer, step } = this.props;
+    renderer.actions.insertComponent(step, c);
   };
 
   render() {
-    const { presentation, step } = this.props;
+    const { renderer, step } = this.props;
     const { isAltDown, edit, x, y, selectedComponent, transform } = this.state;
 
     return (
       <Fragment>
         {!edit && transform && (
           <TransformControl
-            presentation={presentation}
+            renderer={renderer}
             object={selectedComponent && selectedComponent.group}
             disabled={isAltDown}
           />
         )}
         {!edit && (isAltDown || !transform) ? (
-          <OrbitControl presentation={presentation} center={step.group} />
+          <OrbitControl renderer={renderer} center={step.group} />
         ) : null}
 
         {edit ? (
           <ComponentUI
-            presentation={presentation}
+            renderer={renderer}
             component={selectedComponent}
             x={x}
             y={y}
