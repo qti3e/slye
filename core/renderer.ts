@@ -15,6 +15,7 @@ import { ThreeStep } from "./three/step";
 import { Ease, EaseFunctionName } from "./ease";
 import { getCameraPosRotForStep } from "./math";
 import { Raycaster } from "./raycaster";
+import { ActionStack } from "./actionStack";
 
 /**
  * Most of the methods in Renderer methods act differently based on the renderer
@@ -75,6 +76,11 @@ export class Renderer {
    */
   public readonly raycaster: Raycaster;
 
+  /**
+   * Action stack instance.
+   */
+  public readonly actions: ActionStack;
+
   // For toggling `map` state.
   private readonly lastCameraPosition: Vector3 = new Vector3();
   private readonly lastCameraRotation: Euler = new Euler();
@@ -105,6 +111,7 @@ export class Renderer {
     this.domElement = this.webGLRenderer.domElement;
 
     this.raycaster = new Raycaster(presentation, this.camera);
+    this.actions = new ActionStack(presentation);
     this.scene.add(presentation.group);
 
     // Just for now.

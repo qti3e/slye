@@ -9,7 +9,7 @@
  */
 
 import * as fontkit from "fontkit";
-import { FontBase, Glyph, PathUnit, PathCommand } from "./base";
+import { FontBase, Glyph, PathCommandKind, PathCommand } from "../interfaces";
 
 const fonts: FontBase[] = [];
 
@@ -17,7 +17,7 @@ export function getFonts(): FontBase[] {
   return [...fonts];
 }
 
-export class FontImpl implements FontBase {
+export class Font implements FontBase {
   readonly isSlyeFont = true;
   private font: fontkit.Font;
 
@@ -50,7 +50,7 @@ export class FontImpl implements FontBase {
 
     for (let i = 0; i < glyphs.length; ++i) {
       const glyph = glyphs[i];
-      const path: PathUnit[] = [];
+      const path: PathCommand[] = [];
 
       let sx, sy;
       let x, y, cpx, cpy, cpx1, cpy1, cpx2, cpy2;
@@ -62,7 +62,7 @@ export class FontImpl implements FontBase {
             x = args[0] * scale;
             y = args[1] * scale;
             path.push({
-              command: PathCommand.MOVE_TO,
+              command: PathCommandKind.MOVE_TO,
               x,
               y
             });
@@ -75,7 +75,7 @@ export class FontImpl implements FontBase {
             x = args[0] * scale;
             y = args[1] * scale;
             path.push({
-              command: PathCommand.LINE_TO,
+              command: PathCommandKind.LINE_TO,
               x,
               y
             });
@@ -86,7 +86,7 @@ export class FontImpl implements FontBase {
             x = args[2] * scale;
             y = args[3] * scale;
             path.push({
-              command: PathCommand.QUADRATIC_CURVE_TO,
+              command: PathCommandKind.QUADRATIC_CURVE_TO,
               cpx,
               cpy,
               x,
@@ -101,7 +101,7 @@ export class FontImpl implements FontBase {
             x = args[4] * scale;
             y = args[5] * scale;
             path.push({
-              command: PathCommand.BEZIER_CURVE_TO,
+              command: PathCommandKind.BEZIER_CURVE_TO,
               cpx1,
               cpy1,
               cpx2,
@@ -112,7 +112,7 @@ export class FontImpl implements FontBase {
             break;
           case "closePath":
             path.push({
-              command: PathCommand.LINE_TO,
+              command: PathCommandKind.LINE_TO,
               x: sx,
               y: sy
             });

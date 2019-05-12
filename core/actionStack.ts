@@ -12,32 +12,47 @@ import {
   ComponentBase,
   PresentationBase,
   StepBase,
-  Transformable
-} from "./base";
-import { PropValue } from "./component";
-import { actions, ActionTypes, TakenAction, ForwardData } from "./actions";
-import { Vec3 } from "./math";
+  Transformable,
+  PropValue,
+  Vec3
+} from "./interfaces";
+import { actions, Action, ActionTypes } from "./actions";
 
 const LIMIT = 17;
 
 type Listener = (forward: boolean, action: string, data: any) => void;
+
+export type ForwardData<
+  T extends keyof ActionTypes
+> = ActionTypes[T] extends Action<infer R, any> ? R : never;
+
+export interface TakenAction<T extends keyof ActionTypes> {
+  name: T;
+  forwardData: any;
+  backwardData: any;
+}
 
 export class ActionStack {
   private readonly actions: TakenAction<keyof ActionTypes>[] = [];
   private cursor = -1;
   listener: Listener;
 
+  constructor(readonly presentation: PresentationBase) {}
+
   private action<T extends keyof ActionTypes>(
     name: T,
     forwardData: ForwardData<T>
   ): void {
-    // TS is stupid.
-    const backwardData = actions[name].forward(forwardData as any);
+    const backwardData = actions[name].forward(
+      this.presentation,
+      // TS is stupid.
+      forwardData as any
+    );
     if (this.listener) this.listener(true, name, forwardData);
     const action: TakenAction<T> = {
       name,
       forwardData,
-      backwardData: backwardData as any
+      backwardData: backwardData
     };
     // Now push the action to the stack.
     this.cursor += 1;
@@ -53,7 +68,7 @@ export class ActionStack {
     if (this.cursor < 0) return;
     const takenAction = this.actions[this.cursor];
     const action = actions[takenAction.name];
-    action.backward(takenAction.backwardData as any);
+    action.backward(this.presentation, takenAction.backwardData);
     this.cursor -= 1;
     if (this.listener) {
       this.listener(false, takenAction.name, takenAction.backwardData);
@@ -65,7 +80,7 @@ export class ActionStack {
     this.cursor += 1;
     const takenAction = this.actions[this.cursor];
     const action = actions[takenAction.name];
-    action.forward(takenAction.forwardData as any);
+    action.forward(this.presentation, takenAction.forwardData);
     if (this.listener) {
       this.listener(true, takenAction.name, takenAction.forwardData);
     }
@@ -126,8 +141,7 @@ export class ActionStack {
 
   insertStep(step: StepBase, presentation: PresentationBase): void {
     this.action("INSERT_STEP", {
-      step,
-      presentation
+      step
     });
   }
 }

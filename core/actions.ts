@@ -12,13 +12,13 @@ import {
   ComponentBase,
   PresentationBase,
   StepBase,
-  Transformable
-} from "./base";
-import { PropValue } from "./component";
+  Transformable,
+  PropValue
+} from "./interfaces";
 
 export interface Action<P, T> {
-  readonly forward: (data: P) => T;
-  readonly backward: (data: T) => void;
+  readonly forward: (presentation: PresentationBase, data: P) => T;
+  readonly backward: (presentation: PresentationBase, data: T) => void;
 }
 
 type TransformForwardData = {
@@ -39,10 +39,7 @@ type TransformBackwardData = {
 };
 
 export interface ActionTypes {
-  DELETE_STEP: Action<
-    { step: StepBase },
-    { step: StepBase; presentation: PresentationBase; index: number }
-  >;
+  DELETE_STEP: Action<{ step: StepBase }, { step: StepBase; index: number }>;
   DELETE_COMPONENT: Action<
     { component: ComponentBase },
     { component: ComponentBase; step: StepBase }
@@ -58,79 +55,60 @@ export interface ActionTypes {
     { step: StepBase; component: ComponentBase },
     { component: ComponentBase }
   >;
-  INSERT_STEP: Action<
-    { step: StepBase; presentation: PresentationBase },
-    { step: StepBase }
-  >;
+  INSERT_STEP: Action<{ step: StepBase }, { step: StepBase }>;
 }
 
-export type ForwardData<
-  T extends keyof ActionTypes
-> = ActionTypes[T] extends Action<infer R, any> ? R : never;
-
-export type BackwardData<
-  T extends keyof ActionTypes
-> = ActionTypes[T] extends Action<any, infer R> ? R : never;
-
-export interface TakenAction<T extends keyof ActionTypes> {
-  name: T;
-  forwardData: ForwardData<T>;
-  backwardData: BackwardData<T>;
-}
-
-type ActionsMap = { [K in keyof ActionTypes]: ActionTypes[K] };
-
-export const actions: ActionsMap = {
+export const actions: ActionTypes = {
   DELETE_STEP: {
-    forward({ step }) {
-      const presentation = step.owner;
-      const index = presentation.getStepId(step);
-      presentation.del(step);
-      return { step, presentation, index };
+    forward(presentation, { step }) {
+      const index = presentation.steps.indexOf(step);
+      if (index >= 0) presentation.del(step);
+      return { step, index };
     },
-    backward({ index, presentation, step }) {
+    backward(presentation, { index, step }) {
+      if (index < 0) return;
       presentation.add(step, index);
     }
   },
   DELETE_COMPONENT: {
-    forward({ component }) {
+    forward(presentation, { component }) {
       const step = component.owner;
       step.del(component);
       return { step, component };
     },
-    backward({ component, step }) {
+    backward(presentation, { component, step }) {
       step.add(component);
     }
   },
   UPDATE_POSITION: {
-    forward({ object, prevX, prevY, prevZ, x, y, z }) {
+    forward(presentation, { object, prevX, prevY, prevZ, x, y, z }) {
       object.setPosition(x, y, z);
       return { object, prevX, prevY, prevZ };
     },
-    backward({ object, prevX, prevY, prevZ }) {
+    backward(presentation, { object, prevX, prevY, prevZ }) {
       object.setPosition(prevX, prevY, prevZ);
     }
   },
   UPDATE_ROTATION: {
-    forward({ object, prevX, prevY, prevZ, x, y, z }) {
+    forward(presentation, { object, prevX, prevY, prevZ, x, y, z }) {
       object.setRotation(x, y, z);
       return { object, prevX, prevY, prevZ };
     },
-    backward({ object, prevX, prevY, prevZ }) {
+    backward(presentation, { object, prevX, prevY, prevZ }) {
       object.setRotation(prevX, prevY, prevZ);
     }
   },
   UPDATE_SCALE: {
-    forward({ object, prevX, prevY, prevZ, x, y, z }) {
+    forward(presentation, { object, prevX, prevY, prevZ, x, y, z }) {
       object.setScale(x, y, z);
       return { object, prevX, prevY, prevZ };
     },
-    backward({ object, prevX, prevY, prevZ }) {
+    backward(presentation, { object, prevX, prevY, prevZ }) {
       object.setScale(prevX, prevY, prevZ);
     }
   },
   UPDATE_PROPS: {
-    forward({ component, patch }) {
+    forward(presentation, { component, patch }) {
       const undoPatch: Record<string, PropValue> = {};
       for (const key in patch) {
         const value = component.getProp(key);
@@ -141,27 +119,26 @@ export const actions: ActionsMap = {
       component.patchProps(patch);
       return { component, patch: undoPatch };
     },
-    backward({ component, patch }) {
+    backward(presentation, { component, patch }) {
       component.patchProps(patch);
     }
   },
   INSERT_COMPONENT: {
-    forward({ step, component }) {
+    forward(presentation, { step, component }) {
       step.add(component);
       return { component };
     },
-    backward({ component }) {
+    backward(presentation, { component }) {
       const step = component.owner;
       step.del(component);
     }
   },
   INSERT_STEP: {
-    forward({ presentation, step }) {
+    forward(presentation, { step }) {
       presentation.add(step);
       return { step };
     },
-    backward({ step }) {
-      const presentation = step.owner;
+    backward(presentation, { step }) {
       presentation.del(step);
     }
   }

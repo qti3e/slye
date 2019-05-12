@@ -9,13 +9,14 @@
  */
 
 import { Shape, ShapePath } from "three";
-import { Glyph, PathCommand } from "./base";
+import { Glyph, PathCommand } from "./interfaces";
 
 /**
  * Create a Three.js Shape from the given text layout.
  *
  * @param glyphs Set of glyphs. (Obtained by calling font.layout)
  * @param size Font size.
+ * @return {Shape[]}
  */
 export function generateShapes(glyphs: Glyph[], size = 25): Shape[] {
   const shapes: Shape[] = [];

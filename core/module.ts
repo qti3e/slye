@@ -9,11 +9,10 @@
  */
 
 import { generateShapes } from "./draw";
-import { FontImpl } from "./font";
-import { FontBase } from "./base";
+import { FontBase, PropValue, ComponentProps } from "./interfaces";
 import { Asset } from "./asset";
 import { fetchModuleAsset, requestModule } from "./server";
-import { Component, PropValue } from "./component";
+import { ThreeComponent, Font } from "./three";
 import uuidv1 from "uuid/v1";
 
 const modulesTable: Map<string, ModuleInterface> = (window.slyeModulesTable =
@@ -45,7 +44,7 @@ export interface ModuleInterface {
     name: string,
     props: Record<string, PropValue>,
     id?: string
-  ): Component<any>;
+  ): ThreeComponent<any>;
 
   /**
    * Returns name of the registered fonts.
@@ -62,13 +61,13 @@ export interface ModuleInterface {
   font(name: string): FontBase;
 }
 
-type ComponentClass<P extends Record<any, PropValue>> = {
+type ComponentClass = {
   new (
     uuid: string,
     moduleName: string,
     componentName: string,
-    props: P
-  ): Component<P>;
+    props: ComponentProps
+  ): ThreeComponent<ComponentProps>;
 };
 
 type ModuleClass = {
@@ -76,7 +75,7 @@ type ModuleClass = {
 };
 
 export abstract class Module implements ModuleInterface {
-  private readonly components: Map<string, ComponentClass<any>> = new Map();
+  private readonly components: Map<string, ComponentClass> = new Map();
   private readonly fonts: Map<string, FontBase> = new Map();
   readonly assets: Asset<string>;
   readonly name: string;
@@ -87,16 +86,12 @@ export abstract class Module implements ModuleInterface {
     this.init();
   }
 
-  protected registerComponent(name: string, c: ComponentClass<any>): void {
+  protected registerComponent(name: string, c: ComponentClass): void {
     this.components.set(name, c);
   }
 
   protected registerFont(name: string, asset: number): void {
-    const font = new FontImpl(
-      () => this.assets.getData(asset),
-      this.name,
-      name
-    );
+    const font = new Font(() => this.assets.getData(asset), this.name, name);
     this.fonts.set(name, font);
   }
 
@@ -104,7 +99,7 @@ export abstract class Module implements ModuleInterface {
     name: string,
     props: Record<string, PropValue>,
     id = uuidv1()
-  ): Component<any> {
+  ): ThreeComponent<any> {
     const c = this.components.get(name);
     if (!c)
       throw new Error(`Component ${name} is not registered by ${this.name}.`);
@@ -154,7 +149,7 @@ export async function component(
   componentName: string,
   props: Record<string, PropValue> = {},
   id = uuidv1()
-): Promise<Component<any>> {
+): Promise<ThreeComponent<any>> {
   const m = await loadModule(moduleName);
   return m.component(componentName, props, id);
 }

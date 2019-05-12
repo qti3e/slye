@@ -8,8 +8,7 @@
  *       Copyright 2019 Parsa Ghadimi. All Rights Reserved.
  */
 
-import { FontBase } from "./base";
-import { Component, PropValue } from "./component";
+import { FontBase, PropValue } from "./interfaces";
 
 // UI widgets
 const e = eval;
