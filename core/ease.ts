@@ -129,7 +129,7 @@ export class Ease<T> {
     // We don't want to mess up because of that.
     if (factor > 0.99999 && factor < 1.00001) factor = 1;
 
-    this.finished = factor == 1;
+    this.finished = factor === 1;
 
     for (const key in this.target) {
       (this.obj as any)[key] = this.original[key] + this.target[key] * factor;

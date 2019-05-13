@@ -58,7 +58,7 @@ export class Server implements ServerInterface {
   ): Promise<types.CreateResponseData> {
     const uuid = uuidv1();
     const dir = tmp.dirSync({ prefix: "slye-" }).name;
-    const presentation = new PresentationFile(dir, uuid);
+    const presentation = new PresentationFile(dir, uuid, this.window);
     await presentation.init();
     this.presentations.set(uuid, presentation);
     return {
@@ -145,7 +145,7 @@ export class Server implements ServerInterface {
     try {
       const uuid = uuidv1();
       const dir = tmp.dirSync({ prefix: "slye-" }).name;
-      const presentation = new PresentationFile(dir, uuid);
+      const presentation = new PresentationFile(dir, uuid, this.window);
       presentation.localPath = path[0];
       await presentation.unpack(path[0]);
       this.presentations.set(uuid, presentation);

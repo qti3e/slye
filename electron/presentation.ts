@@ -9,12 +9,15 @@
  */
 
 import { promises as fs, createWriteStream } from "fs";
+import { ipcMain, IpcMessageEvent, BrowserWindow } from "electron";
 import uuidv1 from "uuid/v1";
 import tar from "tar";
 import { JSONPresentation, JSONPresentationStep } from "../core/sly";
 import { headlessDecode } from "../core/sly/headlessDecoder";
 import { encode } from "../core/sly/encoder";
 import { actions, Action } from "../core/actions";
+import { Sync } from "../core/sync/sync";
+import { HeadlessSerializer } from "../core/sync/headlessSerializer";
 import * as IPC from "../frontend/ipc";
 import * as path from "path";
 import * as headless from "../core/headless";
@@ -29,11 +32,11 @@ export class PresentationFile {
   timer: NodeJS.Timeout;
   presentation: headless.HeadlessPresentation;
 
-  components: Map<string, headless.HeadlessComponent> = new Map();
-  steps: Map<string, headless.HeadlessStep> = new Map();
-  fonts: headless.HeadlessFont[] = [];
-
-  constructor(public readonly dir: string, private readonly uuid: string) {}
+  constructor(
+    public readonly dir: string,
+    private readonly uuid: string,
+    private readonly window: BrowserWindow
+  ) {}
 
   private join(f: string): string {
     return path.join(this.dir, f);
@@ -54,10 +57,29 @@ export class PresentationFile {
     this.write();
   }
 
-  // Public Interface.
-
-  close(): void {
-    // Remove dir.
+  private initSly(sly: JSONPresentation): void {
+    const pd = this.uuid;
+    const window = this.window;
+    this.presentation = new headless.HeadlessPresentation(pd);
+    const sync = new Sync(
+      this.presentation,
+      new HeadlessSerializer(),
+      {
+        onMessage(handler: (msg: string) => void): void {
+          ipcMain.on(`p${pd}`, (event: IpcMessageEvent, msg: string) => {
+            console.log("Recv", msg);
+            handler(msg);
+          });
+        },
+        send(msg: string): void {
+          console.log("Send", msg);
+          window.webContents.send(`p${pd}`, msg);
+        }
+      },
+      headlessDecode,
+      true
+    );
+    sync.open(sly);
   }
 
   async init(): Promise<void> {
@@ -99,21 +121,9 @@ export class PresentationFile {
       }
     };
 
-    this.presentation = new headless.HeadlessPresentation(this.uuid);
-    headlessDecode(this.presentation, sly, {
-      onComponent: (component: headless.HeadlessComponent): void => {
-        this.components.set(component.uuid, component);
-      },
-      onStep: (step: headless.HeadlessStep): void => {
-        this.steps.set(step.uuid, step);
-      }
-    });
+    this.initSly(sly);
 
-    await Promise.all([
-      fs.mkdir(this.join("assets")),
-      fs.writeFile(this.join("sly.json"), JSON.stringify(this.getSly())),
-      fs.writeFile(this.join("meta.json"), JSON.stringify(this.meta))
-    ]);
+    await fs.mkdir(this.join("assets")), this.write();
   }
 
   async patchMeta(meta: Meta): Promise<void> {
@@ -157,15 +167,10 @@ export class PresentationFile {
     const meta = JSON.parse(await fs.readFile(this.join("meta.json"), "utf-8"));
 
     this.meta = meta;
+    this.initSly(sly);
+  }
 
-    this.presentation = new headless.HeadlessPresentation(this.uuid);
-    headlessDecode(this.presentation, sly, {
-      onComponent: (component: headless.HeadlessComponent): void => {
-        this.components.set(component.uuid, component);
-      },
-      onStep: (step: headless.HeadlessStep): void => {
-        this.steps.set(step.uuid, step);
-      }
-    });
+  async close(): Promise<void> {
+    // TODO(qti3e)
   }
 }

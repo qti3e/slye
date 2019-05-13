@@ -21,6 +21,8 @@ import { actions, ActionTypes } from "../actions";
  * An API to keep a presentations sync over a channel.
  */
 export class Sync {
+  private resolves: (() => void)[] = [];
+
   constructor(
     readonly presentation: PresentationBase,
     readonly serializer: Serializer,
@@ -43,6 +45,25 @@ export class Sync {
     actionStack.listener = this.onChange;
   }
 
+  async open(sly: JSONPresentation): Promise<void> {
+    // TODO(qti3e) We need to ensure it is only called once.
+    await this.slyDecoder(this.presentation, sly, {
+      onComponent: (component: ComponentBase): void => {
+        this.serializer.components.set(component.uuid, component);
+      },
+      onStep: (step: StepBase): void => {
+        this.serializer.steps.set(step.uuid, step);
+      }
+    });
+    this.resolves.map(r => r());
+    this.resolves = [];
+  }
+
+  waitForOpen(): Promise<void> {
+    const promise = new Promise<void>(r => this.resolves.push(r));
+    return promise;
+  }
+
   private send(command: SyncCommand): void {
     this.ch.send(JSON.stringify(command));
   }
@@ -55,7 +76,7 @@ export class Sync {
         this.handleSly();
         break;
       case "sly_response":
-        this.handleSlyRes(cmd.sly);
+        this.open(cmd.sly);
         break;
       case "action":
         this.handleAction(cmd.action);
@@ -70,19 +91,8 @@ export class Sync {
     });
   }
 
-  private handleSlyRes(sly: JSONPresentation): void {
-    this.slyDecoder(this.presentation, sly, {
-      onComponent: (component: ComponentBase): void => {
-        this.serializer.components.set(component.uuid, component);
-      },
-      onStep: (step: StepBase): void => {
-        this.serializer.steps.set(step.uuid, step);
-      }
-    });
-  }
-
-  private handleAction(text: string): void {
-    const raw = this.serializer.unserialize(text);
+  private async handleAction(text: string): Promise<void> {
+    const raw = await this.serializer.unserialize(text);
     const action = actions[raw.action][raw.forward ? "forward" : "backward"];
     action(this.presentation, raw.data);
   }

@@ -38,7 +38,7 @@ export class App extends Component<AppProps, AppState> {
     };
   }
 
-  open() {
+  async open() {
     const { presentationDescriptor } = this.props;
 
     if (App.renderers.has(presentationDescriptor)) {
@@ -80,6 +80,10 @@ export class App extends Component<AppProps, AppState> {
       this.renderer.render();
       requestAnimationFrame(render);
     };
+
+    await sync.waitForOpen();
+    this.renderer.goTo(presentation.steps[0], 0);
+    this.renderer.initMapCamera();
 
     render();
     this.setState({ isLoading: false });

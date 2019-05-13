@@ -38,9 +38,9 @@ export class WorldEditor extends Component<WorldEditorProps, WorldEditorState> {
       throw new Error("WorldEditor: `renderer` can not be changed.");
   }
 
-  async componentWillMount() {
+  componentWillMount() {
     const { domElement } = this.props.renderer;
-    await this.props.renderer.setState("map");
+    this.props.renderer.setState("map");
     domElement.addEventListener("mousemove", this.onMouseMove);
     domElement.addEventListener("click", this.onClick);
     domElement.addEventListener("dblclick", this.onDblClick);

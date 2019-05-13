@@ -189,12 +189,13 @@ export abstract class Serializer {
     });
   }
 
-  unserialize(text: string): UnserializeResuly {
+  async unserialize(text: string): Promise<UnserializeResuly> {
     const raw = JSON.parse(text);
+    const data = await this.unserializeActionData(raw[Words.DATA]);
     return {
       forward: !!raw[Words.FORWARD],
       action: raw[Words.ACTION],
-      data: this.unserializeActionData(raw.data)
+      data: data
     };
   }
 

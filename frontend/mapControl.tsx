@@ -57,15 +57,11 @@ export class MapControl extends Component<MapControlProps> {
       controls.maxPolarAngle = Math.PI / 2;
       this.mapControl = controls;
     }
-
-    this.mapControl.reset();
   }
 
   componentWillUnmount() {
-    this.mapControl.enabled = false;
     const stack = mapControls.get(this.props.renderer);
     stack.push(this.mapControl);
-    this.mapControl.saveState();
   }
 
   render(): null {
