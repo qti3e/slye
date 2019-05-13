@@ -13,16 +13,17 @@ import { ActionStack } from "../actionStack";
 import { SyncChannel } from "./channel";
 import { SyncCommand } from "./common";
 import { SlyDecoder, JSONPresentation } from "../sly/types";
+import { encode } from "../sly/encoder";
 import { Serializer } from "./serializer";
+import { actions, ActionTypes } from "../actions";
 
 /**
  * An API to keep a presentations sync over a channel.
  */
 export class Sync {
-  private readonly serializer = new Serializer();
-
   constructor(
     readonly presentation: PresentationBase,
+    readonly serializer: Serializer,
     private readonly ch: SyncChannel,
     private readonly slyDecoder: SlyDecoder,
     readonly isServer = false
@@ -47,16 +48,29 @@ export class Sync {
   }
 
   private onMessage(msg: string): void {
-    const cmd = JSON.parse(msg);
+    // For now it just works but we need an handshake process.
+    const cmd: SyncCommand = JSON.parse(msg);
     switch (cmd.command) {
       case "sly":
-        this.handleSly(cmd.sly);
+        this.handleSly();
+        break;
+      case "sly_response":
+        this.handleSlyRes(cmd.sly);
         break;
       case "action":
+        this.handleAction(cmd.action);
+        break;
     }
   }
 
-  private handleSly(sly: JSONPresentation): void {
+  private handleSly(): void {
+    this.send({
+      command: "sly_response",
+      sly: encode(this.presentation)
+    });
+  }
+
+  private handleSlyRes(sly: JSONPresentation): void {
     this.slyDecoder(this.presentation, sly, {
       onComponent: (component: ComponentBase): void => {
         this.serializer.components.set(component.uuid, component);
@@ -67,6 +81,12 @@ export class Sync {
     });
   }
 
+  private handleAction(text: string): void {
+    const raw = this.serializer.unserialize(text);
+    const action = actions[raw.action][raw.forward ? "forward" : "backward"];
+    action(this.presentation, raw.data);
+  }
+
   private load(): void {
     const presentationDescriptor = this.presentation.uuid;
     this.send({
@@ -75,7 +95,11 @@ export class Sync {
     });
   }
 
-  private onChange(forward: boolean, actionName: string, data: any): void {
+  private onChange(
+    forward: boolean,
+    actionName: keyof ActionTypes,
+    data: any
+  ): void {
     const action = this.serializer.serialize(forward, actionName, data);
     this.send({
       command: "action",

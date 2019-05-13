@@ -33,13 +33,7 @@ export class PresentationFile {
   steps: Map<string, headless.HeadlessStep> = new Map();
   fonts: headless.HeadlessFont[] = [];
 
-  constructor(public readonly dir: string, private readonly uuid: string) {
-    this.backwardAction = this.backwardAction.bind(this);
-    this.forwardAction = this.forwardAction.bind(this);
-    this.decodeActionData = this.decodeActionData.bind(this);
-    this.decodeComponent = this.decodeComponent.bind(this);
-    this.decodeStep = this.decodeStep.bind(this);
-  }
+  constructor(public readonly dir: string, private readonly uuid: string) {}
 
   private join(f: string): string {
     return path.join(this.dir, f);
@@ -136,86 +130,6 @@ export class PresentationFile {
 
   getSly(): JSONPresentation {
     return encode(this.presentation);
-  }
-
-  decodeComponent(c: IPC.SerializedComponent): headless.HeadlessComponent {
-    const { data, component: uuid } = c;
-    if (!data) return this.components.get(uuid);
-
-    const component = new headless.HeadlessComponent(
-      uuid,
-      data.moduleName,
-      data.componentName,
-      this.decodeActionData(data.props)
-    );
-    component.setPosition(...data.position);
-    component.setRotation(...data.rotation);
-    component.setScale(...data.scale);
-    this.components.set(uuid, component);
-
-    return component;
-  }
-
-  decodeStep(c: IPC.SerializedStep): headless.HeadlessStep {
-    const { data, step: uuid } = c;
-    if (!data) return this.steps.get(uuid);
-
-    const step = new headless.HeadlessStep(uuid);
-    step.setPosition(...data.position);
-    step.setRotation(...data.rotation);
-    step.setScale(...data.scale);
-    data.components.map(this.decodeComponent).map(c => step.add(c));
-    this.steps.set(uuid, step);
-
-    return step;
-  }
-
-  decodeActionData(data: IPC.ActionData): any {
-    const ret: Record<string, any> = {};
-
-    for (const key in data) {
-      const val = data[key] as any;
-
-      if (
-        typeof val === "string" ||
-        typeof val === "number" ||
-        typeof val === "boolean"
-      ) {
-        ret[key] = val;
-      } else if (val.component) {
-        ret[key] = this.decodeComponent(val);
-      } else if (val.step) {
-        ret[key] = this.decodeStep(val);
-      } else if (val.font) {
-        const { moduleName, name } = val.font;
-        const font = this.fonts.find(
-          f => f.moduleName === moduleName && f.name === name
-        );
-        if (font) {
-          ret[key] = font;
-        } else {
-          ret[key] = new headless.HeadlessFont(moduleName, name);
-          this.fonts.push(ret[key]);
-        }
-      } else if (val.presentation) {
-        if (val.presentation !== this.uuid) throw new Error("Invalid Action.");
-        ret[key] = this.presentation;
-      } else if (val._) {
-        ret[key] = this.decodeActionData(val._);
-      }
-    }
-
-    return ret;
-  }
-
-  forwardAction(name: string, data: IPC.ActionData): void {
-    const action = (actions as any)[name] as Action<any, any>;
-    action.forward(this.presentation, this.decodeActionData(data));
-  }
-
-  backwardAction(name: string, data: IPC.ActionData): void {
-    const action = (actions as any)[name] as Action<any, any>;
-    action.backward(this.presentation, this.decodeActionData(data));
   }
 
   async pack(path: string): Promise<void> {

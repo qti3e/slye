@@ -12,8 +12,6 @@ import { ipcRenderer, IpcMessageEvent } from "electron";
 import { JSONPresentationStep } from "@slye/core/sly";
 import * as types from "../frontend/ipc";
 
-const sentToServer: Map<string, true> = new Map();
-
 export class Client implements types.Client {
   private readonly resolves: Map<number, any> = new Map();
   private lastReqId: number = 0;
@@ -90,58 +88,12 @@ export class Client implements types.Client {
     });
   }
 
-  async fetchSly(
+  fetchSly(
     presentationDescriptor: string
   ): Promise<types.FetchSlyResponseData> {
-    const res = await this.sendRequest<
-      types.FetchSlyRequest,
-      types.FetchSlyResponseData
-    >({
+    return this.sendRequest<types.FetchSlyRequest, types.FetchSlyResponseData>({
       kind: types.MsgKind.FETCH_SLY,
       presentationDescriptor
-    });
-
-    const { presentation } = res;
-    for (const stepUUID in presentation.steps) {
-      const step = presentation.steps[stepUUID];
-      sentToServer.set(stepUUID, true);
-      for (const component of step.components) {
-        sentToServer.set(component.uuid, true);
-      }
-    }
-
-    return res;
-  }
-
-  forwardAction(
-    presentationDescriptor: string,
-    action: string,
-    forwardData: object
-  ): Promise<types.ForwardActionResponseData> {
-    return this.sendRequest<
-      types.ForwardActionRequest,
-      types.ForwardActionResponseData
-    >({
-      kind: types.MsgKind.FORWARD_ACTION,
-      presentationDescriptor,
-      action,
-      data: serializeActionData(forwardData)
-    });
-  }
-
-  backwardAction(
-    presentationDescriptor: string,
-    action: string,
-    backwardData: object
-  ): Promise<types.BackwardActionResponseData> {
-    return this.sendRequest<
-      types.BackwardActionRequest,
-      types.BackwardActionResponseData
-    >({
-      kind: types.MsgKind.BACKWARD_ACTION,
-      presentationDescriptor,
-      action,
-      data: serializeActionData(backwardData)
     });
   }
 
@@ -169,69 +121,14 @@ export class Client implements types.Client {
   async getAssetURL(pd: string, asset: string): Promise<string> {
     return `slye://presentation-assets/${pd}/${asset}`;
   }
-}
 
-function serializeComponent(val: any): types.SerializedComponent {
-  if (sentToServer.has(val.uuid)) {
-    return { component: val.uuid };
-  } else {
-    sentToServer.set(val.uuid, true);
-    const { x: px, y: py, z: pz } = val.getPosition();
-    const { x: rx, y: ry, z: rz } = val.getRotation();
-    const { x: sx, y: sy, z: sz } = val.getScale();
-    return {
-      component: val.uuid,
-      data: {
-        moduleName: val.moduleName,
-        componentName: val.componentName,
-        props: serializeActionData(val.props),
-        position: [px, py, pz],
-        rotation: [rx, ry, rz],
-        scale: [sx, sy, sz]
-      }
-    };
-  }
-}
-
-function serializeActionData(data: object): types.ActionData {
-  const ret: types.ActionData = {};
-
-  for (const key in data) {
-    const val = (data as any)[key];
-    if (
-      typeof val === "string" ||
-      typeof val === "number" ||
-      typeof val === "boolean"
-    ) {
-      ret[key] = val;
-    } else if (val.isSlyeComponent) {
-      ret[key] = serializeComponent(val);
-    } else if (val.isSlyeStep) {
-      if (sentToServer.has(val.uuid)) {
-        ret[key] = { step: val.uuid };
-      } else {
-        sentToServer.set(val.uuid, true);
-        const { x: px, y: py, z: pz } = val.getPosition();
-        const { x: rx, y: ry, z: rz } = val.getRotation();
-        const { x: sx, y: sy, z: sz } = val.getScale();
-        ret[key] = {
-          step: val.uuid,
-          data: {
-            components: val.components.map(serializeComponent),
-            position: [px, py, pz],
-            rotation: [rx, ry, rz],
-            scale: [sx, sy, sz]
-          }
-        };
-      }
-    } else if (val.isSlyeFont) {
-      ret[key] = { font: { moduleName: val.moduleName, name: val.name } };
-    } else if (val.isSlyePresentation) {
-      ret[key] = { presentation: val.uuid };
-    } else {
-      ret[key] = { _: serializeActionData(val) };
-    }
+  syncChannelOnMessage(pd: string, handler: (msg: string) => void): void {
+    ipcRenderer.on(`p${pd}`, (event: IpcMessageEvent, res: string) => {
+      handler(res);
+    });
   }
 
-  return ret;
+  syncChannelSend(pd: string, msg: string): void {
+    ipcRenderer.send(`p${pd}`, msg);
+  }
 }

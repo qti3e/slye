@@ -107,24 +107,6 @@ export class Server implements ServerInterface {
     };
   }
 
-  async [types.MsgKind.FORWARD_ACTION](
-    req: types.ForwardActionRequest
-  ): Promise<types.ForwardActionResponseData> {
-    //console.log("FORWARD", req.action, JSON.stringify(req.data, null, 4));
-    const presentation = this.presentations.get(req.presentationDescriptor);
-    presentation.forwardAction(req.action, req.data);
-    return { ok: true };
-  }
-
-  async [types.MsgKind.BACKWARD_ACTION](
-    req: types.BackwardActionRequest
-  ): Promise<types.BackwardActionResponseData> {
-    //console.log("BACKWARD", req.action, JSON.stringify(req.data, null, 4));
-    const presentation = this.presentations.get(req.presentationDescriptor);
-    presentation.backwardAction(req.action, req.data);
-    return { ok: true };
-  }
-
   async [types.MsgKind.SAVE](
     req: types.SaveRequest
   ): Promise<types.SaveResponseData> {

@@ -8,11 +8,18 @@
  *       Copyright 2019 Parsa Ghadimi. All Rights Reserved.
  */
 
-export type SyncCommand = SyncSlyCommand | SyncActionCommand;
+import { JSONPresentation } from "../sly/types";
+
+export type SyncCommand = SyncSlyCommand | SyncActionCommand | SyncSlyResponse;
 
 export interface SyncSlyCommand {
   command: "sly";
   pd: string;
+}
+
+export interface SyncSlyResponse {
+  command: "sly_response";
+  sly: JSONPresentation;
 }
 
 export interface SyncActionCommand {

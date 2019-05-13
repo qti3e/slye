@@ -17,7 +17,7 @@ const electronPackagerOptions = {
   out: "release",
   version: "0.0.1",
   overwrite: true,
-  ignore: (file) => {
+  ignore: file => {
     if (!file) return false;
     if (file.startsWith("/dist")) return false;
     if (file.startsWith("/node_modules/@slye")) return true;
@@ -55,7 +55,7 @@ gulp.task("electron:main", function() {
       typescript({
         target: "esnext",
         module: "ESNext"
-      }),
+      })
     ]
   };
 
@@ -66,9 +66,7 @@ gulp.task("electron:main", function() {
     .pipe(rename("main.js"))
     .pipe(gulp.dest("./dist"));
 
-  const icons = gulp
-    .src("icons/*")
-    .pipe(gulp.dest("./dist/icons"));
+  const icons = gulp.src("icons/*").pipe(gulp.dest("./dist/icons"));
 
   return mergeStream(main, icons);
 });
@@ -106,7 +104,7 @@ gulp.task("electron:renderer", function(cb) {
     outDir: path.join(__dirname, "./dist"),
     publicUrl: "./",
     sourceMaps: true,
-    watch: false,
+    watch: false
     //scopeHoist: true
   };
 
@@ -122,7 +120,7 @@ gulp.task(
   gulp.parallel("electron:preload", "electron:main", "electron:renderer")
 );
 
-gulp.task("modules:slye", function () {
+gulp.task("modules:slye", function() {
   const rollupOptions = {
     external: ["@slye/core", "three"],
     plugins: [
@@ -138,7 +136,7 @@ gulp.task("modules:slye", function () {
     name: "SlyeModule",
     globals: {
       "@slye/core": "slye",
-      "three": "THREE"
+      three: "THREE"
     }
   };
 
@@ -149,31 +147,31 @@ gulp.task("modules:slye", function () {
     .pipe(rename("main.js"))
     .pipe(gulp.dest("./dist/modules/slye"));
 
-  const assets = gulp.src('modules/slye/assets/**')
-    .pipe(gulp.dest('./dist/modules/slye/assets'));
+  const assets = gulp
+    .src("modules/slye/assets/**")
+    .pipe(gulp.dest("./dist/modules/slye/assets"));
 
   return mergeStream(jsStream, assets);
-}
-);
+});
 
 gulp.task("modules", gulp.parallel("modules:slye"));
 
-gulp.task("release:linux64", function (cb) {
+gulp.task("release:linux64", function(cb) {
   packager({
     ...electronPackagerOptions,
     platform: "linux",
-    arch: "x64",
+    arch: "x64"
   }).then(data => {
     console.log("Wrote Linux X64 app to " + data[0]);
     cb();
   });
 });
 
-gulp.task("release:win32", function (cb) {
+gulp.task("release:win32", function(cb) {
   packager({
     ...electronPackagerOptions,
     platform: "win32",
-    arch: "ia32",
+    arch: "ia32"
   }).then(data => {
     console.log("Wrote Win X64 app to " + data[0]);
     cb();

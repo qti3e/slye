@@ -20,18 +20,11 @@ export interface Client {
   patchMeta(pd: string, meta: Meta): Promise<PatchMetaResponseData>;
   getMeta(pd: string): Promise<GetMetaResponseData>;
   fetchSly(pd: string): Promise<FetchSlyResponseData>;
-  forwardAction(
-    pd: string,
-    action: string,
-    data: object
-  ): Promise<ForwardActionResponseData>;
-  backwardAction(
-    pd: string,
-    action: string,
-    data: object
-  ): Promise<BackwardActionResponseData>;
   save(pd: string): Promise<SaveResponseData>;
   open(): Promise<OpenResponseData>;
+
+  syncChannelSend(pd: string, msg: string): void;
+  syncChannelOnMessage(pd: string, handler: (msg: string) => void): void;
 
   getModuleMainURL(moduleName: string): Promise<string>;
   getModuleAssetURL(moduleName: string, asset: string): Promise<string>;
@@ -44,8 +37,6 @@ export enum MsgKind {
   PATCH_META,
   GET_META,
   FETCH_SLY,
-  FORWARD_ACTION,
-  BACKWARD_ACTION,
   SAVE,
   OPEN
 }
@@ -56,8 +47,6 @@ export type Request =
   | PatchMetaRequest
   | GetMetaRequest
   | FetchSlyRequest
-  | ForwardActionRequest
-  | BackwardActionRequest
   | SaveRequest
   | OpenRequest;
 
@@ -67,8 +56,6 @@ export type Response =
   | PatchMetaResponse
   | GetMetaResponse
   | FetchSlyResponse
-  | ForwardActionResponse
-  | BackwardActionResponse
   | SaveResponse
   | OpenResponse;
 
@@ -78,8 +65,6 @@ export type ResponseData =
   | PatchMetaResponseData
   | GetMetaResponseData
   | FetchSlyResponseData
-  | ForwardActionResponseData
-  | BackwardActionResponseData
   | SaveResponseData
   | OpenResponseData;
 
@@ -167,40 +152,6 @@ export interface FetchSlyResponse extends ResponseBase {
 
 export interface FetchSlyResponseData {
   presentation: sly.JSONPresentation;
-}
-
-// === FORWARD_ACTION
-export interface ForwardActionRequest extends RequestBase {
-  kind: MsgKind.FORWARD_ACTION;
-  presentationDescriptor: string;
-  action: string;
-  data: ActionData;
-}
-
-export interface ForwardActionResponse extends ResponseBase {
-  kind: MsgKind.FORWARD_ACTION;
-  data: ForwardActionResponseData;
-}
-
-export interface ForwardActionResponseData {
-  ok: true;
-}
-
-// === BACKWARD_ACTION
-export interface BackwardActionRequest extends RequestBase {
-  kind: MsgKind.BACKWARD_ACTION;
-  presentationDescriptor: string;
-  action: string;
-  data: ActionData;
-}
-
-export interface BackwardActionResponse extends ResponseBase {
-  kind: MsgKind.BACKWARD_ACTION;
-  data: BackwardActionResponseData;
-}
-
-export interface BackwardActionResponseData {
-  ok: true;
 }
 
 // === SAVE

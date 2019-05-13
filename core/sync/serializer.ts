@@ -8,7 +8,12 @@
  *       Copyright 2019 Parsa Ghadimi. All Rights Reserved.
  */
 
-import { StepBase, ComponentBase } from "../interfaces";
+import {
+  FontBase,
+  StepBase,
+  ComponentBase,
+  ComponentProps
+} from "../interfaces";
 import {
   ActionData,
   Words,
@@ -16,10 +21,11 @@ import {
   SerializedStep,
   SerializedComponent
 } from "./common";
+import { ActionTypes } from "../actions";
 
 interface UnserializeResuly {
   forward: boolean;
-  action: string;
+  action: keyof ActionTypes;
   data: any;
 }
 
@@ -27,14 +33,11 @@ interface Class<T> {
   new (...data: any[]): T;
 }
 
-export class Serializer {
+export abstract class Serializer {
   readonly components: Map<string, ComponentBase> = new Map();
   readonly steps: Map<string, StepBase> = new Map();
 
-  constructor(
-    private stepImplementation: Class<StepBase>,
-    private componentImplementation: Class<ComponentBase>
-  ) {
+  constructor() {
     this.unserializeComponent = this.unserializeComponent.bind(this);
   }
 
@@ -43,6 +46,7 @@ export class Serializer {
       return {
         [Words.COMPONENT]: val.uuid
       };
+    this.components.set(val.uuid, val);
     const { x: px, y: py, z: pz } = val.getPosition();
     const { x: rx, y: ry, z: rz } = val.getRotation();
     const { x: sx, y: sy, z: sz } = val.getScale();
@@ -57,7 +61,6 @@ export class Serializer {
         [Words.SCALE]: [sx, sy, sz]
       }
     };
-    this.components.set(val.uuid, val);
   }
 
   private serializeStep(val: StepBase): SerializedStep {
@@ -65,6 +68,7 @@ export class Serializer {
       return {
         [Words.STEP]: val.uuid
       };
+    this.steps.set(val.uuid, val);
     const { x: px, y: py, z: pz } = val.getPosition();
     const { x: rx, y: ry, z: rz } = val.getRotation();
     const { x: sx, y: sy, z: sz } = val.getScale();
@@ -77,7 +81,6 @@ export class Serializer {
         [Words.SCALE]: [sx, sy, sz]
       }
     };
-    this.steps.set(val.uuid, val);
   }
 
   private serializeActionData(data: any): ActionData {
@@ -112,15 +115,17 @@ export class Serializer {
     return ret;
   }
 
-  private unserializeComponent(c: SerializedComponent): ComponentBase {
+  private async unserializeComponent(
+    c: SerializedComponent
+  ): Promise<ComponentBase> {
     const { [Words.DATA]: data, [Words.COMPONENT]: uuid } = c;
     if (!data) return this.components.get(uuid);
 
-    const component = new this.componentImplementation(
+    const component = await this.provideComponent(
       uuid,
       data[Words.MODULE_NAME],
       data[Words.COMPONENT_NAME],
-      this.unserializeActionData(data[Words.PROPS])
+      await this.unserializeActionData(data[Words.PROPS])
     );
     component.setPosition(...data[Words.POSITION]);
     component.setRotation(...data[Words.ROTATION]);
@@ -134,17 +139,19 @@ export class Serializer {
     const { [Words.DATA]: data, [Words.STEP]: uuid } = c;
     if (!data) return this.steps.get(uuid);
 
-    const step = new this.stepImplementation(uuid);
+    const step = this.provideStep(uuid);
     step.setPosition(...data[Words.POSITION]);
     step.setRotation(...data[Words.ROTATION]);
     step.setScale(...data[Words.SCALE]);
-    data[Words.COMPONENTS].map(this.unserializeComponent).map(c => step.add(c));
+    data[Words.COMPONENTS]
+      .map(this.unserializeComponent)
+      .map(async c => step.add(await c));
     this.steps.set(uuid, step);
 
     return step;
   }
 
-  private unserializeActionData(data: ActionData): any {
+  private async unserializeActionData(data: ActionData): Promise<any> {
     const ret: Record<string, any> = {};
 
     for (const key in data) {
@@ -157,30 +164,24 @@ export class Serializer {
       ) {
         ret[key] = val;
       } else if (val[Words.COMPONENT]) {
-        ret[key] = this.unserializeComponent(val);
+        ret[key] = await this.unserializeComponent(val);
       } else if (val[Words.STEP]) {
         ret[key] = this.unserializeStep(val);
       } else if (val[Words.FONT]) {
-        // TODO(qti3e)
-        //const { moduleName, name } = val.font;
-        //const font = this.fonts.find(
-        //f => f.moduleName === moduleName && f.name === name
-        //);
-        //if (font) {
-        //ret[key] = font;
-        //} else {
-        //ret[key] = new headless.HeadlessFont(moduleName, name);
-        //this.fonts.push(ret[key]);
-        //}
+        const data = val[Words.FONT];
+        ret[key] = await this.provideFont(
+          data[Words.MODULE_NAME],
+          data[Words.NAME]
+        );
       } else if (val._) {
-        ret[key] = this.unserializeActionData(val._);
+        ret[key] = await this.unserializeActionData(val._);
       }
     }
 
     return ret;
   }
 
-  serialize(forward: boolean, action: string, data: any): string {
+  serialize(forward: boolean, action: keyof ActionTypes, data: any): string {
     return JSON.stringify({
       [forward ? Words.FORWARD : Words.BACKWARD]: true,
       [Words.ACTION]: action,
@@ -196,4 +197,13 @@ export class Serializer {
       data: this.unserializeActionData(raw.data)
     };
   }
+
+  abstract provideFont(moduleName: string, fontName: string): Promise<FontBase>;
+  abstract provideStep(uuid: string): StepBase;
+  abstract provideComponent(
+    uuid: string,
+    moduleName: string,
+    componentName: string,
+    props: ComponentProps
+  ): Promise<ComponentBase>;
 }

@@ -26,7 +26,7 @@ interface AppState {
 }
 
 export class App extends Component<AppProps, AppState> {
-  static readonly renderers: Map<string, slye.Renderer>;
+  static readonly renderers: Map<string, slye.Renderer> = new Map();
   private renderer: slye.Renderer;
 
   constructor(props: AppProps) {
@@ -60,8 +60,29 @@ export class App extends Component<AppProps, AppState> {
     renderer.domElement.classList.add("slye-presentation");
 
     // Load the presentation.
-    const sync = new slye.Sync(presentation);
+    const sync = new slye.Sync(
+      presentation,
+      new slye.ThreeSerializer(),
+      {
+        onMessage(handler: (msg: string) => void): void {
+          client.syncChannelOnMessage(presentationDescriptor, handler);
+        },
+        send(msg: string): void {
+          console.log(msg);
+          client.syncChannelSend(presentationDescriptor, msg);
+        }
+      },
+      slye.sly
+    );
     sync.bind(renderer.actions);
+
+    const render = () => {
+      this.renderer.render();
+      requestAnimationFrame(render);
+    };
+
+    render();
+    this.setState({ isLoading: false });
   }
 
   componentWillReceiveProps(nextProps: AppProps) {
@@ -104,15 +125,6 @@ export class App extends Component<AppProps, AppState> {
     const { isPlaying } = this.state;
     let height = isPlaying ? innerHeight : innerHeight - 56;
     this.renderer.resize(innerWidth, height);
-  };
-
-  onChange = (forward: boolean, action: string, data: any): void => {
-    const { presentationDescriptor } = this.props;
-    if (forward) {
-      client.forwardAction(presentationDescriptor, action, data);
-    } else {
-      client.backwardAction(presentationDescriptor, action, data);
-    }
   };
 
   render() {
