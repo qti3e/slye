@@ -24,6 +24,7 @@ export class Player extends Component<PlayerProps> {
   }
 
   componentWillMount() {
+    this.props.renderer.setState("player");
     document.addEventListener("keydown", this.onKeydown);
     document.addEventListener("keyup", this.onKeyUp);
     document.addEventListener("touchstart", this.onTouchStart);
@@ -32,7 +33,6 @@ export class Player extends Component<PlayerProps> {
       Screenfull.on("change", this.handleScreenfull);
       this.props.renderer.resize(innerWidth, innerHeight);
     }
-    this.props.renderer.setState("player");
   }
 
   componentWillUnmount() {

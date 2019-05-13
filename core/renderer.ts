@@ -234,6 +234,13 @@ export class Renderer {
 
     const { camera } = this;
 
+    // Turn on the focus.
+    if (state === "step") {
+      this.focus();
+    } else {
+      this.blur();
+    }
+
     // Save the camera state.
     if (this.state === "map") {
       this.lastCameraPosition.copy(camera.position);
@@ -242,7 +249,6 @@ export class Renderer {
 
     // Restore the camera state.
     if (state === "map") {
-      console.log(this.lastCameraRotation, this.lastCameraPosition);
       await this.updateCamera(
         this.lastCameraPosition,
         this.lastCameraRotation,
@@ -250,28 +256,11 @@ export class Renderer {
         true,
         "linear"
       );
-    }
-
-    // Turn off the focus.
-    if (this.state === "step") {
-      this.blur();
-    }
-
-    // Turn on the focus.
-    if (state === "step") {
-      this.focus();
-    }
-
-    // Show the Step's helper plane.
-    if (this.state === "player" || !this.state) {
-      ThreeStep.placeholderMatt.visible = true;
-    }
-
-    // Hide the Step's helper plane.
-    if (state === "player") {
-      ThreeStep.placeholderMatt.visible = false;
+    } else if (state === "player") {
       this.goTo(this.currentStep);
     }
+
+    ThreeStep.placeholderMatt.visible = state !== "player";
 
     this.state = state;
   }

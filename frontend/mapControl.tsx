@@ -60,6 +60,7 @@ export class MapControl extends Component<MapControlProps> {
   }
 
   componentWillUnmount() {
+    this.mapControl.enabled = false;
     const stack = mapControls.get(this.props.renderer);
     stack.push(this.mapControl);
   }

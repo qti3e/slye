@@ -39,8 +39,8 @@ export class WorldEditor extends Component<WorldEditorProps, WorldEditorState> {
   }
 
   componentWillMount() {
-    const { domElement } = this.props.renderer;
     this.props.renderer.setState("map");
+    const { domElement } = this.props.renderer;
     domElement.addEventListener("mousemove", this.onMouseMove);
     domElement.addEventListener("click", this.onClick);
     domElement.addEventListener("dblclick", this.onDblClick);

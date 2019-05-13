@@ -23,6 +23,7 @@ function createWindow() {
     height: 728,
     frame: false,
     icon: __dirname + "/icons/favicon.png",
+    title: "Slye",
     webPreferences: {
       // We don't want Node in the renderer thread.
       // Every file access should be done in the main thread.
@@ -35,9 +36,8 @@ function createWindow() {
   mainWindow.setMenu(null);
 
   mainWindow.webContents.on("did-finish-load", () => {
-    if (!mainWindow) {
-      throw new Error('"mainWindow" is not defined');
-    }
+    if (!mainWindow) throw new Error('"mainWindow" is not defined');
+    mainWindow.setTitle("Slye");
     mainWindow.show();
     mainWindow.focus();
   });

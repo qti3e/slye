@@ -14,9 +14,17 @@ const resolve = require("rollup-plugin-node-resolve");
 const electronPackagerOptions = {
   name: "Slye",
   dir: __dirname,
+  "app-copyright": "Parsa Ghadimi",
   out: "release",
   version: "0.0.1",
   overwrite: true,
+  win32metadata: {
+    CompanyName: "Slye",
+    FileDescription: "Slye",
+    OriginalFilename: "Slye",
+    ProductName: "Slye",
+    InternalName: "Slye"
+  },
   ignore: file => {
     if (!file) return false;
     if (file.startsWith("/dist")) return false;
