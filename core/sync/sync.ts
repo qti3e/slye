@@ -13,12 +13,14 @@ import { ActionStack } from "../actionStack";
 import { SyncChannel } from "./channel";
 import { SyncCommand } from "./common";
 import { SlyDecoder, JSONPresentation } from "../sly/types";
-import { serialize } from "./serializer";
+import { Serializer } from "./serializer";
 
 /**
  * An API to keep a presentations sync over a channel.
  */
 export class Sync {
+  private readonly serializer = new Serializer();
+
   constructor(
     readonly presentation: PresentationBase,
     private readonly ch: SyncChannel,
@@ -57,10 +59,10 @@ export class Sync {
   private handleSly(sly: JSONPresentation): void {
     this.slyDecoder(this.presentation, sly, {
       onComponent: (component: ComponentBase): void => {
-        this.components.set(component.uuid, component);
+        this.serializer.components.set(component.uuid, component);
       },
       onStep: (step: StepBase): void => {
-        this.steps.set(step.uuid, step);
+        this.serializer.steps.set(step.uuid, step);
       }
     });
   }
@@ -73,10 +75,11 @@ export class Sync {
     });
   }
 
-  private onChange(forward: boolean, action: string, data: any): void {
+  private onChange(forward: boolean, actionName: string, data: any): void {
+    const action = this.serializer.serialize(forward, actionName, data);
     this.send({
       command: "action",
-      action: serialize(this.steps, this.components, forward, action, data)
+      action
     });
   }
 }

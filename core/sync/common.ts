@@ -32,7 +32,10 @@ export const enum Words {
   STEP = "8",
   COMPONENTS = "9",
   FONT = "a",
-  NAME = "b"
+  NAME = "b",
+  FORWARD = "c",
+  BACKWARD = "d",
+  ACTION = "e"
 }
 
 export type SerializedComponent = {
