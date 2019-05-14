@@ -10,7 +10,6 @@
 
 import React from "react";
 import ReactDOM from "react-dom";
-import { bind } from "./frame";
 import { Main } from "./main";
 
 import * as Slye from "@slye/core";
@@ -55,14 +54,8 @@ Slye.setServer({
   }
 });
 
-async function init() {
-  const root = document.getElementById("page");
-  bind();
-  ReactDOM.render(<Main />, root);
-}
-
 document.addEventListener("readystatechange", () => {
-  if (document.readyState === "complete") {
-    init();
-  }
+  if (document.readyState !== "complete") return;
+  const root = document.getElementById("page");
+  ReactDOM.render(<Main />, root);
 });

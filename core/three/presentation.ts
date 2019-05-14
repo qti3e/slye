@@ -62,6 +62,7 @@ export class ThreePresentation implements PresentationBase {
    */
   add(step: ThreeStep, index?: number): void {
     if (step.owner) step.owner.del(step);
+    step.owner = this;
     index = index || this.steps.length;
     this.steps.splice(index, 0, step);
     this.group.add(step.group);

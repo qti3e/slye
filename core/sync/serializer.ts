@@ -89,6 +89,8 @@ export abstract class Serializer {
     for (const key in data) {
       const val = (data as any)[key];
       if (
+        val === undefined ||
+        val === null ||
         typeof val === "string" ||
         typeof val === "number" ||
         typeof val === "boolean"
@@ -158,6 +160,8 @@ export abstract class Serializer {
       const val = data[key] as any;
 
       if (
+        val === undefined ||
+        val === null ||
         typeof val === "string" ||
         typeof val === "number" ||
         typeof val === "boolean"

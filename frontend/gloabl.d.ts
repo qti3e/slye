@@ -15,7 +15,6 @@ import * as Three from "three";
 
 declare global {
   interface Window {
-    remote: Remote;
     client: Client;
     slye: typeof Slye;
     THREE: typeof Three;

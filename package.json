@@ -10,7 +10,7 @@
     "postinstall": "mkdir -p node_modules/@slye && ln -nsf ../../core node_modules/@slye/core",
     "build": "gulp",
     "start": "electron ./dist/main.js",
-    "dev": "parcel static/index.html & SLYE_DEV=1 yarn start"
+    "dev": "parcel electron/static/index.html & SLYE_DEV=1 yarn start"
   },
   "devDependencies": {
     "@material-ui/core": "^3.9.3",

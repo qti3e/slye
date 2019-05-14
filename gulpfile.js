@@ -116,7 +116,7 @@ gulp.task("electron:renderer", function(cb) {
     //scopeHoist: true
   };
 
-  const entryPoints = ["static/index.html"];
+  const entryPoints = ["electron/static/index.html"];
 
   const bundler = new Bundler(entryPoints, options);
   bundler.on("bundled", () => cb());

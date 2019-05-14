@@ -232,7 +232,9 @@ export class Renderer {
   async setState(state: RendererState): Promise<void> {
     if (state === this.state) return;
 
+    const prevState = this.state;
     const { camera } = this;
+    this.state = state;
 
     // Turn on the focus.
     if (state === "step") {
@@ -242,7 +244,7 @@ export class Renderer {
     }
 
     // Save the camera state.
-    if (this.state === "map") {
+    if (prevState === "map") {
       this.lastCameraPosition.copy(camera.position);
       this.lastCameraRotation.copy(camera.rotation);
     }
@@ -261,8 +263,6 @@ export class Renderer {
     }
 
     ThreeStep.placeholderMatt.visible = state !== "player";
-
-    this.state = state;
   }
 
   /**

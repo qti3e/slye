@@ -67,6 +67,7 @@ export class ThreeStep extends Group implements StepBase {
    */
   del(component: ThreeComponent): void {
     if (component.owner !== this) return;
+    component.owner = undefined;
     const index = this.components.indexOf(component);
     this.components.splice(index, 1);
     this.group.remove(component.group);
@@ -82,6 +83,7 @@ export class ThreeStep extends Group implements StepBase {
   add(component: ThreeComponent): void {
     if (component.owner === this) return;
     if (component.owner) component.owner.del(component);
+    component.owner = this;
     this.components.push(component);
     this.group.add(component.group);
   }
