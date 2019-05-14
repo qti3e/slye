@@ -10,14 +10,14 @@
 
 import { promises as fs, createWriteStream } from "fs";
 import { ipcMain, IpcMessageEvent, BrowserWindow } from "electron";
-import uuidv1 from "uuid/v1";
-import tar from "tar";
 import { JSONPresentation, JSONPresentationStep } from "../core/sly";
 import { headlessDecode } from "../core/sly/headlessDecoder";
 import { encode } from "../core/sly/encoder";
 import { actions, Action } from "../core/actions";
 import { Sync } from "../core/sync/sync";
 import { HeadlessSerializer } from "../core/sync/headlessSerializer";
+import uuidv1 from "uuid/v1";
+import tar from "tar";
 import * as IPC from "../frontend/ipc";
 import * as path from "path";
 import * as headless from "../core/headless";

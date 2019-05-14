@@ -11,8 +11,8 @@
 import React, { Component, Fragment } from "react";
 import * as slye from "@slye/core";
 
-import { TransformControl } from "./transformControl";
-import { MapControl } from "./mapControl";
+import { TransformControl } from "../controls/transformControl";
+import { MapControl } from "../controls/mapControl";
 
 export interface WorldEditorProps {
   renderer: slye.Renderer;

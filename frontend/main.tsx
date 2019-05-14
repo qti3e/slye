@@ -8,11 +8,9 @@
  *       Copyright 2019 Parsa Ghadimi. All Rights Reserved.
  */
 
-// If you're looking for the entry file you should go and check renderer.tsx.
-
 import React, { Component } from "react";
 import { Dashboard } from "./dashboard";
-import { App } from "./app";
+import { App } from "./editor";
 
 interface MainState {
   presentationDescriptor?: string;

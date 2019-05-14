@@ -13,8 +13,8 @@ import * as THREE from "three";
 import * as slye from "@slye/core";
 
 import { ComponentUI } from "./componentUI";
-import { TransformControl } from "./transformControl";
-import { OrbitControl } from "./orbitControl";
+import { TransformControl } from "../controls/transformControl";
+import { OrbitControl } from "../controls/orbitControl";
 
 import Fade from "@material-ui/core/Fade";
 import List from "@material-ui/core/List";
@@ -194,7 +194,8 @@ export class StepEditor extends Component<StepEditorProps, StepEditorState> {
     const c = await slye.component(moduleName, component, {
       size: 10,
       font: await slye.font("slye", "Homa"),
-      text: "Write..."
+      text: "Write...",
+      color: 0x896215
     });
 
     const { renderer, step } = this.props;

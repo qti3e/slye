@@ -10,7 +10,7 @@
 
 import React, { Component, Fragment } from "react";
 import * as slye from "@slye/core";
-import { ui } from "./ui.binding";
+import { ui } from "../ui.binding";
 
 import Paper from "@material-ui/core/Paper";
 import Divider from "@material-ui/core/Divider";

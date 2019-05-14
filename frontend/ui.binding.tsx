@@ -16,6 +16,7 @@ import { RTLify } from "persian-utils";
 import InputBase from "@material-ui/core/InputBase";
 import Select from "@material-ui/core/Select";
 import MenuItem from "@material-ui/core/MenuItem";
+import { BlockPicker } from "react-color";
 
 /**
  * Slye UI Elements bindings for React.
@@ -66,6 +67,18 @@ export const ui: UI.Binding<React.ReactElement> = {
           </MenuItem>
         ))}
       </Select>
+    );
+  },
+
+  [UI.COLOR]({ onUpdate, value }: UI.WidgetProps<number>) {
+    const handleChange = (color: any): void => {
+      onUpdate(parseInt(color.hex.substr(1), 16));
+    };
+    return (
+      <BlockPicker
+        color={value && `#${value.toString(16)}`}
+        onChange={handleChange}
+      />
     );
   }
 };

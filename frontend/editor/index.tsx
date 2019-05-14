@@ -14,7 +14,7 @@ import * as slye from "@slye/core";
 
 import { Editor } from "./editor";
 import { Player } from "./player";
-import { sleep } from "./util";
+import { sleep } from "../util";
 
 export interface AppProps {
   presentationDescriptor: string;

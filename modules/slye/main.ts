@@ -16,6 +16,7 @@ type TextProps = {
   font: slye.FontBase;
   size: number;
   text: string;
+  color: number;
 };
 
 class Text extends slye.ThreeComponent<TextProps> {
@@ -26,13 +27,14 @@ class Text extends slye.ThreeComponent<TextProps> {
     font: UI.FONT,
     size: UI.SIZE,
     text: UI.TEXT,
-    _order: ["text", "font", "size"]
+    color: UI.COLOR,
+    _order: ["text", "color", "font", "size"]
   };
 
   init() {}
 
   async render() {
-    const { font, size, text } = this.props;
+    const { font, size, text, color } = this.props;
     const layout = await font.layout(text);
     const shapes = slye.generateShapes(layout, size);
 
@@ -46,7 +48,7 @@ class Text extends slye.ThreeComponent<TextProps> {
     });
 
     const material = new THREE.MeshPhongMaterial({
-      color: 0x896215,
+      color,
       emissive: 0x4e2e11,
       flatShading: true,
       side: THREE.DoubleSide

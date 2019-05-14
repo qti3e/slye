@@ -1,0 +1,15 @@
+Things to accomplish:
+ - Templates
+ - I18N
+ - Color Picker
+ - Assets
+ - Pictures
+ - Videos (requires ffmpeg)
+ - Charts
+ - More fonts
+ - Presentation Thumbnails (Recent section)
+ - Mobile version
+ - Font previews
+ - 3D Models
+ - Website
+ - Decentralized Cloud Storage (IPFS?)
