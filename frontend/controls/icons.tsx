@@ -32,7 +32,7 @@ export function RotateIcon() {
     <svg
       fill="white"
       height="50px"
-      style={{ transform: "translate(11px, 10px)" }}
+      style={{ transform: "translate(17px, 10px)" }}
     >
       <path
         d="M22.588 22.588v-3.765l5.647 4.706-5.647
@@ -52,7 +52,7 @@ export function ScaleIcon() {
     <svg
       fill="white"
       height="50px"
-      style={{ transform: "translate(12px, 8px)" }}
+      style={{ transform: "translate(19px, 9px)" }}
     >
       <path
         d="M16.941 26.353h9.412v-20.706h-20.706v9.412h11.294v11.294zM3.765

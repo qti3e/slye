@@ -12,6 +12,11 @@ import React, { Component } from "react";
 import * as THREE from "three";
 import * as slye from "@slye/core";
 
+import Fab from "@material-ui/core/Fab";
+import Tooltip from "@material-ui/core/Tooltip";
+
+import { MoveIcon, RotateIcon, ScaleIcon } from "./icons";
+
 const transformControls: WeakMap<
   slye.Renderer,
   THREE.TransformControls[]
@@ -176,10 +181,64 @@ export class TransformControl extends Component<
       this.save();
     }
 
-    return <div />;
+    if (!this.transformControl.enabled) return null;
+
+    const { mode } = this.state;
+
+    return (
+      <div style={styles.transformControlButtons}>
+        <Tooltip title="Translate (T)" placement="right">
+          <Fab
+            color={mode === "translate" ? "secondary" : "primary"}
+            style={transformControlButton(0)}
+            onClick={() => this.setState({ mode: "translate" })}
+          >
+            <MoveIcon />
+          </Fab>
+        </Tooltip>
+        <Tooltip title="Rotate (R)" placement="right">
+          <Fab
+            color={mode === "rotate" ? "secondary" : "primary"}
+            style={transformControlButton(1)}
+            onClick={() => this.setState({ mode: "rotate" })}
+          >
+            <RotateIcon />
+          </Fab>
+        </Tooltip>
+        <Tooltip title="Scale (S)" placement="right">
+          <Fab
+            color={mode === "scale" ? "secondary" : "primary"}
+            style={transformControlButton(2)}
+            onClick={() => this.setState({ mode: "scale" })}
+          >
+            <ScaleIcon />
+          </Fab>
+        </Tooltip>
+      </div>
+    );
   }
 }
 
 function eq(a: slye.Vec3, b: slye.Vec3): boolean {
   return a.x === b.x && a.y === b.y && a.z === b.z;
 }
+
+const styles: Record<string, React.CSSProperties> = {
+  transformControlButtons: {
+    width: 300,
+    height: 300,
+    borderRadius: 150,
+    position: "fixed",
+    top: "calc(50vh - 150px + 32px)",
+    border: "2px solid #373737",
+    left: -205
+  }
+};
+
+const transformControlButton = (i: number): React.CSSProperties => ({
+  width: 65,
+  height: 65,
+  position: "absolute",
+  left: [205, 260, 205][i],
+  top: [0, 150 - 65 / 2 - 12, 235][i]
+});
