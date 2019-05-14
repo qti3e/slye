@@ -117,16 +117,11 @@ export class Editor extends Component<EditorProps, EditorState> {
     const { renderer } = this.props;
     const { selectedStep } = this.state;
     const step = new slye.ThreeStep(uuidv1());
+
     if (selectedStep) {
       const { x, y, z } = selectedStep.getPosition();
       step.setPosition(x + 5 * 19.2 + 5, y, z);
     }
-    const component = await slye.component("slye", "text", {
-      size: 10,
-      font: await slye.font("slye", "Homa"),
-      text: "Write..."
-    });
-    step.add(component);
 
     renderer.actions.insertStep(step);
     this.setState({ selectedStep: step });
