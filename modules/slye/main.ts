@@ -64,6 +64,18 @@ class Template extends slye.ThreeComponent<{}> {
 }
 
 class SlyeModule extends slye.Module {
+  textButtonClickHandler = async (renderer: slye.Renderer): Promise<void> => {
+    const component = await slye.component("slye", "text", {
+      size: 10,
+      font: await slye.font("slye", "Homa"),
+      text: "Write...",
+      color: 0x896215
+    });
+
+    const step = renderer.getCurrentStep();
+    renderer.actions.insertComponent(step, component);
+  };
+
   init() {
     this.registerFont("Homa", this.assets.load("homa.ttf"));
     this.registerFont("Sahel", this.assets.load("sahel.ttf"));
@@ -72,6 +84,8 @@ class SlyeModule extends slye.Module {
 
     this.registerComponent("template", Template);
     this.registerComponent("text", Text);
+
+    slye.addStepbarButton("Text", "text_fields", this.textButtonClickHandler);
   }
 }
 

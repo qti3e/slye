@@ -59,6 +59,12 @@ export interface ModuleInterface {
    * @returns {FontBase}
    */
   font(name: string): FontBase;
+
+  /**
+   * Initialize the module.
+   * @returns {void}
+   */
+  init(): void;
 }
 
 type ComponentClass = {
@@ -83,7 +89,6 @@ export abstract class Module implements ModuleInterface {
   constructor(name: string) {
     this.name = name;
     this.assets = new Asset(key => fetchModuleAsset(name, key));
-    this.init();
   }
 
   protected registerComponent(name: string, c: ComponentClass): void {
@@ -119,6 +124,7 @@ export abstract class Module implements ModuleInterface {
 
 export function registerModule(name: string, m: ModuleClass): void {
   const instance = new m(name);
+  instance.init();
   modulesTable.set(name, instance);
 }
 

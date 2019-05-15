@@ -206,6 +206,18 @@ export class StepEditor extends Component<StepEditorProps, StepEditorState> {
     const { renderer, step } = this.props;
     const { isAltDown, edit, x, y, selectedComponent, transform } = this.state;
 
+    const buttons = slye
+      .getStepbarButtons()
+      .map(({ clickHandler, icon, label }, id) => (
+        <ListItem key={id} button onClick={() => clickHandler(renderer)}>
+          <Tooltip title={label} placement="left">
+            <ListItemIcon>
+              <i className="material-icons">{icon}</i>
+            </ListItemIcon>
+          </Tooltip>
+        </ListItem>
+      ));
+
     return (
       <Fragment>
         {!edit && transform && (
@@ -215,6 +227,7 @@ export class StepEditor extends Component<StepEditorProps, StepEditorState> {
             disabled={isAltDown}
           />
         )}
+
         {!edit && (isAltDown || !transform) ? (
           <OrbitControl renderer={renderer} center={step.group} />
         ) : null}
@@ -230,13 +243,7 @@ export class StepEditor extends Component<StepEditorProps, StepEditorState> {
 
         <Fade in={true}>
           <List component="nav" style={styles.list}>
-            <ListItem button onClick={() => this.addComponent("slye", "text")}>
-              <Tooltip title="Text" placement="left">
-                <ListItemIcon>
-                  <TextFieldsIcon />
-                </ListItemIcon>
-              </Tooltip>
-            </ListItem>
+            {buttons}
           </List>
         </Fade>
       </Fragment>
