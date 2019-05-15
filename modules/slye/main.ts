@@ -20,13 +20,12 @@ type TextProps = {
 };
 
 class Text extends slye.ThreeComponent<TextProps> {
-  ui: UI.UILayout<TextProps> =
-    [
-      { name: "text", widget: UI.TEXT, size: 12},
-      { name: "font", widget: UI.FONT, size: 9 },
-      { name: "size", widget: UI.SIZE, size: 2 },
-      { name: "color", widget: UI.COLOR, size: 1 }
-    ]
+  ui: UI.UILayout<TextProps> = [
+    { name: "text", widget: UI.TEXT, size: 12 },
+    { name: "font", widget: UI.FONT, size: 9 },
+    { name: "size", widget: UI.SIZE, size: 2 },
+    { name: "color", widget: UI.COLOR, size: 1 }
+  ];
 
   init() {}
 
@@ -58,7 +57,8 @@ class Text extends slye.ThreeComponent<TextProps> {
 }
 
 class Template extends slye.ThreeComponent<{}> {
-  ui: UI.UILayout<{}> = [];
+  ui: UI.UILayout<{}> = [] as any;
+
   init() {}
   async render() {}
 }
