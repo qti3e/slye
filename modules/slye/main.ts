@@ -20,16 +20,13 @@ type TextProps = {
 };
 
 class Text extends slye.ThreeComponent<TextProps> {
-  // Currently contextual types are not supported in ts - so we need to
-  // explicitly use Widgets type here.
-  // https://github.com/Microsoft/TypeScript/issues/31242
-  ui: UI.Widgets<TextProps> = {
-    font: UI.FONT,
-    size: UI.SIZE,
-    text: UI.TEXT,
-    color: UI.COLOR,
-    _order: ["text", "color", "font", "size"]
-  };
+  ui: UI.UILayout<TextProps> =
+    [
+      { name: "text", widget: UI.TEXT, size: 12},
+      { name: "font", widget: UI.FONT, size: 9 },
+      { name: "size", widget: UI.SIZE, size: 2 },
+      { name: "color", widget: UI.COLOR, size: 1 }
+    ]
 
   init() {}
 
@@ -61,7 +58,7 @@ class Text extends slye.ThreeComponent<TextProps> {
 }
 
 class Template extends slye.ThreeComponent<{}> {
-  ui = {};
+  ui: UI.UILayout<{}> = [];
   init() {}
   async render() {}
 }

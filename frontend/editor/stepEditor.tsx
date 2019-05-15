@@ -12,7 +12,7 @@ import React, { Component, Fragment } from "react";
 import * as THREE from "three";
 import * as slye from "@slye/core";
 
-import { ComponentUI } from "./componentUI";
+import { ComponentEditor } from "./componentEditor";
 import { TransformControl } from "../controls/transformControl";
 import { OrbitControl } from "../controls/orbitControl";
 
@@ -220,7 +220,7 @@ export class StepEditor extends Component<StepEditorProps, StepEditorState> {
         ) : null}
 
         {edit ? (
-          <ComponentUI
+          <ComponentEditor
             renderer={renderer}
             component={selectedComponent}
             x={x}

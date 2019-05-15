@@ -11,7 +11,7 @@
 import { ComponentBase, ComponentProps, PropValue } from "../interfaces";
 import { ThreeStep } from "./step";
 import { Group } from "./group";
-import { Widgets } from "../ui";
+import { UILayout } from "../ui";
 
 /**
  * Abstract Three.js based implementation for Slye Components.
@@ -50,7 +50,7 @@ export abstract class ThreeComponent<
   /**
    * UI widgets to be shown in editor.
    */
-  abstract readonly ui: Widgets<Props>;
+  abstract readonly ui: UILayout<Props>;
 
   /**
    * ThreeComponent constructor.
