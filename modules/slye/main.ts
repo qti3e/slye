@@ -56,11 +56,50 @@ class Text extends slye.ThreeComponent<TextProps> {
   }
 }
 
-class Template extends slye.ThreeComponent<{}> {
-  ui: UI.UILayout<{}> = [] as any;
+type PictureProps = {
+  width: number;
+  height: number;
+  image: slye.FileBase;
+};
+
+class Picture extends slye.ThreeComponent<PictureProps> {
+  ui: UI.UILayout<PictureProps> = [
+    { name: "width", widget: UI.SIZE, size: 2 },
+    { name: "height", widget: UI.SIZE, size: 2 }
+  ];
 
   init() {}
-  async render() {}
+
+  async render() {
+    const { height, width, image: img } = this.props;
+    const ab = await img.load();
+
+    const texture = new THREE.Texture();
+    texture.generateMipmaps = false;
+    texture.wrapS = texture.wrapT = THREE.ClampToEdgeWrapping;
+    texture.minFilter = THREE.LinearFilter;
+
+    const imageBlob = new Blob([ab], { type: "image/png" });
+    const url = URL.createObjectURL(imageBlob);
+
+    const image = new Image();
+    image.src = url;
+    image.onload = () => {
+      texture.image = image;
+      texture.needsUpdate = true;
+    };
+
+    const geometry = new THREE.PlaneBufferGeometry(width, height, 32);
+    const material = new THREE.MeshBasicMaterial({
+      side: THREE.DoubleSide,
+      map: texture,
+      transparent: true
+    });
+
+    const plane = new THREE.Mesh(geometry, material);
+
+    this.group.add(plane);
+  }
 }
 
 class SlyeModule extends slye.Module {
@@ -76,16 +115,31 @@ class SlyeModule extends slye.Module {
     renderer.actions.insertComponent(step, component);
   };
 
+  picBtnClickHandler = async (renderer: slye.Renderer): Promise<void> => {
+    const files = await slye.showFileDialog(renderer.presentation.uuid);
+    if (!files || !files.length) return;
+
+    const component = await slye.component("slye", "picture", {
+      width: 10,
+      height: 10,
+      image: files[0]
+    });
+
+    const step = renderer.getCurrentStep();
+    renderer.actions.insertComponent(step, component);
+  };
+
   init() {
     this.registerFont("Homa", this.assets.load("homa.ttf"));
     this.registerFont("Sahel", this.assets.load("sahel.ttf"));
     this.registerFont("Shellia", this.assets.load("shellia.ttf"));
     this.registerFont("Emoji", this.assets.load("emoji.ttf"));
 
-    this.registerComponent("template", Template);
     this.registerComponent("text", Text);
+    this.registerComponent("picture", Picture);
 
     slye.addStepbarButton("Text", "text_fields", this.textButtonClickHandler);
+    slye.addStepbarButton("Picture", "photo", this.picBtnClickHandler);
   }
 }
 

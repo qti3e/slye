@@ -159,16 +159,23 @@ export class Server implements ServerInterface {
   async [types.MsgKind.SHOW_FILE_DIALOG](
     req: types.ShowFileDialogRequest
   ): Promise<types.ShowFileDialogResponseData> {
-    const path = dialog.showOpenDialog(this.window, {
+    const paths = dialog.showOpenDialog(this.window, {
       title: "Select a file",
       properties: ["openFile"]
     });
 
-    if (!path || !path.length) return { files: [] };
+    if (!paths || !paths.length) return { files: [] };
 
+    const presentation = this.presentations.get(req.presentationDescriptor);
     const files: string[] = [];
 
-    // TODO(qti3e) Move the selected files to presentation/assets dir.
+    for (let i = 0; i < paths.length; ++i) {
+      const uuid = uuidv1();
+      const file = path.join(presentation.dir, "assets/", uuid);
+      console.log("CP", paths[i], file);
+      await fs.copyFile(paths[i], file);
+      files.push(uuid);
+    }
 
     return { files };
   }
