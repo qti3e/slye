@@ -10,7 +10,7 @@
 
 import { generateShapes } from "./draw";
 import { FontBase, PropValue, ComponentProps } from "./interfaces";
-import { Asset } from "./asset";
+import { AssetLoader } from "./assetLoader";
 import { fetchModuleAsset, requestModule } from "./server";
 import { ThreeComponent, Font } from "./three";
 import uuidv1 from "uuid/v1";
@@ -31,7 +31,7 @@ export interface ModuleInterface {
   /**
    * Asset manager for the module.
    */
-  readonly assets: Asset<string>;
+  readonly assets: AssetLoader<string>;
 
   /**
    * Returns a new instance of the component.
@@ -83,12 +83,12 @@ type ModuleClass = {
 export abstract class Module implements ModuleInterface {
   private readonly components: Map<string, ComponentClass> = new Map();
   private readonly fonts: Map<string, FontBase> = new Map();
-  readonly assets: Asset<string>;
+  readonly assets: AssetLoader<string>;
   readonly name: string;
 
   constructor(name: string) {
     this.name = name;
-    this.assets = new Asset(key => fetchModuleAsset(name, key));
+    this.assets = new AssetLoader(key => fetchModuleAsset(name, key));
   }
 
   protected registerComponent(name: string, c: ComponentClass): void {

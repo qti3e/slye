@@ -18,7 +18,7 @@ export * from "./actions";
 export * from "./actionStack";
 export * from "./server";
 export * from "./module";
-export * from "./asset";
+export * from "./assetLoader";
 export * from "./stepbar";
 
 export * from "./headless";

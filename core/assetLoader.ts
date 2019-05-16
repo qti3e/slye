@@ -16,7 +16,7 @@ export type AssetFetchFunction<T> = (key: T) => Promise<ArrayBuffer>;
  * For every asset we make a numeric ID so that we can
  * easily use it with WAsm.
  */
-export class Asset<Key = string> {
+export class AssetLoader<Key = string> {
   /**
    * Data which is already fetched.
    */
