@@ -75,6 +75,7 @@ export class TransformControl extends Component<
         renderer.camera,
         renderer.domElement
       );
+      this.transformControl.space = "local";
     }
 
     // Set the initial state value.
