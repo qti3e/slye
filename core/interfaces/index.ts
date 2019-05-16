@@ -15,3 +15,4 @@ export * from "./transformable";
 export * from "./common";
 export * from "./font";
 export * from "./path";
+export * from "./file";

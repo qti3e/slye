@@ -155,4 +155,21 @@ export class Server implements ServerInterface {
       return { ok: false };
     }
   }
+
+  async [types.MsgKind.SHOW_FILE_DIALOG](
+    req: types.ShowFileDialogRequest
+  ): Promise<types.ShowFileDialogResponseData> {
+    const path = dialog.showOpenDialog(this.window, {
+      title: "Select a file",
+      properties: ["openFile"]
+    });
+
+    if (!path || !path.length) return { files: [] };
+
+    const files: string[] = [];
+
+    // TODO(qti3e) Move the selected files to presentation/assets dir.
+
+    return { files };
+  }
 }

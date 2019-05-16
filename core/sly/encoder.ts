@@ -8,7 +8,7 @@
  *       Copyright 2019 Parsa Ghadimi. All Rights Reserved.
  */
 
-import { PresentationBase, FontBase } from "../interfaces";
+import { PresentationBase, FontBase, FileBase } from "../interfaces";
 import {
   JSONPresentation,
   JSONPresentationStep,
@@ -59,6 +59,11 @@ export function encode(presentation: PresentationBase): JSONPresentation {
             font: value.name,
             moduleName: value.moduleName
           };
+        } else if (isFile(value)) {
+          jcomp.props[key] = {
+            kind: RefKind.FILE,
+            uuid: value.uuid
+          };
         } else {
           throw new Error(`Encoder for ${value} is not implemented yet.`);
         }
@@ -76,4 +81,9 @@ export function encode(presentation: PresentationBase): JSONPresentation {
 function isFont(value: any): value is FontBase {
   if (typeof value !== "object") return false;
   return !!value.isSlyeFont;
+}
+
+function isFile(value: any): value is FileBase {
+  if (typeof value !== "object") return false;
+  return !!value.isSlyeFile;
 }

@@ -11,13 +11,13 @@
 import { PresentationBase, StepBase, ComponentBase } from "../interfaces";
 
 export enum RefKind {
-  ASSET,
+  FILE,
   FONT
 }
 
-export interface AssetRef {
-  kind: RefKind.ASSET;
-  key: string;
+export interface FileRef {
+  kind: RefKind.FILE;
+  uuid: string;
 }
 
 export interface FontRef {
@@ -26,7 +26,7 @@ export interface FontRef {
   font: string;
 }
 
-export type ComponentPropValue = AssetRef | FontRef | string | number;
+export type ComponentPropValue = FileRef | FontRef | string | number;
 
 export interface JSONPresentationComponent {
   moduleName: string;

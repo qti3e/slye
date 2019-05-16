@@ -11,7 +11,7 @@
 /**
  * File represents a presentation file, like a picture or a video.
  */
-export interface File {
+export interface FileBase {
   /**
    * Unique id for this file.
    */
@@ -33,5 +33,5 @@ export interface File {
    *
    * @returns {Promise<ArrayBuffer>}
    */
-  laod(): Promise<ArrayBuffer>;
+  load(): Promise<ArrayBuffer>;
 }

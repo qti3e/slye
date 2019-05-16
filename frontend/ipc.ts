@@ -20,6 +20,7 @@ export interface Client {
   patchMeta(pd: string, meta: Meta): Promise<PatchMetaResponseData>;
   getMeta(pd: string): Promise<GetMetaResponseData>;
   fetchSly(pd: string): Promise<FetchSlyResponseData>;
+  showFileDialog(pd: string): Promise<ShowFileDialogResponseData>;
   save(pd: string): Promise<SaveResponseData>;
   open(): Promise<OpenResponseData>;
 
@@ -38,7 +39,8 @@ export enum MsgKind {
   GET_META,
   FETCH_SLY,
   SAVE,
-  OPEN
+  OPEN,
+  SHOW_FILE_DIALOG
 }
 
 export type Request =
@@ -48,7 +50,8 @@ export type Request =
   | GetMetaRequest
   | FetchSlyRequest
   | SaveRequest
-  | OpenRequest;
+  | OpenRequest
+  | ShowFileDialogRequest;
 
 export type Response =
   | CreateResponse
@@ -57,7 +60,8 @@ export type Response =
   | GetMetaResponse
   | FetchSlyResponse
   | SaveResponse
-  | OpenResponse;
+  | OpenResponse
+  | ShowFileDialogResponse;
 
 export type ResponseData =
   | CreateResponseData
@@ -66,7 +70,8 @@ export type ResponseData =
   | GetMetaResponseData
   | FetchSlyResponseData
   | SaveResponseData
-  | OpenResponseData;
+  | OpenResponseData
+  | ShowFileDialogResponseData;
 
 export interface RequestBase {
   kind: MsgKind;
@@ -183,4 +188,19 @@ export interface OpenResponse extends ResponseBase {
 export interface OpenResponseData {
   ok: boolean;
   presentationDescriptor?: string;
+}
+
+// === SHOW_FILE_DIALOG
+export interface ShowFileDialogRequest extends RequestBase {
+  kind: MsgKind.SHOW_FILE_DIALOG;
+  presentationDescriptor?: string;
+}
+
+export interface ShowFileDialogResponse extends ResponseBase {
+  kind: MsgKind.SHOW_FILE_DIALOG;
+  data: ShowFileDialogResponseData;
+}
+
+export interface ShowFileDialogResponseData {
+  files: string[];
 }

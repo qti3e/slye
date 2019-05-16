@@ -110,6 +110,18 @@ export class Client implements types.Client {
     });
   }
 
+  showFileDialog(
+    presentationDescriptor: string
+  ): Promise<types.ShowFileDialogResponseData> {
+    return this.sendRequest<
+      types.ShowFileDialogRequest,
+      types.ShowFileDialogResponseData
+    >({
+      kind: types.MsgKind.SHOW_FILE_DIALOG,
+      presentationDescriptor
+    });
+  }
+
   async getModuleMainURL(moduleName: string): Promise<string> {
     return `slye://modules/${moduleName}/main.js`;
   }

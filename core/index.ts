@@ -20,6 +20,7 @@ export * from "./server";
 export * from "./module";
 export * from "./assetLoader";
 export * from "./stepbar";
+export * from "./file";
 
 export * from "./headless";
 export * from "./interfaces";

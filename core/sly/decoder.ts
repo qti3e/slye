@@ -10,6 +10,7 @@
 
 import { PropValue } from "../interfaces";
 import { ThreePresentation, ThreeStep, ThreeComponent } from "../three";
+import { File } from "../file";
 import { font, component } from "../module";
 import { RefKind, JSONPresentation, DecoderOptions } from "./types";
 
@@ -46,8 +47,8 @@ export async function sly(
         const jvalue = jcom.props[key];
         if (typeof jvalue === "number" || typeof jvalue === "string") {
           props[key] = jvalue;
-        } else if (jvalue.kind === RefKind.ASSET) {
-          //props[key] = await presentation.asset(jvalue.key);
+        } else if (jvalue.kind === RefKind.FILE) {
+          props[key] = new File(presentation.uuid, jvalue.uuid);
         } else if (jvalue.kind === RefKind.FONT) {
           props[key] = await font(jvalue.moduleName, jvalue.font);
         }

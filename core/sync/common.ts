@@ -42,7 +42,8 @@ export const enum Words {
   NAME = "b",
   FORWARD = "c",
   BACKWARD = "d",
-  ACTION = "e"
+  ACTION = "e",
+  FILE = "f"
 }
 
 export type SerializedComponent = {
@@ -74,6 +75,10 @@ export type SerializedFont = {
   };
 };
 
+export type SerializedFile = {
+  [Words.FILE]: string; // UUID
+};
+
 export type SerializedActionData =
   | string
   | number
@@ -81,6 +86,7 @@ export type SerializedActionData =
   | SerializedComponent
   | SerializedStep
   | SerializedFont
+  | SerializedFile
   | { _: ActionData }; // For nested data.
 
 export type ActionData = {

@@ -19,8 +19,10 @@ import {
   Words,
   SerializedActionData,
   SerializedStep,
-  SerializedComponent
+  SerializedComponent,
+  SerializedFile
 } from "./common";
+import { File } from "../file";
 import { ActionTypes } from "../actions";
 
 interface UnserializeResuly {
@@ -36,6 +38,8 @@ interface Class<T> {
 export abstract class Serializer {
   readonly components: Map<string, ComponentBase> = new Map();
   readonly steps: Map<string, StepBase> = new Map();
+  readonly files: Map<string, File> = new Map();
+  presentationUUID: string;
 
   constructor() {
     this.unserializeComponent = this.unserializeComponent.bind(this);
@@ -107,6 +111,10 @@ export abstract class Serializer {
             [Words.NAME]: val.name
           }
         };
+      } else if (val.isSlyeFile) {
+        ret[key] = {
+          [Words.FILE]: val.uuid
+        };
       } else {
         ret[key] = {
           _: this.serializeActionData(val)
@@ -135,6 +143,15 @@ export abstract class Serializer {
     this.components.set(uuid, component);
 
     return component;
+  }
+
+  private unserializeFile(c: SerializedFile): File {
+    const { [Words.FILE]: uuid } = c;
+    if (this.files.has(uuid)) return this.files.get(uuid);
+    // TODO(qti3e);
+    const file = new File(this.presentationUUID, uuid);
+    this.files.set(uuid, file);
+    return file;
   }
 
   private unserializeStep(c: SerializedStep): StepBase {
@@ -171,6 +188,8 @@ export abstract class Serializer {
         ret[key] = await this.unserializeComponent(val);
       } else if (val[Words.STEP]) {
         ret[key] = this.unserializeStep(val);
+      } else if (val[Words.FILE]) {
+        ret[key] = this.unserializeFile(val);
       } else if (val[Words.FONT]) {
         const data = val[Words.FONT];
         ret[key] = await this.provideFont(

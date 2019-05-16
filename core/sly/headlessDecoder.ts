@@ -15,6 +15,7 @@ import {
   HeadlessStep
 } from "../headless";
 import { RefKind, JSONPresentation, DecoderOptions } from "./types";
+import { File } from "../file";
 import { PropValue } from "../interfaces";
 
 export function headlessDecode(
@@ -38,8 +39,8 @@ export function headlessDecode(
         const jvalue = jcom.props[key];
         if (typeof jvalue === "number" || typeof jvalue === "string") {
           props[key] = jvalue;
-        } else if (jvalue.kind === RefKind.ASSET) {
-          throw new Error("Headless asset decoder is not implemented yet.");
+        } else if (jvalue.kind === RefKind.FILE) {
+          props[key] = new File(presentation.uuid, jvalue.uuid);
         } else if (jvalue.kind === RefKind.FONT) {
           props[key] = new HeadlessFont(jvalue.moduleName, jvalue.font);
         }

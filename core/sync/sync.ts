@@ -36,6 +36,11 @@ export class Sync {
     this.onChange = this.onChange.bind(this);
 
     this.ch.onMessage(this.onMessage);
+
+    if (serializer.presentationUUID)
+      throw new Error("Serializer is already in use");
+
+    serializer.presentationUUID = presentation.uuid;
   }
 
   bind(actionStack: ActionStack): void {
