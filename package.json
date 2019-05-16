@@ -1,7 +1,7 @@
 {
   "license": "UNLICENSED",
   "main": "dist/main.js",
-  "version": "0.0.1-alpha",
+  "version": "0.0.2-alpha",
   "dependencies": {
     "tar": "^4.4.8"
   },
