@@ -8,7 +8,7 @@
  *       Copyright 2019 Parsa Ghadimi. All Rights Reserved.
  */
 
-import { FontBase, PropValue, ComponentProps } from "./interfaces";
+import { FileBase, FontBase, PropValue, ComponentProps } from "./interfaces";
 
 // UI widgets
 const e = eval;
@@ -17,6 +17,7 @@ export const TEXT: unique symbol = g.swT || (g.swT = Symbol("TEXT"));
 export const SIZE: unique symbol = g.swS || (g.swS = Symbol("SIZE"));
 export const FONT: unique symbol = g.swF || (g.swF = Symbol("FONT"));
 export const COLOR: unique symbol = g.swC || (g.swC = Symbol("COLOR"));
+export const FILE: unique symbol = g.swI || (g.swI = Symbol("FILE"));
 
 type WidgetTypeMap<T> = T extends string
   ? (typeof TEXT)
@@ -24,6 +25,8 @@ type WidgetTypeMap<T> = T extends string
   ? (typeof SIZE | typeof COLOR)
   : T extends FontBase
   ? (typeof FONT)
+  : T extends FileBase
+  ? (typeof FILE)
   : never;
 
 export type Widget<Props> = {

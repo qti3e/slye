@@ -14,10 +14,12 @@ import { TextWidget } from "./text";
 import { SizeWidget } from "./size";
 import { FontWidget } from "./font";
 import { ColorWidget } from "./color";
+import { FileWidget } from "./file";
 
 export const Widgets = {
   [UI.TEXT]: TextWidget,
   [UI.SIZE]: SizeWidget,
   [UI.FONT]: FontWidget,
-  [UI.COLOR]: ColorWidget
+  [UI.COLOR]: ColorWidget,
+  [UI.FILE]: FileWidget
 };

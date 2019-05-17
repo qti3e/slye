@@ -63,7 +63,8 @@ type PictureProps = {
 
 class Picture extends slye.ThreeComponent<PictureProps> {
   ui: UI.UILayout<PictureProps> = [
-    { name: "scale", widget: UI.SIZE, size: 12 }
+    //{ name: "scale", widget: UI.SIZE, size: 4 },
+    { name: "file", widget: UI.FILE, size: 12 }
   ];
 
   init() {}

@@ -119,7 +119,8 @@ const styles: Record<string, React.CSSProperties> = {
   container: {
     position: "fixed",
     alignItems: "center",
-    maxWidth: 500
+    maxWidth: 500,
+    width: 500
   },
   button: {
     margin: 10,
