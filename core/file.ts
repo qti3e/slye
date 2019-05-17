@@ -25,6 +25,8 @@ export class File implements FileBase {
    */
   private cache: ArrayBuffer;
 
+  private urlCache: string;
+
   constructor(readonly presentationId: string, readonly uuid: string) {}
 
   /**
@@ -37,5 +39,14 @@ export class File implements FileBase {
     const ab = await fetchAsset(this.presentationId, this.uuid);
     this.cache = ab;
     return ab;
+  }
+
+  async url(): Promise<string> {
+    if (this.urlCache) return this.urlCache;
+    const ab = await this.load();
+    const blob = new Blob([ab], { type: "image/png" });
+    const url = URL.createObjectURL(blob);
+    this.urlCache = url;
+    return url;
   }
 }

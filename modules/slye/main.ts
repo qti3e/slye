@@ -57,48 +57,47 @@ class Text extends slye.ThreeComponent<TextProps> {
 }
 
 type PictureProps = {
-  width: number;
-  height: number;
-  image: slye.FileBase;
+  scale: number;
+  file: slye.FileBase;
 };
 
 class Picture extends slye.ThreeComponent<PictureProps> {
   ui: UI.UILayout<PictureProps> = [
-    { name: "width", widget: UI.SIZE, size: 2 },
-    { name: "height", widget: UI.SIZE, size: 2 }
+    { name: "scale", widget: UI.SIZE, size: 12 }
   ];
 
   init() {}
 
-  async render() {
-    const { height, width, image: img } = this.props;
-    const ab = await img.load();
+  render() {
+    const { scale, file } = this.props;
 
     const texture = new THREE.Texture();
     texture.generateMipmaps = false;
     texture.wrapS = texture.wrapT = THREE.ClampToEdgeWrapping;
     texture.minFilter = THREE.LinearFilter;
 
-    const imageBlob = new Blob([ab], { type: "image/png" });
-    const url = URL.createObjectURL(imageBlob);
-
-    const image = new Image();
-    image.src = url;
-    image.onload = () => {
-      texture.image = image;
-      texture.needsUpdate = true;
-    };
-
-    const geometry = new THREE.PlaneBufferGeometry(width, height, 32);
     const material = new THREE.MeshBasicMaterial({
       side: THREE.DoubleSide,
       map: texture,
       transparent: true
     });
 
-    const plane = new THREE.Mesh(geometry, material);
+    return new Promise<void>(resolve => {
+      const image = new Image();
+      file.url().then(url => (image.src = url));
+      image.onload = () => {
+        texture.image = image;
+        texture.needsUpdate = true;
 
-    this.group.add(plane);
+        const width = image.width * scale;
+        const height = image.height * scale;
+        const geometry = new THREE.PlaneBufferGeometry(width, height, 32);
+        const plane = new THREE.Mesh(geometry, material);
+
+        this.group.add(plane);
+        resolve();
+      };
+    });
   }
 }
 
@@ -120,10 +119,11 @@ class SlyeModule extends slye.Module {
     if (!files || !files.length) return;
 
     const component = await slye.component("slye", "picture", {
-      width: 10,
-      height: 10,
-      image: files[0]
+      scale: 0.05,
+      file: files[0]
     });
+
+    component.setPosition(0, 0, 0.1);
 
     const step = renderer.getCurrentStep();
     renderer.actions.insertComponent(step, component);

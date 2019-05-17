@@ -34,4 +34,9 @@ export interface FileBase {
    * @returns {Promise<ArrayBuffer>}
    */
   load(): Promise<ArrayBuffer>;
+
+  /**
+   * Returns a file URL.
+   */
+  url(): Promise<string>;
 }
