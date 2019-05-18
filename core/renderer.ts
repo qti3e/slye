@@ -87,6 +87,11 @@ export class Renderer {
   private readonly lastCameraRotation: Euler = new Euler();
 
   /**
+   * Current frame mod 1000.
+   */
+  private frame: number = 0;
+
+  /**
    * Renderer Constructor.
    *
    * @param {ThreePresentation} presentation Presentation object to render.
@@ -352,11 +357,13 @@ export class Renderer {
    */
   render(): void {
     const time = Date.now();
+    this.frame = (this.frame + 1) % 1000;
+
     for (let i = 0; i < this.easeList.length; ++i) {
       this.easeList[i].update(time);
     }
 
-    if (this.state === "player" && time % 25 === 0) {
+    if (this.state === "player" && this.frame % 30 === 0) {
       if (this.raycaster.raycastClickableComponent(this.currentStep)) {
         this.domElement.style.cursor = "pointer";
       } else {
