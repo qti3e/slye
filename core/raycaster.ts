@@ -43,11 +43,11 @@ export class Raycaster {
    *
    * @returns {THREE.Intersection[]}
    */
-  private intersectAll(): THREE.Intersection[] {
+  intersectInSteps(steps: ThreeStep[]): THREE.Intersection[] {
     this.raycaster.setFromCamera(this.mouse, this.camera);
 
     const intersects = this.raycaster.intersectObjects(
-      this.presentation.steps.map(x => x.group),
+      steps.map(x => x.group),
       true
     );
 
@@ -61,10 +61,12 @@ export class Raycaster {
    * @param {Function} cb Filter.
    * @returns {T}
    */
-  private findIntersectByUserData<T>(
+  findIntersectByUserData<T>(
     intersections: THREE.Intersection[],
     cb: (userData: Record<string, any>) => T
   ): T {
+    if (intersections.length === 0) return undefined;
+
     let result: T;
     let tmp: T;
     let minDistance: number = Infinity;
@@ -107,8 +109,8 @@ export class Raycaster {
    * @returns {ThreeStep}
    */
   raycastStep(): ThreeStep {
-    const intersections = this.intersectAll();
-    return this.findIntersectByUserData<ThreeStep>(intersections, ({ step }) =>
+    const tmp = this.intersectInSteps(this.presentation.steps);
+    return this.findIntersectByUserData<ThreeStep>(tmp, ({ step }) =>
       step instanceof ThreeStep ? step : undefined
     );
   }
@@ -119,9 +121,24 @@ export class Raycaster {
    * @returns {ThreeComponent}
    */
   raycastComponent(): ThreeComponent {
-    const tmp = this.intersectAll();
+    const tmp = this.intersectInSteps(this.presentation.steps);
     return this.findIntersectByUserData<ThreeComponent>(tmp, ({ component }) =>
       component instanceof ThreeComponent ? component : undefined
+    );
+  }
+
+  /**
+   * Returns the intersected ThreeComponent which is clickable.
+   *
+   * @param {ThreeStep} Current step to look into.
+   * @returns {ThreeComponent}
+   */
+  raycastClickableComponent(step: ThreeStep): ThreeComponent {
+    const tmp = this.intersectInSteps([step]);
+    return this.findIntersectByUserData<ThreeComponent>(tmp, ({ component }) =>
+      component instanceof ThreeComponent && component.handleClick
+        ? component
+        : undefined
     );
   }
 }

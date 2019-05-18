@@ -11,6 +11,7 @@
 import { Euler, Vector3, PerspectiveCamera } from "three";
 import { Vec3 } from "./interfaces";
 import { ThreePresentation } from "./three/presentation";
+import { ThreeComponent } from "./three/component";
 import { ThreeStep } from "./three/step";
 import { Ease, EaseFunctionName } from "./ease";
 import { getCameraPosRotForStep } from "./math";
@@ -114,7 +115,7 @@ export class Renderer {
     this.actions = new ActionStack(presentation);
     this.scene.add(presentation.group);
 
-    this.goTo(presentation.steps[0], 0);
+    this.domElement.addEventListener("click", this.handleClick.bind(this));
 
     // Just for now.
     this.scene.background = new THREE.Color(0xbfd1e5);
@@ -262,6 +263,10 @@ export class Renderer {
       this.goTo(this.currentStep);
     }
 
+    if (prevState === "player") {
+      this.domElement.style.cursor = "auto";
+    }
+
     ThreeStep.placeholderMatt.visible = state !== "player";
   }
 
@@ -350,6 +355,15 @@ export class Renderer {
     for (let i = 0; i < this.easeList.length; ++i) {
       this.easeList[i].update(time);
     }
+
+    if (this.state === "player" && time % 25 === 0) {
+      if (this.raycaster.raycastClickableComponent(this.currentStep)) {
+        this.domElement.style.cursor = "pointer";
+      } else {
+        this.domElement.style.cursor = "auto";
+      }
+    }
+
     this.webGLRenderer.render(this.scene, this.camera);
   }
 
@@ -360,5 +374,12 @@ export class Renderer {
    */
   getCurrentStep(): ThreeStep {
     return this.currentStep;
+  }
+
+  private handleClick(): void {
+    if (this.state !== "player") return;
+    const step = this.currentStep;
+    const component = this.raycaster.raycastClickableComponent(step);
+    if (component) component.handleClick.call(component);
   }
 }
