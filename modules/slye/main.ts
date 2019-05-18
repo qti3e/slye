@@ -9,98 +9,10 @@
  */
 
 import * as slye from "@slye/core";
-import * as UI from "@slye/core/ui";
-import * as THREE from "three";
 
-type TextProps = {
-  font: slye.FontBase;
-  size: number;
-  text: string;
-  color: number;
-};
-
-class Text extends slye.ThreeComponent<TextProps> {
-  ui: UI.UILayout<TextProps> = [
-    { name: "text", widget: UI.TEXT, size: 12 },
-    { name: "font", widget: UI.FONT, size: 9 },
-    { name: "size", widget: UI.SIZE, size: 2 },
-    { name: "color", widget: UI.COLOR, size: 1 }
-  ];
-
-  init() {}
-
-  async render() {
-    const { font, size, text, color } = this.props;
-    const layout = await font.layout(text);
-    const shapes = slye.generateShapes(layout, size);
-
-    const geometry = new THREE.ExtrudeGeometry(shapes, {
-      steps: 1,
-      depth: 2,
-      bevelEnabled: false,
-      bevelThickness: 0,
-      bevelSize: 0,
-      bevelSegments: 0
-    });
-
-    const material = new THREE.MeshPhongMaterial({
-      color,
-      emissive: 0x4e2e11,
-      flatShading: true,
-      side: THREE.DoubleSide
-    });
-
-    const mesh = new THREE.Mesh(geometry, material);
-
-    this.group.add(mesh);
-  }
-}
-
-type PictureProps = {
-  scale: number;
-  file: slye.FileBase;
-};
-
-class Picture extends slye.ThreeComponent<PictureProps> {
-  ui: UI.UILayout<PictureProps> = [
-    //{ name: "scale", widget: UI.SIZE, size: 4 },
-    { name: "file", widget: UI.FILE, size: 12 }
-  ];
-
-  init() {}
-
-  render() {
-    const { scale, file } = this.props;
-
-    const texture = new THREE.Texture();
-    texture.generateMipmaps = false;
-    texture.wrapS = texture.wrapT = THREE.ClampToEdgeWrapping;
-    texture.minFilter = THREE.LinearFilter;
-
-    const material = new THREE.MeshBasicMaterial({
-      side: THREE.DoubleSide,
-      map: texture,
-      transparent: true
-    });
-
-    return new Promise<void>(resolve => {
-      const image = new Image();
-      file.url().then(url => (image.src = url));
-      image.onload = () => {
-        texture.image = image;
-        texture.needsUpdate = true;
-
-        const width = image.width * scale;
-        const height = image.height * scale;
-        const geometry = new THREE.PlaneBufferGeometry(width, height, 32);
-        const plane = new THREE.Mesh(geometry, material);
-
-        this.group.add(plane);
-        resolve();
-      };
-    });
-  }
-}
+import { Text } from "./components/text";
+import { Picture } from "./components/picture";
+import { Video } from "./components/video";
 
 class SlyeModule extends slye.Module {
   textButtonClickHandler = async (renderer: slye.Renderer): Promise<void> => {
@@ -130,6 +42,20 @@ class SlyeModule extends slye.Module {
     renderer.actions.insertComponent(step, component);
   };
 
+  videoBtnClickHandler = async (renderer: slye.Renderer): Promise<void> => {
+    const files = await slye.showFileDialog(renderer.presentation.uuid);
+    if (!files || !files.length) return;
+
+    const component = await slye.component("slye", "video", {
+      file: files[0]
+    });
+
+    component.setPosition(0, 0, 0.1);
+
+    const step = renderer.getCurrentStep();
+    renderer.actions.insertComponent(step, component);
+  };
+
   init() {
     this.registerFont("Homa", this.assets.load("homa.ttf"));
     this.registerFont("Sahel", this.assets.load("sahel.ttf"));
@@ -137,10 +63,13 @@ class SlyeModule extends slye.Module {
     this.registerFont("Emoji", this.assets.load("emoji.ttf"));
 
     this.registerComponent("text", Text);
-    this.registerComponent("picture", Picture);
-
     slye.addStepbarButton("Text", "text_fields", this.textButtonClickHandler);
+
+    this.registerComponent("picture", Picture);
     slye.addStepbarButton("Picture", "photo", this.picBtnClickHandler);
+
+    this.registerComponent("video", Video);
+    slye.addStepbarButton("Video", "video_library", this.videoBtnClickHandler);
   }
 }
 

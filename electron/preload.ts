@@ -12,6 +12,7 @@ import { webFrame, remote } from "electron";
 import { Client } from "./client";
 
 webFrame.registerURLSchemeAsPrivileged("slye");
+webFrame.registerURLSchemeAsBypassingCSP("slye");
 window.client = new Client();
 
 // When a preload script is loaded, the DOM is not present yet, so `document`

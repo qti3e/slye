@@ -36,7 +36,17 @@ export interface FileBase {
   load(): Promise<ArrayBuffer>;
 
   /**
-   * Returns a file URL.
+   * Returns a file URL. (Object URL)
+   *
+   * @returns {Promise<string>}
    */
   url(): Promise<string>;
+
+  /**
+   * Get a URL to be used in places like Video where streaming is needed instead
+   * of loading the whole file into the memory at once.
+   *
+   * @returns {Promise<string>}
+   */
+  streamURL(): Promise<string>;
 }

@@ -16,6 +16,7 @@ export interface Server {
   requestModule(moduleName: string): Promise<boolean>;
   fetchModuleAsset(moduleName: string, assetKey: string): Promise<ArrayBuffer>;
   fetchAsset(presentationId: string, assetKey: string): Promise<ArrayBuffer>;
+  getAssetURL(presentationId: string, assetKey: string): Promise<string>;
   showFileDialog(presentationId: string): Promise<FileBase[]>;
 }
 
@@ -44,4 +45,11 @@ export function fetchAsset(
 
 export function showFileDialog(presentationId: string): Promise<FileBase[]> {
   return current_server.showFileDialog(presentationId);
+}
+
+export function getAssetURL(
+  presentationId: string,
+  assetKey: string
+): Promise<string> {
+  return current_server.getAssetURL(presentationId, assetKey);
 }
