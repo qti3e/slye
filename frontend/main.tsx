@@ -16,14 +16,33 @@ interface MainState {
   presentationDescriptor?: string;
 }
 
+function getQueryVariable(variable: string): string {
+  var query = window.location.search.substring(1);
+  var vars = query.split("&");
+  for (var i = 0; i < vars.length; i++) {
+    var pair = vars[i].split("=");
+    if (decodeURIComponent(pair[0]) == variable) {
+      return decodeURIComponent(pair[1]);
+    }
+  }
+}
+
 export class Main extends Component<{}, MainState> {
   constructor(props: {}) {
     super(props);
-    this.state = {};
+    const pd = getQueryVariable("pd");
+    this.state = { presentationDescriptor: pd };
   }
 
   create = async (title: string, description: string) => {
     const { presentationDescriptor } = await client.create();
+
+    client.patchMeta(presentationDescriptor, {
+      title,
+      description,
+      created: Date.now()
+    });
+
     this.setState({
       presentationDescriptor
     });

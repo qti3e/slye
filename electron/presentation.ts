@@ -174,3 +174,5 @@ export class PresentationFile {
     // TODO(qti3e)
   }
 }
+
+export const presentations: Map<string, PresentationFile> = new Map();

@@ -42,5 +42,6 @@ declare namespace THREE {
 
     saveState(): void;
     reset(): void;
+    update(): void;
   }
 }

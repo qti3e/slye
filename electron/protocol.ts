@@ -9,10 +9,10 @@
  */
 
 import { protocol } from "electron";
-import { Server } from "./server";
+import { presentations } from "./presentation";
 import { join, normalize } from "path";
 
-export function registerSlyeProtocol(server: Server): void {
+export function registerSlyeProtocol(): void {
   protocol.registerFileProtocol(
     "slye",
     (request, callback) => {
@@ -26,7 +26,7 @@ export function registerSlyeProtocol(server: Server): void {
           break;
         case "presentation-assets":
           const [pd, asset] = internalUrlParts;
-          callback(server.getAssetURL(pd, asset));
+          callback(getAssetURL(pd, asset));
           break;
         default:
         // TODO(qti3e) Handle 404.
@@ -36,4 +36,9 @@ export function registerSlyeProtocol(server: Server): void {
       if (error) console.error("Failed to register protocol");
     }
   );
+}
+
+function getAssetURL(pd: string, asset: string): string {
+  const p = presentations.get(pd);
+  return normalize(join(p.dir, "assets", asset));
 }

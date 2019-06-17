@@ -134,5 +134,5 @@ export abstract class ThreeComponent<
   protected abstract render(): Promise<void>;
   protected abstract init(): void;
 
-  abstract handleClick?(): void;
+  handleClick?(): void;
 }
