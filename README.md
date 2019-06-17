@@ -24,19 +24,45 @@ between frontend and the electron land (A.K.A server) at the moment.
 ## `electron`
 Codes for the main process.
 
+## Producing a release version
+First build the app:
+```
+npx gulp
+# To build for linux
+npx gulp release:linux64
+# To build for windows
+npx gulp release:win32
+```
+
+## Gulp tasks
+| Task | Description |
+| -- | -- |
+| electron:main | Build electron's main process bundle. |
+| electron:preload | Build electron's preload script. |
+| electron:renderer | Build UI. |
+| modules:slye | Build the default module. |
+| release:linux64 | Builds a release version for linux64 |
+| release:win32 | Builds a release version for win32 |
+
+## TODO
+ - [ ] Documents
+ - [ ] End-user manuals
+ - [ ] Tests
+ - [ ] Templates
+
 ## Contributions
 Once you've cloned the repository locally you can start hacking.
 ```
 git clone https://github.com/qti3e/Slye.git
 cd Slye
+# Install dependncies.
 yarn
+# Build preload and main process.
+npx gulp
+# Start the dev server. (Make sure port 1234 is free.)
 yarn dev
 ```
-
-## Producing a release version
+Sometimes `parcel` does not terminates and you have to kill it yourself:
 ```
-# To build for linux
-npx gulp release:linux64
-# To build for windows
-npx gulp release:win32
+kill $(ps aux | grep '[p]arcel' | awk '{print $2}')
 ```
