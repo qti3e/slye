@@ -1,22 +1,39 @@
-# 3.JS
+# Slye
+Slye is a desktop application which helps users to create 3D presentations.
+| ![](./screenshots/1.png | width=100) | ![](./screenshots/2.png | width=100) | ![](./screenshots/3.png | width=100) |
+| ![](./screenshots/4.png | width=100) | ![](./screenshots/5.png | width=100) | ![](./screenshots/6.png | width=100) |
 
-Slye's 3D abstraction.
+## Directory structure
+There are 3 main units in this project, `core`, `frontend` and `electron`.
 
-## What we need?
+Although we are using electron, we are not using node integration in our
+frontend for security purposes and also we hope that one day we might be
+able to use the exact code to target for web browser.
 
-- [ ] Text Rendering
-- [ ] Images
-- [ ] Videos
-- [ ] Charts
+### `core`
+This directory contains all the abstractions and the internal API to deal with a
+Slye presentation and modules.
 
-## Specification
+### `frontend`
+User interface built using `React`, we are using Electron's IPC to communicate
+between frontend and the electron land (A.K.A server) at the moment.
 
-3.js is a high level JavaScript library that collects 3D abstractions that are
-likely to be used in a Slye module or it self in one place.
+## `electron`
+Codes for the main process.
 
-The required library must be able to provide an API with a presentation and also
-provide a UI abstraction to be used in Slye frontends.
+## Contributions
+Once you've cloned the repository locally you can start hacking.
+```
+git clone https://github.com/qti3e/Slye.git
+cd Slye
+yarn
+yarn dev
+```
 
-All of the provided API must be as cross platform as possible.
-
-Slye modules are WebAsm file so that they can not effect the userland directly.
+## Producing a release version
+```
+# To build for linux
+npx gulp release:linux64
+# To build for windows
+npx gulp release:win32
+```

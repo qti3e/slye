@@ -1,5 +1,5 @@
 {
-  "license": "UNLICENSED",
+  "license": "MIT",
   "main": "dist/main.js",
   "version": "0.0.2-alpha",
   "dependencies": {
