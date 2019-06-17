@@ -1,7 +1,10 @@
 # Slye
 Slye is a desktop application which helps users to create 3D presentations.
-| ![](./screenshots/1.png | width=100) | ![](./screenshots/2.png | width=100) | ![](./screenshots/3.png | width=100) |
-| ![](./screenshots/4.png | width=100) | ![](./screenshots/5.png | width=100) | ![](./screenshots/6.png | width=100) |
+
+|     |     |     |
+| --- | --- | --- |
+| <img src="screenshots/1.png"> | <img src="screenshots/2.png"> | <img src="screenshots/3.png"> |
+| <img src="screenshots/4.png"> | <img src="screenshots/5.png"> | <img src="screenshots/6.png"> |
 
 ## Directory structure
 There are 3 main units in this project, `core`, `frontend` and `electron`.
