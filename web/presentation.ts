@@ -24,6 +24,7 @@ type Meta = Record<string, string | number>;
 export class Presentation {
   readonly uuid: string;
   readonly meta: Meta;
+  readonly assets: Map<string, string> = new Map();
   private presentation: headless.HeadlessPresentation;
 
   constructor() {

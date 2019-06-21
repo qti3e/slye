@@ -40,6 +40,7 @@ export class Client implements types.Client {
               props: {
                 text: "Slye",
                 size: 20,
+                color: 15409268,
                 font: { kind: 1, font: "Shellia", moduleName: "slye" }
               }
             }
@@ -96,10 +97,35 @@ export class Client implements types.Client {
     throw new Error("Not implemented.");
   }
 
-  async showFileDialog(
+  showFileDialog(
     presentationDescriptor: string
   ): Promise<types.ShowFileDialogResponseData> {
-    throw new Error("Not implemented.");
+    let resolve: (data: any) => void;
+    const promise = new Promise<types.ShowFileDialogResponseData>(
+      r => (resolve = r)
+    );
+    const presentation = presentations.get(presentationDescriptor);
+
+    const input = document.createElement("input");
+    input.type = "file";
+    input.onchange = () => {
+      const files = input.files;
+      const retFiles = [];
+
+      for (let i = 0; i < files.length; ++i) {
+        const uuid = uuidv1();
+        const url = URL.createObjectURL(files[i]);
+        presentation.assets.set(uuid, url);
+        retFiles.push(uuid);
+      }
+
+      resolve({
+        files: retFiles
+      });
+    };
+    input.click();
+
+    return promise;
   }
 
   async getModuleMainURL(moduleName: string): Promise<string> {
@@ -115,7 +141,9 @@ export class Client implements types.Client {
   }
 
   async getAssetURL(pd: string, asset: string): Promise<string> {
-    throw new Error("Not implemented.");
+    const presentation = presentations.get(pd);
+    const url = presentation.assets.get(asset);
+    return url;
   }
 
   syncChannelOnMessage(pd: string, handler: (msg: string) => void): void {
