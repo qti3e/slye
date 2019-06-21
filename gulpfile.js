@@ -164,6 +164,29 @@ gulp.task("modules:slye", function() {
 
 gulp.task("modules", gulp.parallel("modules:slye"));
 
+gulp.task("web:frontend", function(cb) {
+  const options = {
+    autoinstall: false,
+    cache: true,
+    hmr: false,
+    logLevel: 3,
+    minify: true,
+    outDir: path.join(__dirname, "./dist"),
+    publicUrl: "./",
+    sourceMaps: true,
+    watch: false
+    //scopeHoist: true
+  };
+
+  const entryPoints = ["web/app.html"];
+
+  const bundler = new Bundler(entryPoints, options);
+  bundler.on("bundled", () => cb());
+  bundler.bundle();
+});
+
+gulp.task("web", gulp.parallel("modules", "web:frontend"));
+
 gulp.task("release:linux64", function(cb) {
   packager({
     ...electronPackagerOptions,

@@ -68,7 +68,6 @@ export class App extends Component<AppProps, AppState> {
           client.syncChannelOnMessage(presentationDescriptor, handler);
         },
         send(msg: string): void {
-          console.log(msg);
           client.syncChannelSend(presentationDescriptor, msg);
         }
       },

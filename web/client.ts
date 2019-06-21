@@ -9,34 +9,77 @@
  */
 
 import { JSONPresentationStep } from "@slye/core/sly";
+import { ee, presentations, Presentation } from "./presentation";
 import * as types from "../frontend/ipc";
+import uuidv1 from "uuid/v1";
 
 export class Client implements types.Client {
   async create(): Promise<types.CreateResponseData> {
+    const sly: any = {
+      template: {
+        moduleName: "slye",
+        component: "template"
+      },
+      steps: {
+        [uuidv1()]: {
+          position: [-110, 0, 0],
+          rotation: [0, 0, 0],
+          scale: [1, 1, 1],
+          components: [
+            {
+              uuid: uuidv1(),
+              moduleName: "slye",
+              component: "text",
+              position: [
+                -15.20454158717898,
+                0.4664170368873606,
+                17.052472519411943
+              ],
+              rotation: [-0.9999961802122638, 0, 0],
+              scale: [1, 1, 0.15397232016921775],
+              props: {
+                text: "Slye",
+                size: 20,
+                font: { kind: 1, font: "Shellia", moduleName: "slye" }
+              }
+            }
+          ]
+        }
+      }
+    };
+
+    const presentation = new Presentation();
+    presentation.open(sly);
+
     return {
-      presentationDescriptor: "xxx"
+      presentationDescriptor: presentation.uuid
     };
   }
 
   async close(
     presentationDescriptor: string
   ): Promise<types.CloseResponseData> {
-    return {
-      ok: true
-    };
+    throw new Error("Not implemented.");
   }
 
   async patchMeta(
     presentationDescriptor: string,
     meta: types.Meta
   ): Promise<types.PatchMetaResponseData> {
-    throw new Error("Not implemented.");
+    const p = presentations.get(presentationDescriptor);
+    p.patchMeta(meta);
+    return {
+      ok: true
+    };
   }
 
   async getMeta(
     presentationDescriptor: string
   ): Promise<types.GetMetaResponseData> {
-    throw new Error("Not implemented.");
+    const p = presentations.get(presentationDescriptor);
+    return {
+      meta: p.meta
+    };
   }
 
   async fetchSly(
@@ -60,23 +103,29 @@ export class Client implements types.Client {
   }
 
   async getModuleMainURL(moduleName: string): Promise<string> {
-    return `slye://modules/${moduleName}/main.js`;
+    if (moduleName !== "slye")
+      throw new Error("Non-default modules are not supported.");
+    return `/modules/${moduleName}/main.js`;
   }
 
   async getModuleAssetURL(moduleName: string, asset: string): Promise<string> {
-    return `slye://modules/${moduleName}/assets/${asset}`;
+    if (moduleName !== "slye")
+      throw new Error("Non-default modules are not supported.");
+    return `/modules/${moduleName}/assets/${asset}`;
   }
 
   async getAssetURL(pd: string, asset: string): Promise<string> {
-    return `slye://presentation-assets/${pd}/${asset}`;
+    throw new Error("Not implemented.");
   }
 
   syncChannelOnMessage(pd: string, handler: (msg: string) => void): void {
-    throw new Error("Not implemented.");
+    ee.on(`p${pd}-x`, (msg: string) => {
+      handler(msg);
+    });
   }
 
   syncChannelSend(pd: string, msg: string): void {
-    throw new Error("Not implemented.");
+    ee.emit(`p${pd}`, msg);
   }
 }
 
