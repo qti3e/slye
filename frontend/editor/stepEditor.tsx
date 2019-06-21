@@ -53,13 +53,13 @@ export class StepEditor extends Component<StepEditorProps, StepEditorState> {
 
   componentWillReceiveProps(nextProps: StepEditorProps) {
     if (nextProps.step !== this.props.step) {
-      this.props.renderer.goTo(nextProps.step, 60);
+      this.props.renderer.goTo(nextProps.step, 1500);
     }
   }
 
   componentWillMount() {
     this.props.renderer.setState("step");
-    this.props.renderer.goTo(this.props.step, 60);
+    this.props.renderer.goTo(this.props.step, 1500);
     // Events.
     const { domElement } = this.props.renderer;
     domElement.addEventListener("mousemove", this.onMouseMove);
@@ -108,7 +108,7 @@ export class StepEditor extends Component<StepEditorProps, StepEditorState> {
 
     // Ctrl+F should focus on the step.
     if (ctrlKey && keyCode === 70) {
-      this.props.renderer.goTo(this.props.step, 60);
+      this.props.renderer.goTo(this.props.step, 1500);
       event.preventDefault();
       return;
     }

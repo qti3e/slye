@@ -37,6 +37,9 @@ declare namespace THREE {
     public minDistance: number;
     public maxDistance: number;
     public maxPolarAngle: number;
+    public zoom0: number;
+    public position0: THREE.Vector3;
+    public target0: THREE.Vector3;
 
     constructor(camera: THREE.Camera, dom?: HTMLElement);
 

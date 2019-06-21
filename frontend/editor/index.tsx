@@ -82,7 +82,6 @@ export class App extends Component<AppProps, AppState> {
 
     await sync.waitForOpen();
     this.renderer.goTo(presentation.steps[0], 0);
-    this.renderer.initMapCamera();
 
     render();
     this.setState({ isLoading: false });

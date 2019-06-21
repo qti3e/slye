@@ -213,22 +213,6 @@ export class Renderer {
   }
 
   /**
-   * Init the Map state's camera position and rotation to look at the first
-   * step.
-   *
-   * @returns {void}
-   */
-  initMapCamera(): void {
-    const step = this.presentation.steps[0];
-    if (!step) return;
-
-    const { position, rotation } = getCameraPosRotForStep(step, this.camera);
-    position.z += 15;
-    this.lastCameraPosition.set(position.x, position.y, position.z);
-    this.lastCameraRotation.set(0, 0, 0);
-  }
-
-  /**
    * Switch the renderer state, when the new state is the same thing as the
    * previous step, it just simply returns.
    *
@@ -256,7 +240,7 @@ export class Renderer {
     }
 
     // Restore the camera state.
-    if (state === "map") {
+    if (state === "map" && prevState) {
       await this.updateCamera(
         this.lastCameraPosition,
         this.lastCameraRotation,
@@ -301,7 +285,7 @@ export class Renderer {
     this.currentStep = step;
 
     const { position, rotation } = getCameraPosRotForStep(step, this.camera);
-    this.updateCamera(position, rotation, 2000);
+    this.updateCamera(position, rotation, duration);
 
     if (this.state === "step") this.focus();
   }
@@ -347,7 +331,7 @@ export class Renderer {
     this.webGLRenderer.setSize(width, height);
     this.width = width;
     this.height = height;
-    if (this.state === "player") this.goTo(this.currentStep, 1000);
+    if (this.state === "player") this.goTo(this.currentStep, 1500);
   }
 
   /**

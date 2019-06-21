@@ -56,6 +56,25 @@ export class MapControl extends Component<MapControlProps> {
       controls.maxDistance = 500;
       controls.maxPolarAngle = Math.PI / 2;
       this.mapControl = controls;
+
+      // Maybe we can use less magic here?
+      this.props.renderer.camera.rotation.set(
+        -1.665337208354138e-16,
+        -1.1942754044593986,
+        -1.5486794606577854e-16
+      );
+      controls.zoom0 = 1;
+      controls.position0.set(
+        -306.6180783491735,
+        1.9681294204195255e-14,
+        188.24827612525496
+      );
+      controls.target0.set(
+        -33.55458497635768,
+        1.701482260977322e-15,
+        80.28328349179617
+      );
+      controls.reset();
     }
   }
 
