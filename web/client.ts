@@ -131,13 +131,13 @@ export class Client implements types.Client {
   async getModuleMainURL(moduleName: string): Promise<string> {
     if (moduleName !== "slye")
       throw new Error("Non-default modules are not supported.");
-    return `/modules/${moduleName}/main.js`;
+    return `./modules/${moduleName}/main.js`;
   }
 
   async getModuleAssetURL(moduleName: string, asset: string): Promise<string> {
     if (moduleName !== "slye")
       throw new Error("Non-default modules are not supported.");
-    return `/modules/${moduleName}/assets/${asset}`;
+    return `./modules/${moduleName}/assets/${asset}`;
   }
 
   async getAssetURL(pd: string, asset: string): Promise<string> {

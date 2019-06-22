@@ -6,6 +6,8 @@ const rollup = require("gulp-better-rollup");
 const rename = require("gulp-rename");
 const packager = require("electron-packager");
 const mergeStream = require("merge-stream");
+const ghpages = require("gh-pages");
+const del = require("del");
 
 const typescript = require("rollup-plugin-typescript");
 const commonjs = require("rollup-plugin-commonjs");
@@ -38,6 +40,11 @@ const electronPackagerOptions = {
 const uglifyes = require("uglify-es");
 const composer = require("gulp-uglify/composer");
 const minify = composer(uglifyes, console);
+
+gulp.task("clean", function(cb) {
+  del.sync(["dist"]);
+  cb();
+});
 
 gulp.task("electron:main", function() {
   const rollupOptions = {
@@ -185,7 +192,7 @@ gulp.task("web:frontend", function(cb) {
   bundler.bundle();
 });
 
-gulp.task("web", gulp.parallel("modules", "web:frontend"));
+gulp.task("web", gulp.parallel("clean", "modules", "web:frontend"));
 
 gulp.task("release:linux64", function(cb) {
   packager({
@@ -211,4 +218,11 @@ gulp.task("release:win32", function(cb) {
 
 gulp.task("release:all", gulp.series("release:linux64", "release:win32"));
 
-exports.default = gulp.parallel("electron", "modules");
+gulp.task("deploy", cb =>
+  ghpages.publish("dist", err => {
+    if (err) console.log(err);
+    cb();
+  })
+);
+
+exports.default = gulp.parallel("clean", "electron", "modules");
