@@ -43,21 +43,27 @@ npx gulp release:win32
 
 ## Gulp tasks
 
-| Task              | Description                                  |
-| ----------------- | -------------------------------------------- |
-| electron:main     | Build electron's main process bundle.        |
-| electron:preload  | Build electron's preload script.             |
-| electron:renderer | Build UI.                                    |
-| modules:slye      | Build the default module.                    |
-| release:linux64   | Builds a release version for linux64.        |
-| release:win32     | Builds a release version for win32.          |
-| clean             | Remove the dist directory.                   |
-| web:frontend      | Bundle the web version.                      |
-| web               | Build the web app completely.                |
-| serve             | Start a HTTP server on port 8080.            |
-| test:build        | Bundle the test files.                       |
-| test:run          | Starts the tests. (server should be running) |
-| test              | Start server, build tests and run tests.     |
+| Task              | Description                                                   |
+| ----------------- | ------------------------------------------------------------- |
+| clean             | Remove the dist directory.                                    |
+| modules:slye      | Build the default module.                                     |
+| modules           | Runs `modules:slye`.                                          |
+| electron:main     | Bundle electron's main process bundle.                        |
+| electron:preload  | Bundle electron's preload script.                             |
+| electron:renderer | Bundle UI.                                                    |
+| electron:icons    | Copy icons to the `dist` directory.                           |
+| electron          | Runs `electron:*`                                             |
+| package:win32     | Creates a binary release for Win32 using Electron packager.   |
+| package:win32     | Creates a binary release for Linux64 using Electron packager. |
+| web               | Build the website and the web demo.                           |
+| build:electron    | Runs `clean`, `modules`, `electron`                           |
+| build:web         | Runs `clean`, `modules`, `web`                                |
+| binary:all        | Runs `build:electron` followed by `package:*`                 |
+| deploy            | Build and deploy the website                                  |
+| serve             | Start a HTTP server on port 8080.                             |
+| test:bundle       | Bundle the test files.                                        |
+| test:run          | Starts the tests. (server should be running)                  |
+| test              | Start server, build tests and run tests.                      |
 
 ## TODO
 
