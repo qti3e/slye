@@ -8,7 +8,6 @@
  *       Copyright 2019 Parsa Ghadimi. All Rights Reserved.
  */
 
-
 import { assert, test } from "liltest";
 
 test(async function sampleTest() {
