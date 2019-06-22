@@ -13,6 +13,12 @@ const typescript = require("rollup-plugin-typescript");
 const commonjs = require("rollup-plugin-commonjs");
 const resolve = require("rollup-plugin-node-resolve");
 
+const fs = require("fs");
+const http = require("http");
+const url = require("url");
+const mime = require("mime");
+const puppeteer = require("puppeteer");
+
 const electronPackagerOptions = {
   name: "Slye",
   dir: __dirname,
@@ -224,5 +230,86 @@ gulp.task("deploy", cb =>
     cb();
   })
 );
+
+gulp.task("serve", cb => {
+  const basePath = path.join(__dirname, "./dist");
+  const index = path.join(basePath, "index.html");
+
+  const server = http.createServer((req, res) => {
+    const reqUrl = url.parse(req.url, true);
+    const filePath = path.join(basePath, reqUrl.pathname);
+    if (!filePath.startsWith(basePath)) {
+      res.writeHead(403, { "Content-Type": "text/html; charset=utf-8" });
+      res.end("Access denied.");
+      return;
+    }
+    fs.stat(filePath, (err, stat) => {
+      let finalPath = filePath;
+      if ((err && err.code === "ENOENT") || stat.isDirectory()) {
+        finalPath = index;
+      } else if (err) {
+        res.writeHead(500, { "Content-Type": "text/html; charset=utf-8" });
+        res.end(`Unexpected server error occurred. [#${err.code}]`);
+        return;
+      }
+      if (!fs.existsSync(finalPath)) {
+        res.writeHead(404, { "Content-Type": "text/html; charset=utf-8" });
+        res.end("Not Found");
+        return;
+      }
+      res.writeHead(200, { "Content-Type": mime.getType(finalPath) });
+      const stream = fs.createReadStream(finalPath);
+      stream.pipe(res);
+    });
+  });
+
+  server.listen(8080, () => {
+    cb();
+    console.log(`Server started listening on port ${8080}...`);
+  });
+});
+
+gulp.task("test:build", function(cb) {
+  const options = {
+    autoinstall: false,
+    cache: true,
+    hmr: false,
+    logLevel: 3,
+    minify: false,
+    outDir: path.join(__dirname, "./dist"),
+    publicUrl: "./",
+    sourceMaps: true,
+    watch: false
+  };
+
+  const entryPoints = ["tests/test.html"];
+
+  const bundler = new Bundler(entryPoints, options);
+  bundler.on("bundled", () => cb());
+  bundler.bundle();
+});
+
+gulp.task("test:run", async function(cb) {
+  const browser = await puppeteer.launch();
+  const page = await browser.newPage();
+  await page.goto("http://localhost:8080/test.html");
+
+  page.on("console", async msg => {
+    const text = msg.text();
+    const args = [];
+    for (let i = 0; i < msg.args().length; ++i) {
+      args.push(await msg.args()[i].jsonValue());
+    }
+    console.log(...args);
+    if (text.indexOf("DONE. Test passed") > -1) {
+      await browser.close();
+      const index = text.lastIndexOf(" ");
+      const n = Number(text.substr(index + 1));
+      process.exit(n > 0 ? 1 : 0);
+    }
+  });
+});
+
+gulp.task("test", gulp.series("serve", "test:build", "test:run"));
 
 exports.default = gulp.parallel("clean", "electron", "modules");
