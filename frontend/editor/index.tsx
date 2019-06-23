@@ -15,6 +15,7 @@ import * as slye from "@slye/core";
 import { Editor } from "./editor";
 import { Player } from "./player";
 import { sleep } from "../util";
+import { Tour } from "./tour";
 
 export interface AppProps {
   presentationDescriptor: string;
@@ -148,6 +149,7 @@ export class App extends Component<AppProps, AppState> {
             requestPlay={() => this.setState({ isPlaying: true })}
           />
         )}
+        <Tour />
       </Fragment>
     );
   }
