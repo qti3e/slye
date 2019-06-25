@@ -1,0 +1,64 @@
+.tour-mouse-container {
+  position: fixed;
+  width: 240px;
+  height: 150px;
+  right: 10px;
+  bottom: 30px;
+  border: 1px solid #8a8a8a;
+  box-shadow: -5px 5px 6px 0px #8a8a8a;
+  background: #548c6b;
+
+  div.arrow {
+    background: url("./arrow-orange.gif");
+    height: 150px;
+    width: 150px;
+    background-size: cover;
+    position: absolute;
+    top: 0;
+    &.left {
+      left: 0;
+      transform: rotate(90deg) scale(0.5) translateY(45px);
+    }
+    &.right {
+      right: 0;
+      transform: rotate(-90deg) scale(0.5) translateY(60px);
+    }
+  }
+
+  .keys {
+    position: absolute;
+    left: 0;
+    top: 0;
+    kbd {
+      display: inline-block;
+      margin: 5px;
+      margin-right: 0;
+      background: #303030;
+      color: #efefef;
+      padding: 5px;
+      border-radius: 5px;
+    }
+  }
+
+  .caption {
+    position: absolute;
+    width: 100%;
+    left: 0;
+    bottom: 0;
+    height: 20px;
+    padding: 2px;
+    background: #303030;
+    color: #eee;
+  }
+
+  .tour-mouse {
+    position: absolute;
+    left: calc(50% - 48px);
+    top: calc(50% - 48px);
+    transition: left 0.4s ease, top 0.4s ease;
+  }
+
+  & path {
+    transition: fill 0.4s ease;
+  }
+}
