@@ -224,10 +224,17 @@ export class Tour extends Component<{}, TourState> {
     this.setState(state => ({ activeStep: state.activeStep - 1 }));
   };
 
+  handleNeverAskAgain = () => {
+    this.setState({ open: false, activeStep: steps.length });
+  };
+
   render() {
     const { open, activeStep } = this.state;
 
-    if (activeStep === steps.length) return null;
+    if (activeStep === steps.length) {
+      localStorage.setItem("slye-tour-finished", "1");
+      return null;
+    }
 
     if (activeStep > -1) {
       const maxStep = steps.length - 1;
@@ -282,8 +289,11 @@ export class Tour extends Component<{}, TourState> {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
+          <Button onClick={this.handleNeverAskAgain} color="primary">
+            Never ask again
+          </Button>
           <Button onClick={this.handleClose} color="primary">
-            Skip
+            Ask me later
           </Button>
           <Button onClick={this.handleStart} color="primary">
             Start the tour

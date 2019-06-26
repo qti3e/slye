@@ -24,6 +24,7 @@ export interface AppProps {
 interface AppState {
   isPlaying: boolean;
   isLoading: boolean;
+  showTour: boolean;
 }
 
 export class App extends Component<AppProps, AppState> {
@@ -35,7 +36,8 @@ export class App extends Component<AppProps, AppState> {
 
     this.state = {
       isPlaying: false,
-      isLoading: true
+      isLoading: true,
+      showTour: !localStorage.getItem("slye-tour-finished")
     };
   }
 
@@ -131,7 +133,7 @@ export class App extends Component<AppProps, AppState> {
   };
 
   render() {
-    const { isPlaying, isLoading } = this.state;
+    const { isPlaying, isLoading, showTour } = this.state;
 
     if (isLoading) return null;
 
@@ -149,7 +151,7 @@ export class App extends Component<AppProps, AppState> {
             requestPlay={() => this.setState({ isPlaying: true })}
           />
         )}
-        <Tour />
+        {showTour ? <Tour /> : null}
       </Fragment>
     );
   }
