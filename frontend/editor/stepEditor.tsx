@@ -93,13 +93,17 @@ export class StepEditor extends Component<StepEditorProps, StepEditorState> {
   };
 
   onKeydown = (event: KeyboardEvent): void => {
-    const { keyCode } = event;
+    const { ctrlKey, keyCode } = event;
 
     // Alt
     if (keyCode === 18) {
       this.setState({ isAltDown: true });
       event.preventDefault();
       return;
+    }
+
+    if (ctrlKey && keyCode === 70) {
+      event.preventDefault();
     }
   };
 

@@ -10,7 +10,7 @@
 
 import React, { Component } from "react";
 
-interface MouseProps {
+export interface MouseProps {
   leftActive?: boolean;
   rightActive?: boolean;
   caption?: string;

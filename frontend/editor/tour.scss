@@ -1,3 +1,23 @@
+.tour-step {
+  width: 400px;
+  position: fixed;
+  top: 40px;
+  left: 10px;
+
+  .stepper {
+    width: 100%;
+  }
+
+  .body {
+    width: 100%;
+    padding: 8px;
+
+    br {
+      line-height: 35px;
+    }
+  }
+}
+
 .tour-mouse-container {
   position: fixed;
   width: 240px;
@@ -29,15 +49,6 @@
     position: absolute;
     left: 0;
     top: 0;
-    kbd {
-      display: inline-block;
-      margin: 5px;
-      margin-right: 0;
-      background: #303030;
-      color: #efefef;
-      padding: 5px;
-      border-radius: 5px;
-    }
   }
 
   .caption {
@@ -61,4 +72,16 @@
   & path {
     transition: fill 0.4s ease;
   }
+}
+
+kbd {
+  display: inline-block;
+  margin: 5px;
+  margin-right: 0;
+  background: #303030;
+  color: #efefef;
+  padding: 5px;
+  border-radius: 5px;
+  min-width: 20px;
+  text-align: center;
 }

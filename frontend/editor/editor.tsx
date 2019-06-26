@@ -57,11 +57,26 @@ export class Editor extends Component<EditorProps, EditorState> {
 
   componentWillMount() {
     document.addEventListener("keyup", this.onKeyup);
+    document.addEventListener("keydown", this.onKeydown);
   }
 
   componentWillUnmount() {
     document.removeEventListener("keyup", this.onKeyup);
+    document.removeEventListener("keydown", this.onKeydown);
   }
+
+  onKeydown = (event: KeyboardEvent): void => {
+    const { keyCode, ctrlKey } = event;
+
+    if (
+      keyCode === 116 ||
+      (ctrlKey && keyCode === 90) ||
+      (ctrlKey && keyCode === 89) ||
+      (ctrlKey && keyCode === 83)
+    ) {
+      event.preventDefault();
+    }
+  };
 
   onKeyup = (event: KeyboardEvent): void => {
     const { keyCode, ctrlKey } = event;
