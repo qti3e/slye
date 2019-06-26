@@ -7,6 +7,12 @@ Slye is a desktop application which helps users to create 3D presentations.
 | <img src="screenshots/1.png"> | <img src="screenshots/2.png"> | <img src="screenshots/3.png"> |
 | <img src="screenshots/4.png"> | <img src="screenshots/5.png"> | <img src="screenshots/6.png"> |
 
+# Demo
+
+There is a [web demo](https://qti3e.github.io/Slye/app.html) available if you
+want to try it first.
+(Not all of the functionalities are implemented in the demo.)
+
 ## Directory structure
 
 There are 3 main units in this project, `core`, `frontend` and `electron`.
