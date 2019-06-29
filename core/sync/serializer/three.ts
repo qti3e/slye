@@ -8,7 +8,12 @@
  *       Copyright 2019 Parsa Ghadimi. All Rights Reserved.
  */
 
-import { unserializers } from "./serializer/headless";
-import { createSerializer } from "./common";
+import { Unserializers } from "./types";
 
-export const HeadlessSerializer = createSerializer(unserializers);
+export const unserializers: Unserializers = {
+  font: {
+    unserialize(data) {
+      return undefined;
+    }
+  }
+};

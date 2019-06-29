@@ -8,7 +8,12 @@
  *       Copyright 2019 Parsa Ghadimi. All Rights Reserved.
  */
 
-export interface SyncChannel {
-  send(msg: string): void;
-  onMessage(handler: (msg: string) => void): void;
-}
+import { Unserializers } from "./types";
+
+export const unserializers: Unserializers = {
+  font: {
+    unserialize(data) {
+      return undefined;
+    }
+  }
+};

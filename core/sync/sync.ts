@@ -10,11 +10,9 @@
 
 import { PresentationBase, StepBase, ComponentBase } from "../interfaces";
 import { ActionStack } from "../actionStack";
-import { SyncChannel } from "./channel";
-import { SyncCommand } from "./common";
+import { SyncCommand, SyncChannel, Serializer } from "./types";
 import { SlyDecoder, JSONPresentation } from "../sly/types";
 import { encode } from "../sly/encoder";
-import { Serializer } from "./serializer";
 import { actions, ActionTypes } from "../actions";
 
 /**
@@ -37,10 +35,10 @@ export class Sync {
 
     this.ch.onMessage(this.onMessage);
 
-    if (serializer.presentationUUID)
+    if (serializer.ctx.presentationUUID)
       throw new Error("Serializer is already in use");
 
-    serializer.presentationUUID = presentation.uuid;
+    serializer.ctx.presentationUUID = presentation.uuid;
   }
 
   bind(actionStack: ActionStack): void {
@@ -54,10 +52,10 @@ export class Sync {
     // TODO(qti3e) We need to ensure it is only called once.
     await this.slyDecoder(this.presentation, sly, {
       onComponent: (component: ComponentBase): void => {
-        this.serializer.components.set(component.uuid, component);
+        this.serializer.ctx.components.set(component.uuid, component);
       },
       onStep: (step: StepBase): void => {
-        this.serializer.steps.set(step.uuid, step);
+        this.serializer.ctx.steps.set(step.uuid, step);
       }
     });
     this.resolves.map(r => r());
@@ -98,7 +96,9 @@ export class Sync {
 
   private async handleAction(text: string): Promise<void> {
     const raw = await this.serializer.unserialize(text);
-    const action = actions[raw.action][raw.forward ? "forward" : "backward"];
+    const action = (actions as any)[raw.action][
+      raw.forward ? "forward" : "backward"
+    ];
     action(this.presentation, raw.data);
   }
 
