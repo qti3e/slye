@@ -32,7 +32,7 @@ export const serializers: (u: Unserializers) => Serializers = u => ({
     serialize(data) {
       return data;
     },
-    unserialize(data) {
+    async unserialize(data) {
       return data;
     }
   },
@@ -122,10 +122,10 @@ export const serializers: (u: Unserializers) => Serializers = u => ({
       }
       return ret;
     },
-    unserialize(obj) {
+    async unserialize(obj) {
       const ret: Record<string, any> = {};
       for (const key in obj) {
-        ret[key] = unserialize(this, obj[key]);
+        ret[key] = await unserialize(this, obj[key]);
       }
       return ret;
     }

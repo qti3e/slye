@@ -38,7 +38,7 @@ export function createSerializer(unserializers: Unserializers) {
 
     async unserialize(text: string): Promise<any> {
       const raw = JSON.parse(text);
-      const data = unserialize(this.ctx, raw.data);
+      const data = await unserialize(this.ctx, raw.data);
       return {
         forward: !!raw.forward,
         action: raw.action,

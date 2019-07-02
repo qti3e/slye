@@ -23,11 +23,11 @@ export interface Context {
 export interface Serializer<P, T> {
   test(data: any): data is P;
   serialize(this: Context, data: P): T;
-  unserialize(this: Context, data: T): P;
+  unserialize(this: Context, data: T): Promise<P>;
 }
 
 export interface Unserializer<P, T> {
-  unserialize(this: Context, data: T): P;
+  unserialize(this: Context, data: T): Promise<P>;
 }
 
 type V3 = [number, number, number];
@@ -84,14 +84,14 @@ export type Serialized<K extends keyof Serializers> = {
 
 // Utils.
 
-type P<K extends keyof Serializers> = Serializers[K] extends Serializer<
+export type P<K extends keyof Serializers> = Serializers[K] extends Serializer<
   infer P,
   any
 >
   ? P
   : never;
 
-type T<K extends keyof Serializers> = Serializers[K] extends Serializer<
+export type T<K extends keyof Serializers> = Serializers[K] extends Serializer<
   any,
   infer T
 >
