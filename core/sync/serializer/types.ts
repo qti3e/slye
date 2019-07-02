@@ -30,13 +30,44 @@ export interface Unserializer<P, T> {
   unserialize(this: Context, data: T): P;
 }
 
+type V3 = [number, number, number];
+
 export type Serializers = {
   primary: Serializer<Primary, Primary>;
+  object: Serializer<Record<string, any>, Record<string, SerializedData>>;
   font: Serializer<FontBase, { name: string; moduleName: string }>;
+  step: Serializer<
+    StepBase,
+    {
+      uuid: string;
+      data?: {
+        position: V3;
+        rotation: V3;
+        scale: V3;
+        components: Serialized<"component">[];
+      };
+    }
+  >;
+  component: Serializer<
+    ComponentBase,
+    {
+      uuid: string;
+      data?: {
+        position: V3;
+        scale: V3;
+        rotation: V3;
+        moduleName: string;
+        componentName: string;
+        props: Serialized<"object">;
+      };
+    }
+  >;
 };
 
 export type Unserializers = {
   font: U<"font">;
+  step: U<"step">;
+  component: U<"component">;
 };
 
 export type SerializedData = {
@@ -45,6 +76,11 @@ export type SerializedData = {
     data: T<K>;
   }
 }[keyof Serializers];
+
+export type Serialized<K extends keyof Serializers> = {
+  name: K;
+  data: T<K>;
+};
 
 // Utils.
 
