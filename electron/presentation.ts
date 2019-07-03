@@ -67,12 +67,10 @@ export class PresentationFile {
       {
         onMessage(handler: (msg: string) => void): void {
           ipcMain.on(`p${pd}`, (event: IpcMessageEvent, msg: string) => {
-            console.log("Recv", msg);
             handler(msg);
           });
         },
         send(msg: string): void {
-          console.log("Send", msg);
           window.webContents.send(`p${pd}`, msg);
         }
       },

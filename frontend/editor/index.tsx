@@ -11,6 +11,7 @@
 import React, { Component, Fragment } from "react";
 import Screenfull from "screenfull";
 import * as slye from "@slye/core";
+import { ThreeSerializer } from "../../core/sync/threeSerializer";
 
 import { Editor } from "./editor";
 import { Player } from "./player";
@@ -65,7 +66,7 @@ export class App extends Component<AppProps, AppState> {
     // Load the presentation.
     const sync = new slye.Sync(
       presentation,
-      new slye.ThreeSerializer(),
+      new ThreeSerializer(),
       {
         onMessage(handler: (msg: string) => void): void {
           client.syncChannelOnMessage(presentationDescriptor, handler);

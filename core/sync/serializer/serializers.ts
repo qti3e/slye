@@ -8,7 +8,8 @@
  *       Copyright 2019 Parsa Ghadimi. All Rights Reserved.
  */
 
-import { ComponentBase, FontBase, StepBase } from "../../interfaces";
+import { ComponentBase, FontBase, StepBase, FileBase } from "../../interfaces";
+import { File } from "../../file";
 import {
   Unserializers,
   Serializers,
@@ -110,6 +111,25 @@ export const serializers: (u: Unserializers) => Serializers = u => ({
       };
     },
     ...u.component
+  },
+  file: {
+    test(data): data is FileBase {
+      return !!(data && typeof data == "object" && data.isSlyeFile);
+    },
+    serialize(file) {
+      const { uuid } = file;
+      this.files.set(uuid, file);
+      return { uuid };
+    },
+    async unserialize(serialized) {
+      const { uuid } = serialized;
+      if (this.files.has(uuid)) {
+        return this.files.get(uuid);
+      }
+      const file = new File(this.presentationUUID, uuid);
+      this.files.set(uuid, file);
+      return file;
+    }
   },
   object: {
     test(data): data is Record<string, any> {

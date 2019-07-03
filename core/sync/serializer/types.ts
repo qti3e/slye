@@ -8,7 +8,7 @@
  *       Copyright 2019 Parsa Ghadimi. All Rights Reserved.
  */
 
-import { StepBase, ComponentBase, FontBase } from "../../interfaces";
+import { StepBase, ComponentBase, FontBase, FileBase } from "../../interfaces";
 
 export type Primary = number | string | boolean | null | undefined;
 
@@ -17,6 +17,7 @@ export interface Context {
   fonts: Map<string, FontBase>;
   components: Map<string, ComponentBase>;
   steps: Map<string, StepBase>;
+  files: Map<string, FileBase>;
   presentationUUID: string;
 }
 
@@ -60,6 +61,12 @@ export type Serializers = {
         componentName: string;
         props: Serialized<"object">;
       };
+    }
+  >;
+  file: Serializer<
+    FileBase,
+    {
+      uuid: string;
     }
   >;
 };

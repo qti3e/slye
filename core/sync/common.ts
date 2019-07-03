@@ -24,6 +24,7 @@ export function createSerializer(unserializers: Unserializers) {
         fonts: new Map(),
         components: new Map(),
         steps: new Map(),
+        files: new Map(),
         presentationUUID: undefined
       };
     }
@@ -38,6 +39,7 @@ export function createSerializer(unserializers: Unserializers) {
 
     async unserialize(text: string): Promise<any> {
       const raw = JSON.parse(text);
+      console.log(JSON.stringify(raw, null, 4));
       const data = await unserialize(this.ctx, raw.data);
       return {
         forward: !!raw.forward,
