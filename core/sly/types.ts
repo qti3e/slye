@@ -18,6 +18,7 @@ export enum RefKind {
 export interface FileRef {
   kind: RefKind.FILE;
   uuid: string;
+  moduleId?: string;
 }
 
 export interface FontRef {

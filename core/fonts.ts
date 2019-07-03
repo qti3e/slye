@@ -10,6 +10,9 @@
 
 import { FontBase } from "./interfaces";
 
+/**
+ * List of all of the registered fonts.
+ */
 const fonts: FontBase[] = [];
 
 /**
@@ -31,7 +34,12 @@ export function getFonts(): FontBase[] {
   return [...fonts];
 }
 
+/**
+ * Find and return a font by its name.
+ *
+ * @param {string} name Font name.
+ * @returns {FontBase}
+ */
 export function getFont(name: string): FontBase {
-  for (const font of fonts)
-    if (font.name === name) return font;
+  for (const font of fonts) if (font.name === name) return font;
 }

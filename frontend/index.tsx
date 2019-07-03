@@ -54,7 +54,7 @@ Slye.setServer({
   },
   async showFileDialog(presentationId: string): Promise<Slye.File[]> {
     const res = await client.showFileDialog(presentationId);
-    return res.files.map(id => new Slye.File(presentationId, id));
+    return res.files.map(id => new Slye.File(presentationId, id, false));
   },
   getAssetURL(presentationId: string, asset: string): Promise<string> {
     return client.getAssetURL(presentationId, asset);

@@ -62,7 +62,8 @@ export function encode(presentation: PresentationBase): JSONPresentation {
         } else if (isFile(value)) {
           jcomp.props[key] = {
             kind: RefKind.FILE,
-            uuid: value.uuid
+            uuid: value.uuid,
+            moduleId: value.isModuleAsset ? value.owner : undefined
           };
         } else {
           throw new Error(`Encoder for ${value} is not implemented yet.`);

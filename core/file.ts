@@ -9,11 +9,8 @@
  */
 
 import { FileBase } from "./interfaces";
-import { fetchAsset, getAssetURL } from "./server";
+import { fetchAsset, fetchModuleAsset } from "./server";
 
-/**
- * Presentation File Asset.
- */
 export class File implements FileBase {
   /**
    * Used for optimizations.
@@ -29,7 +26,11 @@ export class File implements FileBase {
 
   private blobURL: string;
 
-  constructor(readonly presentationId: string, readonly uuid: string) {}
+  constructor(
+    readonly owner: string,
+    readonly uuid: string,
+    readonly isModuleAsset: boolean
+  ) {}
 
   /**
    * Fetch the file from the server.
@@ -38,7 +39,8 @@ export class File implements FileBase {
    */
   async load(): Promise<ArrayBuffer> {
     if (this.cache) return this.cache;
-    const ab = await fetchAsset(this.presentationId, this.uuid);
+    const fetch = this.isModuleAsset ? fetchModuleAsset : fetchAsset;
+    const ab = await fetch(this.owner, this.uuid);
     this.cache = ab;
     return ab;
   }
@@ -47,16 +49,8 @@ export class File implements FileBase {
     if (this.blobURL) return this.blobURL;
     const ab = await this.load();
     const blob = new Blob([ab]);
-    //const blob = new Blob([ab], { type: "image/png" });
     const url = URL.createObjectURL(blob);
     this.blobURL = url;
-    return url;
-  }
-
-  async streamURL(): Promise<string> {
-    if (this.urlCache) return this.urlCache;
-    const url = await getAssetURL(this.presentationId, this.uuid);
-    this.urlCache = url;
     return url;
   }
 }

@@ -117,17 +117,22 @@ export const serializers: (u: Unserializers) => Serializers = u => ({
       return !!(data && typeof data == "object" && data.isSlyeFile);
     },
     serialize(file) {
-      const { uuid } = file;
-      this.files.set(uuid, file);
-      return { uuid };
+      const { uuid, isModuleAsset, owner } = file;
+      const key = `${isModuleAsset ? owner : ""}-${uuid}`;
+      const moduleName = isModuleAsset ? owner : undefined;
+      this.files.set(key, file);
+      return { uuid, moduleName };
     },
     async unserialize(serialized) {
-      const { uuid } = serialized;
-      if (this.files.has(uuid)) {
-        return this.files.get(uuid);
+      const { uuid, moduleName } = serialized;
+      const isModuleAsset = !!moduleName;
+      const owner = isModuleAsset ? moduleName : this.presentationUUID;
+      const key = `${isModuleAsset ? owner : ""}-${uuid}`;
+      if (this.files.has(key)) {
+        return this.files.get(key);
       }
-      const file = new File(this.presentationUUID, uuid);
-      this.files.set(uuid, file);
+      const file = new File(owner, uuid, isModuleAsset);
+      this.files.set(key, file);
       return file;
     }
   },

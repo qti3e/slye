@@ -40,7 +40,9 @@ export function headlessDecode(
         if (typeof jvalue === "number" || typeof jvalue === "string") {
           props[key] = jvalue;
         } else if (jvalue.kind === RefKind.FILE) {
-          props[key] = new File(presentation.uuid, jvalue.uuid);
+          const isModuleAsset = !!jvalue.moduleId;
+          const owner = isModuleAsset ? jvalue.moduleId : presentation.uuid;
+          props[key] = new File(owner, jvalue.uuid, isModuleAsset);
         } else if (jvalue.kind === RefKind.FONT) {
           props[key] = new HeadlessFont(jvalue.moduleName, jvalue.font);
         }

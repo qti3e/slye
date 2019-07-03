@@ -8,25 +8,34 @@
  *       Copyright 2019 Parsa Ghadimi. All Rights Reserved.
  */
 
+type PresentationUUID = string;
+type ModuleName = string;
+
 /**
  * File represents a presentation file, like a picture or a video.
  */
 export interface FileBase {
-  /**
-   * Unique id for this file.
-   */
-  readonly uuid: string;
-
   /**
    * Used for optimizations, you should never change this.
    */
   readonly isSlyeFile: true;
 
   /**
-   * Each file belongs to only one presentation at a time and
-   * it can not be moved from one presentation into another.
+   * Whatever this file is a presentation file or a module asset.
    */
-  readonly presentationId: string;
+  readonly isModuleAsset: boolean;
+
+  /**
+   * Unique id for this file.
+   */
+  readonly uuid: string;
+
+  /**
+   * File provider.
+   * If the file is a module asset it points to a module otherwise it's the
+   * presentation id.
+   */
+  readonly owner: PresentationUUID | ModuleName;
 
   /**
    * Fetch the file from the server.
@@ -41,12 +50,4 @@ export interface FileBase {
    * @returns {Promise<string>}
    */
   url(): Promise<string>;
-
-  /**
-   * Get a URL to be used in places like Video where streaming is needed instead
-   * of loading the whole file into the memory at once.
-   *
-   * @returns {Promise<string>}
-   */
-  streamURL(): Promise<string>;
 }

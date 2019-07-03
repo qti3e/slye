@@ -21,10 +21,12 @@ export interface FileWidgetProps {
 
 export class FileWidget extends Component<FileWidgetProps> {
   handleClick = async () => {
-    const { presentationId } = this.props.value;
-    const { files } = await client.showFileDialog(presentationId);
+    if (this.props.value.isModuleAsset)
+      throw new Error("FileWidget only works for presentation assets.");
+    const { owner } = this.props.value;
+    const { files } = await client.showFileDialog(owner);
     if (!files || !files.length) return;
-    const file = new slye.File(presentationId, files[0]);
+    const file = new slye.File(owner, files[0], false);
     this.props.onChange(file);
   };
 

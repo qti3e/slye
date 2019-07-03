@@ -67,6 +67,7 @@ export type Serializers = {
     FileBase,
     {
       uuid: string;
+      moduleName?: string;
     }
   >;
 };
