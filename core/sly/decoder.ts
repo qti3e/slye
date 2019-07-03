@@ -9,9 +9,9 @@
  */
 
 import { PropValue } from "../interfaces";
-import { ThreePresentation, ThreeStep, ThreeComponent } from "../three";
+import { ThreePresentation, ThreeStep, ThreeComponent, Font } from "../three";
 import { File } from "../file";
-import { font, component } from "../module";
+import { file, component } from "../module";
 import { RefKind, JSONPresentation, DecoderOptions } from "./types";
 
 /**
@@ -26,6 +26,31 @@ export async function sly(
   o: JSONPresentation,
   options: DecoderOptions<ThreeStep, ThreeComponent> = {}
 ): Promise<void> {
+  const filesMap: Map<string, File> = new Map();
+  const fontsMap: Map<File, Font[]> = new Map();
+
+  function getFile(uuid: string, moduleName: string): Promise<File> {
+    const isModuleAsset = !!moduleName;
+    if (isModuleAsset) return file(moduleName, uuid) as Promise<File>;
+    if (filesMap.has(uuid)) return Promise.resolve(filesMap.get(uuid));
+    const newFile = new File(presentation.uuid, uuid, isModuleAsset);
+    filesMap.set(uuid, newFile);
+    return Promise.resolve(newFile);
+  }
+
+  function getFont(name: string, file: File): Font {
+    if (!fontsMap.has(file)) fontsMap.set(file, []);
+    const fonts = fontsMap.get(file);
+    for (const font of fonts) {
+      if (font.name === name) {
+        return font;
+      }
+    }
+    const font = new Font(name, file);
+    fontsMap.set(file, [...fonts, font]);
+    return font;
+  }
+
   if (o.template) {
     //const tem = await component(o.template.moduleName, o.template.component);
     //presentation.setTemplate(tem);
@@ -48,11 +73,10 @@ export async function sly(
         if (typeof jvalue === "number" || typeof jvalue === "string") {
           props[key] = jvalue;
         } else if (jvalue.kind === RefKind.FILE) {
-          const isModuleAsset = !!jvalue.moduleId;
-          const owner = isModuleAsset ? jvalue.moduleId : presentation.uuid;
-          props[key] = new File(owner, jvalue.uuid, isModuleAsset);
+          props[key] = await getFile(jvalue.uuid, jvalue.moduleId);
         } else if (jvalue.kind === RefKind.FONT) {
-          props[key] = await font(jvalue.moduleName, jvalue.font);
+          const file = await getFile(jvalue.fileUUID, jvalue.moduleId);
+          props[key] = getFont(jvalue.font, file);
         }
       }
 

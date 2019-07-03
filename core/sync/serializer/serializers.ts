@@ -42,11 +42,11 @@ export const serializers: (u: Unserializers) => Serializers = u => ({
       return !!(data && typeof data === "object" && data.isSlyeFont);
     },
     serialize(data) {
-      const key = `${data.moduleName}-${data.name}`;
+      const key = `${data.file.owner}-${data.name}`;
       this.fonts.set(key, data);
       return {
         name: data.name,
-        moduleName: data.moduleName
+        file: serialize(this, data.file) as Serialized<"file">
       };
     },
     ...u.font
@@ -123,18 +123,7 @@ export const serializers: (u: Unserializers) => Serializers = u => ({
       this.files.set(key, file);
       return { uuid, moduleName };
     },
-    async unserialize(serialized) {
-      const { uuid, moduleName } = serialized;
-      const isModuleAsset = !!moduleName;
-      const owner = isModuleAsset ? moduleName : this.presentationUUID;
-      const key = `${isModuleAsset ? owner : ""}-${uuid}`;
-      if (this.files.has(key)) {
-        return this.files.get(key);
-      }
-      const file = new File(owner, uuid, isModuleAsset);
-      this.files.set(key, file);
-      return file;
-    }
+    ...u.file
   },
   object: {
     test(data): data is Record<string, any> {

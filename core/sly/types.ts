@@ -23,8 +23,9 @@ export interface FileRef {
 
 export interface FontRef {
   kind: RefKind.FONT;
-  moduleName: string;
   font: string;
+  fileUUID: string;
+  moduleId?: string;
 }
 
 export type ComponentPropValue = FileRef | FontRef | string | number;

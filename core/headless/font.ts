@@ -9,11 +9,12 @@
  */
 
 import { FontBase, Glyph } from "../interfaces";
+import { File } from "../file";
 
 export class HeadlessFont implements FontBase {
   readonly isSlyeFont = true;
 
-  constructor(readonly moduleName: string, readonly name: string) {}
+  constructor(readonly name: string, readonly file: File) {}
 
   async layout(text: string): Promise<Glyph[]> {
     throw new Error("`layout` is not implemented for headless fonts");

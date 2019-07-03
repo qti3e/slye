@@ -8,21 +8,23 @@
  *       Copyright 2019 Parsa Ghadimi. All Rights Reserved.
  */
 
-import { ThreeStep, ThreeComponent } from "../../three";
-import { font, component } from "../../module";
+import { ThreeStep, ThreeComponent, Font } from "../../three";
+import { File } from "../../file";
+import { file, component } from "../../module";
 import { Unserializers } from "./types";
 import { unserialize } from "./index";
 
 export const unserializers: Unserializers = {
   font: {
     async unserialize(data) {
-      const key = `${data.moduleName}-${data.name}`;
+      const file = await unserialize(this, data.file);
+      const key = `${file.owner}-${data.name}`;
       if (this.fonts.has(key)) {
         return this.fonts.get(key);
       }
-      const fontObj = await font(data.moduleName, data.name);
-      this.fonts.set(key, fontObj);
-      return fontObj;
+      const font = new Font(data.name, file as any);
+      this.fonts.set(key, font);
+      return font;
     }
   },
   step: {
@@ -64,6 +66,23 @@ export const unserializers: Unserializers = {
       com.setScale(scale[0], scale[1], scale[2]);
       this.components.set(uuid, com);
       return com;
+    }
+  },
+  file: {
+    async unserialize(serialized) {
+      const { uuid, moduleName } = serialized;
+      const isModuleAsset = !!moduleName;
+      if (isModuleAsset) {
+        return await file(moduleName, uuid);
+      }
+      const owner = isModuleAsset ? moduleName : this.presentationUUID;
+      const key = `${isModuleAsset ? owner : ""}-${uuid}`;
+      if (this.files.has(key)) {
+        return this.files.get(key);
+      }
+      const newFile = new File(owner, uuid, isModuleAsset);
+      this.files.set(key, newFile);
+      return newFile;
     }
   }
 };

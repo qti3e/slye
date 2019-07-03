@@ -57,7 +57,8 @@ export function encode(presentation: PresentationBase): JSONPresentation {
           jcomp.props[key] = {
             kind: RefKind.FONT,
             font: value.name,
-            moduleName: value.moduleName
+            fileUUID: value.file.uuid,
+            moduleId: value.file.isModuleAsset ? value.file.owner : undefined
           };
         } else if (isFile(value)) {
           jcomp.props[key] = {

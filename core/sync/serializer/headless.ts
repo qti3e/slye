@@ -9,17 +9,19 @@
  */
 
 import { HeadlessStep, HeadlessComponent, HeadlessFont } from "../../headless";
+import { File } from "../../file";
 import { Unserializers } from "./types";
 import { unserialize } from "./index";
 
 export const unserializers: Unserializers = {
   font: {
     async unserialize(data) {
-      const key = `${data.moduleName}-${data.name}`;
+      const file = await unserialize(this, data.file);
+      const key = `${file.owner}-${data.name}`;
       if (this.fonts.has(key)) {
         return this.fonts.get(key);
       }
-      const font = new HeadlessFont(data.moduleName, data.name);
+      const font = new HeadlessFont(data.name, file as any);
       this.fonts.set(key, font);
       return font;
     }
@@ -58,6 +60,20 @@ export const unserializers: Unserializers = {
       com.setScale(scale[0], scale[1], scale[2]);
       this.components.set(uuid, com);
       return com;
+    }
+  },
+  file: {
+    async unserialize(serialized) {
+      const { uuid, moduleName } = serialized;
+      const isModuleAsset = !!moduleName;
+      const owner = isModuleAsset ? moduleName : this.presentationUUID;
+      const key = `${isModuleAsset ? owner : ""}-${uuid}`;
+      if (this.files.has(key)) {
+        return this.files.get(key);
+      }
+      const file = new File(owner, uuid, isModuleAsset);
+      this.files.set(key, file);
+      return file;
     }
   }
 };

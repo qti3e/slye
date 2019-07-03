@@ -197,7 +197,7 @@ export class StepEditor extends Component<StepEditorProps, StepEditorState> {
   ): Promise<void> => {
     const c = await slye.component(moduleName, component, {
       size: 10,
-      font: await slye.font("slye", "Homa"),
+      font: await slye.getFont("Homa"),
       text: "Write...",
       color: 0x896215
     });

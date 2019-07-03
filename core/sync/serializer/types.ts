@@ -36,7 +36,7 @@ type V3 = [number, number, number];
 export type Serializers = {
   primary: Serializer<Primary, Primary>;
   object: Serializer<Record<string, any>, Record<string, SerializedData>>;
-  font: Serializer<FontBase, { name: string; moduleName: string }>;
+  font: Serializer<FontBase, { name: string; file: Serialized<"file"> }>;
   step: Serializer<
     StepBase,
     {
@@ -76,6 +76,7 @@ export type Unserializers = {
   font: U<"font">;
   step: U<"step">;
   component: U<"component">;
+  file: U<"file">;
 };
 
 export type SerializedData = {

@@ -10,9 +10,9 @@
 
 import { generateShapes } from "./draw";
 import { FontBase, PropValue, ComponentProps } from "./interfaces";
-import { AssetLoader } from "./assetLoader";
 import { fetchModuleAsset, requestModule } from "./server";
 import { ThreeComponent, Font } from "./three";
+import { File } from "./file";
 import uuidv1 from "uuid/v1";
 
 const modulesTable: Map<string, ModuleInterface> = (window.slyeModulesTable =
@@ -29,11 +29,6 @@ export interface ModuleInterface {
   readonly name: string;
 
   /**
-   * Asset manager for the module.
-   */
-  readonly assets: AssetLoader<string>;
-
-  /**
    * Returns a new instance of the component.
    *
    * @param {string} name Name of the component.
@@ -47,18 +42,11 @@ export interface ModuleInterface {
   ): ThreeComponent<any>;
 
   /**
-   * Returns name of the registered fonts.
-   *
-   * @returns {string[]}
+   * Returns a file object for the asset.
+   * @param {string} name Name of the file.
+   * @returns {File}
    */
-  getFonts(): string[];
-
-  /**
-   * Returns a font instance which is associated with the given name.
-   * @param {string} name Name of the font.
-   * @returns {FontBase}
-   */
-  font(name: string): FontBase;
+  file(name: string): File;
 
   /**
    * Initialize the module.
@@ -82,22 +70,22 @@ type ModuleClass = {
 
 export abstract class Module implements ModuleInterface {
   private readonly components: Map<string, ComponentClass> = new Map();
-  private readonly fonts: Map<string, FontBase> = new Map();
-  readonly assets: AssetLoader<string>;
+  private readonly files: Map<string, File> = new Map();
   readonly name: string;
 
   constructor(name: string) {
     this.name = name;
-    this.assets = new AssetLoader(key => fetchModuleAsset(name, key));
   }
 
   protected registerComponent(name: string, c: ComponentClass): void {
     this.components.set(name, c);
   }
 
-  protected registerFont(name: string, asset: number): void {
-    const font = new Font(() => this.assets.getData(asset), this.name, name);
-    this.fonts.set(name, font);
+  file(fileName: string): File {
+    if (this.files.has(name)) return this.files.get(name);
+    const file = new File(this.name, fileName, true);
+    this.files.set(name, file);
+    return file;
   }
 
   component(
@@ -109,14 +97,6 @@ export abstract class Module implements ModuleInterface {
     if (!c)
       throw new Error(`Component ${name} is not registered by ${this.name}.`);
     return new c(id, this.name, name, props);
-  }
-
-  getFonts(): string[] {
-    return [...this.fonts.keys()];
-  }
-
-  font(name: string): FontBase {
-    return this.fonts.get(name);
   }
 
   abstract init(): Promise<void> | void;
@@ -161,16 +141,16 @@ export async function component(
 }
 
 /**
- * Returns a font from the given module.
+ * Returns a module asset file.
  *
  * @param {string} moduleName Module which owns the font.
- * @param {string} fontName Name of the font.
- * @returns {Promise<FontBase>}
+ * @param {string} fileName Name of the file.
+ * @returns {Promise<File>}
  */
-export async function font(
+export async function file(
   moduleName: string,
-  fontName: string
-): Promise<FontBase> {
+  fileName: string
+): Promise<File> {
   const m = await loadModule(moduleName);
-  return m.font(fontName);
+  return m.file(fileName);
 }

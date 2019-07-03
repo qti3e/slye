@@ -8,6 +8,7 @@
  *       Copyright 2019 Parsa Ghadimi. All Rights Reserved.
  */
 
+import { FileBase } from "./file";
 import { Path } from "./path";
 
 /**
@@ -21,9 +22,9 @@ export interface FontBase {
   readonly isSlyeFont: true;
 
   /**
-   * Name of the provider module.
+   * Font file.
    */
-  readonly moduleName: string;
+  readonly file: FileBase;
 
   /**
    * Name of this font.

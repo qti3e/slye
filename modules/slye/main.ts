@@ -18,7 +18,7 @@ class SlyeModule extends slye.Module {
   textButtonClickHandler = async (renderer: slye.Renderer): Promise<void> => {
     const component = await slye.component("slye", "text", {
       size: 10,
-      font: await slye.font("slye", "Homa"),
+      font: await slye.getFont("Homa"),
       text: "Write...",
       color: 0x896215
     });
@@ -57,10 +57,10 @@ class SlyeModule extends slye.Module {
   };
 
   init() {
-    this.registerFont("Homa", this.assets.load("homa.ttf"));
-    this.registerFont("Sahel", this.assets.load("sahel.ttf"));
-    this.registerFont("Shellia", this.assets.load("shellia.ttf"));
-    this.registerFont("Emoji", this.assets.load("emoji.ttf"));
+    slye.registerFont(new slye.Font("Homa", this.file("homa.ttf")));
+    slye.registerFont(new slye.Font("Sahel", this.file("sahel.ttf")));
+    slye.registerFont(new slye.Font("Shellia", this.file("shellia.ttf")));
+    slye.registerFont(new slye.Font("Emoji", this.file("emoji.ttf")));
 
     this.registerComponent("text", Text);
     slye.addStepbarButton("Text", "text_fields", this.textButtonClickHandler);

@@ -10,28 +10,17 @@
 
 import * as fontkit from "fontkit";
 import { FontBase, Glyph, PathCommandKind, PathCommand } from "../interfaces";
-
-const fonts: FontBase[] = [];
-
-export function getFonts(): FontBase[] {
-  return [...fonts];
-}
+import { File } from "../file";
 
 export class Font implements FontBase {
   readonly isSlyeFont = true;
   private font: fontkit.Font;
 
-  constructor(
-    private readonly fetch: () => Promise<ArrayBuffer>,
-    readonly moduleName: string,
-    readonly name: string
-  ) {
-    fonts.push(this);
-  }
+  constructor(readonly name: string, readonly file: File) {}
 
   private async ensure(): Promise<void> {
     if (this.font) return;
-    const data = await this.fetch();
+    const data = await this.file.load();
     const buffer = new Buffer(data); // WTF! I don't like Buffer.
     this.font = fontkit.create(buffer);
   }

@@ -23,6 +23,32 @@ export function headlessDecode(
   o: JSONPresentation,
   options: DecoderOptions<HeadlessStep, HeadlessComponent> = {}
 ): void {
+  const filesMap: Map<string, File> = new Map();
+  const fontsMap: Map<File, HeadlessFont[]> = new Map();
+
+  function getFile(uuid: string, moduleName: string): File {
+    const key = `${uuid}-${moduleName}`;
+    if (filesMap.has(key)) return filesMap.get(key);
+    const isModuleAsset = !!moduleName;
+    const owner = isModuleAsset ? moduleName : presentation.uuid;
+    const file = new File(owner, uuid, isModuleAsset);
+    filesMap.set(key, file);
+    return file;
+  }
+
+  function getFont(name: string, file: File): HeadlessFont {
+    if (!fontsMap.has(file)) fontsMap.set(file, []);
+    const fonts = fontsMap.get(file);
+    for (const font of fonts) {
+      if (font.name === name) {
+        return font;
+      }
+    }
+    const font = new HeadlessFont(name, file);
+    fontsMap.set(file, [...fonts, font]);
+    return font;
+  }
+
   for (let uuid in o.steps) {
     const jstep = o.steps[uuid];
 
@@ -40,13 +66,13 @@ export function headlessDecode(
         if (typeof jvalue === "number" || typeof jvalue === "string") {
           props[key] = jvalue;
         } else if (jvalue.kind === RefKind.FILE) {
-          const isModuleAsset = !!jvalue.moduleId;
-          const owner = isModuleAsset ? jvalue.moduleId : presentation.uuid;
-          props[key] = new File(owner, jvalue.uuid, isModuleAsset);
+          props[key] = getFile(jvalue.uuid, jvalue.moduleId);
         } else if (jvalue.kind === RefKind.FONT) {
-          props[key] = new HeadlessFont(jvalue.moduleName, jvalue.font);
+          const file = getFile(jvalue.fileUUID, jvalue.moduleId);
+          props[key] = getFont(jvalue.font, file);
         }
       }
+
       const com = new HeadlessComponent(
         jcom.uuid,
         jcom.moduleName,
