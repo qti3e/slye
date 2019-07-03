@@ -10,6 +10,7 @@
 
 import { PropValue } from "../interfaces";
 import { ThreePresentation, ThreeStep, ThreeComponent, Font } from "../three";
+import { getFont as getRegFont } from "../fonts";
 import { File } from "../file";
 import { file, component } from "../module";
 import { RefKind, JSONPresentation, DecoderOptions } from "./types";
@@ -39,6 +40,10 @@ export async function sly(
   }
 
   function getFont(name: string, file: File): Font {
+    const regFont = getRegFont(name);
+    if (regFont && regFont.file === file) {
+      return regFont as Font;
+    }
     if (!fontsMap.has(file)) fontsMap.set(file, []);
     const fonts = fontsMap.get(file);
     for (const font of fonts) {

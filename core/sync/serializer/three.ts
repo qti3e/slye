@@ -11,6 +11,7 @@
 import { ThreeStep, ThreeComponent, Font } from "../../three";
 import { File } from "../../file";
 import { file, component } from "../../module";
+import { getFont } from "../../fonts";
 import { Unserializers } from "./types";
 import { unserialize } from "./index";
 
@@ -18,6 +19,10 @@ export const unserializers: Unserializers = {
   font: {
     async unserialize(data) {
       const file = await unserialize(this, data.file);
+      const regFont = getFont(data.name);
+      if (regFont && regFont.file === file) {
+        return regFont;
+      }
       const key = `${file.owner}-${data.name}`;
       if (this.fonts.has(key)) {
         return this.fonts.get(key);
