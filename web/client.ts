@@ -41,7 +41,12 @@ export class Client implements types.Client {
                 text: "Slye",
                 size: 20,
                 color: 15409268,
-                font: { kind: 1, font: "Shellia", moduleName: "slye" }
+                font: {
+                  kind: 1,
+                  font: "Shellia",
+                  fileUUID: "shellia.ttf",
+                  moduleId: "slye"
+                }
               }
             }
           ]

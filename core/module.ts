@@ -82,9 +82,9 @@ export abstract class Module implements ModuleInterface {
   }
 
   file(fileName: string): File {
-    if (this.files.has(name)) return this.files.get(name);
+    if (this.files.has(fileName)) return this.files.get(fileName);
     const file = new File(this.name, fileName, true);
-    this.files.set(name, file);
+    this.files.set(fileName, file);
     return file;
   }
 
