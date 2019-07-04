@@ -18,6 +18,8 @@ export interface PlayerProps {
 }
 
 export class Player extends Component<PlayerProps> {
+  private fullScreen: boolean = true;
+
   componentWillReceiveProps(nextProps: PlayerProps) {
     if (nextProps.renderer !== this.props.renderer)
       throw new Error("Player: `renderer` can not be changed.");
@@ -73,6 +75,10 @@ export class Player extends Component<PlayerProps> {
         this.props.onExit();
         event.preventDefault();
         break;
+      case 122: // F11
+        this.toggleFullScreen();
+        event.preventDefault();
+        break;
     }
   };
 
@@ -89,9 +95,20 @@ export class Player extends Component<PlayerProps> {
   };
 
   handleScreenfull = () => {
-    if (Screenfull && !Screenfull.isFullscreen) {
+    if (this.fullScreen && Screenfull && !Screenfull.isFullscreen) {
       this.props.onExit();
       Screenfull.off("change", this.handleScreenfull);
+    }
+  };
+
+  toggleFullScreen = () => {
+    if (!Screenfull) return;
+    const isFullscreen = Screenfull && Screenfull.isFullscreen;
+    this.fullScreen = !this.fullScreen;
+    if (this.fullScreen) {
+      Screenfull.request(this.props.renderer.domElement);
+    } else {
+      Screenfull.exit();
     }
   };
 
