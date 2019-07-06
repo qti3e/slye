@@ -9,7 +9,7 @@ Slye is a desktop application which helps users to create 3D presentations.
 
 # Demo
 
-There is a [web demo](https://qti3e.github.io/Slye/app.html) available if you
+There is a [web demo](https://qti3e.github.io/slye/app.html) available if you
 want to try it first.
 (Not all of the functionalities are implemented in the demo.)
 
