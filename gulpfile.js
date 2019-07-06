@@ -1,4 +1,5 @@
 const gulp = require("gulp");
+const path = require("path");
 const rollup = require("./gulpfile/rollup");
 const parcel = require("./gulpfile/parcel");
 const slyeModule = require("./gulpfile/module");
@@ -51,7 +52,9 @@ gulp.task("package:win32", packager("win32", "ia32"));
 gulp.task("package:linux64", packager("linux", "x64"));
 
 // Web
-gulp.task("web", parcel("web/app.html"));
+gulp.task("website", parcel("website/index.html"));
+gulp.task("webapp", parcel("web/app.html"));
+gulp.task("web", gulp.series("website", "webapp"));
 
 // Build Targets
 gulp.task("build:electron", gulp.series("clean", "modules", "electron"));

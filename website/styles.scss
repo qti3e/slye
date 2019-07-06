@@ -1,0 +1,226 @@
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: #454545;
+}
+
+html,
+body {
+  margin: 0;
+  overflow-x: hidden;
+}
+
+* {
+  color: #efefef;
+  font-family: "Noto Serif", serif;
+}
+
+a {
+  text-decoration: none;
+}
+
+h1 {
+  font-family: "Pacifico", cursive;
+}
+
+.bg {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+}
+
+.round-btn {
+  width: 60px;
+  height: 60px;
+  border-radius: 100%;
+  background: #fff;
+  display: block;
+  color: #303030;
+  font-size: 50px;
+  line-height: 45px;
+  text-align: center;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
+}
+
+#head {
+  width: 100vw;
+  height: 100vh;
+
+  .bg {
+    background-image: linear-gradient(#12a7e0, #69f3ec96);
+    transform: skewY(-10deg);
+    transform-origin: top left;
+  }
+
+  .container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-top: 50px;
+
+    h1 {
+      font-size: 100px;
+      margin: 0;
+      text-align: center;
+    }
+
+    p {
+      font-size: 25px;
+      text-align: center;
+    }
+  }
+
+  a {
+    position: absolute;
+    left: calc(50% - 30px);
+    bottom: 60px;
+  }
+}
+
+#features {
+  width: 100vw;
+  height: 100vh;
+
+  .bg {
+    top: 100vh;
+    background: #303030;
+    transform: skewY(-10deg);
+    transform-origin: top left;
+  }
+
+  .features-container {
+    display: flex;
+    justify-content: center;
+  }
+
+  .features-box {
+    margin: 40px;
+
+    h2 {
+      text-align: center;
+    }
+  }
+
+  a {
+    width: 100px;
+    position: relative;
+    left: calc(50% - 50px);
+    padding: 10px;
+    border-radius: 10px;
+    color: #ffffff;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
+    background: #545454;
+    text-transform: uppercase;
+  }
+}
+
+#download {
+  width: 100vw;
+  height: 100vh;
+
+  .bg {
+    top: 200vh;
+    background: #303030;
+    transform: skewY(10deg);
+    transform-origin: top left;
+  }
+
+  p {
+    font-size: 20px;
+    margin-left: 45px;
+  }
+
+  .container {
+    display: flex;
+    justify-content: center;
+    margin-top: 150px;
+  }
+
+  .box {
+    margin: 40px;
+
+    h2 {
+      text-align: center;
+    }
+
+    &.fade {
+      opacity: 0.4;
+    }
+  }
+}
+
+#features,
+#download {
+  h1 {
+    font-size: 35px;
+    display: inline-block;
+    margin: 30px;
+    border-bottom: 6px dotted #efdf29;
+  }
+}
+
+.pattern {
+  width: 100vw;
+  height: 72vh;
+  position: absolute;
+  z-index: -2;
+
+  &.i1 {
+    top: 164vh;
+    background-image: url("assets/bg.png");
+  }
+
+  &.i2 {
+    top: 264vh;
+    background-image: url("assets/bg2.png");
+  }
+}
+
+.icon {
+  width: 200px;
+  height: 200px;
+  background-size: contain;
+  justify-content: center;
+  margin: auto;
+
+  &.three-d {
+    background-image: url("assets/3d.png");
+  }
+
+  &.open-source {
+    background-image: url("assets/open-source.png");
+  }
+
+  &.module {
+    background-image: url("assets/modules.png");
+  }
+
+  &.linux {
+    background-image: url("assets/linux.png");
+  }
+
+  &.windows {
+    background-image: url("assets/windows.png");
+  }
+
+  &.chrome {
+    background-image: url("assets/chrome.png");
+  }
+
+  &.apple {
+    background-image: url("assets/apple.png");
+  }
+
+  &.github {
+    background-image: url("assets/github.png");
+  }
+}
